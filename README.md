@@ -2,7 +2,7 @@
 
 Plataforma de dados construída sobre os **dados abertos da Universidade de Brasília** ([dados.unb.br](https://dados.unb.br)) — estoque do almoxarifado, unidades acadêmicas, gastos por unidade, empenhos e requisições de serviços — como Projeto Integrado da disciplina.
 
-> **Pergunta de gestão:** entre 2021 e 2025, quais materiais de consumo do almoxarifado da UnB tiveram o preço unitário registrado subindo mais rápido, e quais fornecedores concentraram os empenhos desses materiais?
+> **Pergunta de gestão:** _Quais materiais do almoxarifado da UnB tiveram o preço unitário registrado acima do preço de mercado em lojas online entre 2026 e 2027, em quais almoxarifados, e quanto a UnB gastaria a menos se tivesse pago o preço de mercado?._
 
 Tudo roda localmente em Docker Compose, sem instalar Postgres nem Python na máquina.
 
