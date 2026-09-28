@@ -7,5 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# O script grava em ../dados, que aqui é /app/dados (montado pelo compose).
-CMD ["python", "buscar-dados-de-almoxarifado.py"]
+# Baixa os dados abertos para /app/dados/bruto (montado pelo compose) e depois
+# carrega no banco. Se o download falhar, a carga não roda.
+CMD ["sh", "-c", "python baixar_dados.py && python carregar.py"]

@@ -27,6 +27,16 @@ tradução. Registre o que produziu artefato ou mudou uma decisão.
 - **Como foi verificado:** [Testamos nas nossas máquinas para ver se as instruções funcionavam]
 - **Quem revisou:** [Samara Letícia]
 
+### 2026-09-28 — levantamento do que faltava para a E1
+
+- **Ferramenta:** Claude (opus 5.5), em modo agente com acesso de leitura à pasta do repositório
+- **Onde:** nenhum arquivo; resultado usado para planejar a E1
+- **O que foi pedido:** comparar o repositório com o enunciado da E1 e listar o que faltava.
+- **O que foi aproveitado:** a lista de pendências (migrações, carga no banco, falha silenciosa no download, pergunta de gestão, ADR, diário).
+- **Como foi verificado:** conferimos item a item com a página da E1.
+- **Quem revisou:** Samara Letícia
+
+
 ### AAAA-MM-DD — [o que estava sendo feito]
 
 - **Ferramenta:**

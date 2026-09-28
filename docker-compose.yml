@@ -6,7 +6,7 @@
 # Ordem de execução (garantida pelos depends_on):
 #   1. db       — PostgreSQL, o sistema transacional (OLTP)
 #   2. migrate  — Flyway aplica db/migrations/V*.sql em ordem, a partir do banco vazio
-#   3. ingest   — baixa os dados abertos da UnB e carrega no banco
+#   3. ingest   — baixa os dados abertos da UnB (dados/bruto) e carrega no banco
 #
 # Todas as variáveis têm valor padrão, então nenhum .env é obrigatório.
 # Para trocar senha ou porta, copie .env.example para .env e edite.
@@ -62,7 +62,7 @@ services:
       PGUSER: ${POSTGRES_USER:-sigma}
       PGPASSWORD: ${POSTGRES_PASSWORD:-sigma}
     volumes:
-      # Os JSON baixados ficam em ./dados no host (ignorado pelo git).
+      # Os arquivos baixados ficam em ./dados no host (ignorado pelo git).
       - ./dados:/app/dados
 
 volumes:
