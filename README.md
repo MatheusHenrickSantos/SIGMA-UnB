@@ -2,7 +2,7 @@
 
 Plataforma de dados construída sobre os **dados abertos do almoxarifado da Universidade de Brasília** ([dados.unb.br](https://dados.unb.br)), como Projeto Integrado da disciplina.
 
-> **Pergunta de gestão:** _a definir pela Squad — uma frase com sujeito e recorte._
+> **Pergunta de gestão:** _Quais materiais do almoxarifado da UnB tiveram o preço unitário registrado acima do preço de mercado em lojas online entre 2026 e 2027, em quais almoxarifados, e quanto a UnB gastaria a menos se tivesse pago o preço de mercado?._
 
 Tudo roda localmente em Docker Compose, sem instalar Postgres nem Python na máquina.
 
