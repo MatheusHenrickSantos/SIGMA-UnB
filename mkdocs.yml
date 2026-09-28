@@ -55,8 +55,12 @@ theme:
 
 nav:
   - Início: index.md
-  - Diário de Bordo: diario-de-bordo.md
-  - Modelo de ADR: adr-template.md
+  - ADRs:
+      - "0001 — Modelagem da origem": adr/0001-modelagem-da-origem.md
+      - Modelo de ADR: adr-template.md
+  - Diário de Bordo:
+      - "Semana 08": diario/2026-09-28-semana-08.md
+      - Modelo: diario-de-bordo.md
   - Uso de IA: ai-usage.md
 
 markdown_extensions:

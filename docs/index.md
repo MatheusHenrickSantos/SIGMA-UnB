@@ -7,7 +7,7 @@ O SIGMA-UnB mostra os materiais disponíveis no almoxarifado da Universidade de 
 Ele foi feito para evitar compras acima do preço de mercado e facilitar o acompanhamento da disponibilidade e do custo dos materiais.
 
 !!! question "Pergunta de gestão"
-    _A definir pela Squad: uma frase com sujeito e recorte._
+    Entre 2021 e 2025, quais materiais de consumo do almoxarifado da UnB tiveram o preço unitário registrado subindo mais rápido, e quais fornecedores concentraram os empenhos desses materiais?
 
 ---
 
@@ -32,7 +32,7 @@ Todos os dados vêm do portal de dados abertos da UnB, o [dados.unb.br](https://
 
 ## Arquitetura em uma linha
 
-**Portal da UnB** → camada bruta (JSON/CSV originais) → **banco transacional PostgreSQL** → camada analítica em **Parquet** (lida com DuckDB) → painéis e relatórios.
+**Portal da UnB** → camada bruta (`dados/bruto/`, arquivos originais + manifesto) → **banco transacional PostgreSQL** (esquema versionado com Flyway) → camada analítica em **Parquet** (lida com DuckDB, E2/E3) → painéis e relatórios (E4).
 
 Tudo sobe com um único `docker compose up --build`. O passo a passo está no [README do repositório](https://github.com/samarawwleticia/SIGMA-UnB#readme).
 

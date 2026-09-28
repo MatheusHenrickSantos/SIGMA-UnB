@@ -5,8 +5,9 @@ import unicodedata
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
-PASTA_ENTRADA = Path("../dados/almoxarifado")
-PASTA_SAIDA = Path("../dados/processados")
+RAIZ_PROJETO = Path(__file__).resolve().parent.parent
+PASTA_ENTRADA = RAIZ_PROJETO / "dados" / "bruto" / "estoque"
+PASTA_SAIDA = RAIZ_PROJETO / "dados" / "processados"
 ARQUIVO_SAIDA = PASTA_SAIDA / "almoxarifado_normalizado.json"
 
 
@@ -18,6 +19,16 @@ def remover_acentos(texto):
         for caractere in texto_normalizado
         if not unicodedata.combining(caractere)
     )
+
+
+def limpar_texto(valor):
+    """
+    Desfaz entidades HTML (&amp; -> &), junta espaços repetidos e tira os
+    espaços das pontas. Mantém maiúsculas e acentos como vieram.
+    """
+    texto = html.unescape(str(valor))
+    texto = re.sub(r"\s+", " ", texto)
+    return texto.strip()
 
 
 def gerar_termo_busca(material):
@@ -125,8 +136,8 @@ def obter_registros(conteudo):
 
 
 def normalizar_registro(registro, arquivo_origem, mes, ano):
-    material = html.unescape(str(registro.get("material", ""))).strip()
-    almoxarifado = html.unescape(str(registro.get("almoxarifado", ""))).strip()
+    material = limpar_texto(registro.get("material", ""))
+    almoxarifado = limpar_texto(registro.get("almoxarifado", ""))
 
     quantidade = converter_decimal(registro.get("saldo"))
     preco_unitario = converter_decimal(registro.get("preco"))
