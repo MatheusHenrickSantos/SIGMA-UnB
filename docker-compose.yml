@@ -1,0 +1,69 @@
+# SIGMA-UnB — plataforma de dados do almoxarifado da UnB
+#
+# Sobe tudo do zero com:
+#     docker compose up --build
+#
+# Ordem de execução (garantida pelos depends_on):
+#   1. db       — PostgreSQL, o sistema transacional (OLTP)
+#   2. migrate  — Flyway aplica db/migrations/V*.sql em ordem, a partir do banco vazio
+#   3. ingest   — baixa os dados abertos da UnB e carrega no banco
+#
+# Todas as variáveis têm valor padrão, então nenhum .env é obrigatório.
+# Para trocar senha ou porta, copie .env.example para .env e edite.
+
+name: sigma-unb
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sigma}
+      POSTGRES_USER: ${POSTGRES_USER:-sigma}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sigma}
+      TZ: America/Sao_Paulo
+      PGTZ: America/Sao_Paulo
+    ports:
+      # Porta do host configurável: útil se já houver um Postgres local na 5432.
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate:
+    image: flyway/flyway:10
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./db/migrations:/flyway/sql:ro
+    command:
+      - -url=jdbc:postgresql://db:5432/${POSTGRES_DB:-sigma}
+      - -user=${POSTGRES_USER:-sigma}
+      - -password=${POSTGRES_PASSWORD:-sigma}
+      - -locations=filesystem:/flyway/sql
+      - -connectRetries=10
+      - migrate
+
+  ingest:
+    build:
+      context: ./codigos
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DB:-sigma}
+      PGUSER: ${POSTGRES_USER:-sigma}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-sigma}
+    volumes:
+      # Os JSON baixados ficam em ./dados no host (ignorado pelo git).
+      - ./dados:/app/dados
+
+volumes:
+  pgdata:

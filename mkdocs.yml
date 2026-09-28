@@ -1,0 +1,80 @@
+site_name: SIGMA-UnB
+site_description: >-
+  Sistema Integrado de Gestão de Materiais e Almoxarifado — plataforma de dados
+  sobre os dados abertos da UnB (estoque, gastos, empenhos e requisições) com
+  monitoramento de preços de mercado. Projeto Integrado de Sistemas de Banco de
+  Dados 2 — Turma 03 — 2026.2 (FCTE/UnB).
+site_author: >-
+  Matheus Henrick Dutra dos Santos, Israel Thalles Dutra dos Santos,
+  Samara Letícia Alves dos Santos, Magno Luiz Vale Vieira
+copyright: SIGMA-UnB · Sistemas de Banco de Dados 2 · FCTE/UnB · 2026.2
+
+repo_name: "SIGMA-UnB"
+repo_url: "https://github.com/samarawwleticia/SIGMA-UnB"
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+
+  features:
+    - navigation.top
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotate
+    - content.code.copy
+    - content.action.edit
+
+  language: pt-BR
+
+  font:
+    text: "Roboto"
+    code: "Roboto Mono"
+
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Mudar para o modo escuro
+
+    - scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Mudar para o modo claro
+
+  icon:
+    logo: material/database-outline
+    repo: fontawesome/brands/github
+
+nav:
+  - Início: index.md
+  - Diário de Bordo: diario-de-bordo.md
+  - Modelo de ADR: adr-template.md
+  - Uso de IA: ai-usage.md
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tasklist:
+      custom_checkbox: true
