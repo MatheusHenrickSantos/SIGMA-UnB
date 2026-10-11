@@ -220,9 +220,11 @@ SIGMA-UnB/
 │   └── coletar_precos_mercado_livre.py
 ├── db/
 │   └── migrations/             # V1__descricao.sql, V2__..., aplicados em ordem pelo Flyway
-├── docs/                       # site mkdocs: ADRs, diário, uso de IA
-│   ├── adr/                    # decisões de arquitetura (0001, 0002, ...)
-│   └── diario/                 # registro semanal da Squad
+├── docs/                       # site estático Docsify
+│   ├── index.html              # configuração do Docsify
+│   ├── _sidebar.md             # navegação
+│   ├── index.md                # página inicial
+│   └── ...                     # demais páginas e assets da documentação
 ├── modelagem/                  # diagrama ER, modelo relacional e fonte .drawio
 ├── AI-USAGE.md                 # aponta para docs/ai-usage.md
 └── dados/                      # criado na execução; ignorado pelo git

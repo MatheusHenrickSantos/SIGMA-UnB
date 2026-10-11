@@ -6,8 +6,11 @@ O SIGMA-UnB mostra os materiais disponíveis no almoxarifado da Universidade de 
 
 Ele foi feito para evitar compras acima do preço de mercado e facilitar o acompanhamento da disponibilidade e do custo dos materiais.
 
-!!! question "Pergunta de gestão"
-    Entre 2021 e 2025, quais materiais de consumo do almoxarifado da UnB tiveram o preço unitário registrado subindo mais rápido, e quais fornecedores concentraram os empenhos desses materiais?
+> **Pergunta de gestão**
+>
+> Entre 2021 e 2025, quais materiais de consumo do almoxarifado da UnB tiveram
+> o preço unitário registrado subindo mais rápido, e quais fornecedores
+> concentraram os empenhos desses materiais?
 
 ---
 
@@ -38,13 +41,13 @@ Tudo sobe com um único `docker compose up --build`. O passo a passo está no [R
 
 ## Modelagem
 
-=== "Diagrama entidade-relacionamento"
+### Diagrama entidade-relacionamento
 
-    ![Diagrama entidade-relacionamento](assets/Diagrama%20entidade-relacionamento.v1.0.png)
+![Diagrama entidade-relacionamento](assets/Diagrama%20entidade-relacionamento.v1.0.png)
 
-=== "Modelo relacional"
+### Modelo relacional
 
-    ![Modelo relacional](assets/Modelo%20relacional.v1.0.png)
+![Modelo relacional](assets/Modelo%20relacional.v1.0.png)
 
 ## Entregas
 

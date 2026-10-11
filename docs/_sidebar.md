@@ -1,0 +1,5 @@
+- [Início](/)
+- Documentação
+  - [Modelo de ADR](adr-template.md)
+  - [Diário de bordo](diario-de-bordo.md)
+  - [Uso de IA](ai-usage.md)

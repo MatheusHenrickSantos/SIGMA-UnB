@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SIGMA-UnB</title>
+    <link
+      id="docsify-theme"
+      rel="stylesheet"
+      href="//cdn.jsdelivr.net/npm/docsify@4.13.1/lib/themes/vue.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["$", "$"], ["\\(", "\\)"]],
+          displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        },
+        svg: {
+          fontCache: "global",
+        },
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <button
+      id="theme-toggle"
+      type="button"
+      aria-label="Ativar tema escuro"
+      title="Ativar tema escuro"
+    >
+      <svg
+        id="theme-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      ></svg>
+    </button>
+    <script>
+      window.$docsify = {
+        name: "SIGMA-UnB",
+        repo: "https://github.com/samarawwleticia/SIGMA-UnB",
+        homepage: "home.md",
+        loadSidebar: true,
+        coverpage: true,
+        subMaxLevel: 2,
+        search: {
+          placeholder: "Buscar",
+          noData: "Nenhum resultado encontrado",
+          depth: 3,
+        },
+        auto2top: true,
+        plugins: [
+          function (hook, vm) {
+            
+            hook.doneEach(function () {
+              const diagramsDetails = document.querySelectorAll('details[open]');
+              diagramsDetails.forEach(details => {
+                setTimeout(() => {
+                  if (details.open) {
+                    details.removeAttribute('open');
+                  }
+                }, 500);
+              });
+
+              
+              if (window.MathJax) {
+                MathJax.typesetPromise();
+              }
+            });
+          }
+        ],
+      };
+    </script>
+    <script src="//cdn.jsdelivr.net/npm/docsify@4.13.1/lib/docsify.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify@4.13.1/lib/plugins/search.min.js"></script>
+    <script>
+      const themeToggle = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+      const themeLink = document.getElementById("docsify-theme");
+      const darkThemeUrl =
+        "//cdn.jsdelivr.net/npm/docsify@4.13.1/lib/themes/dark.css";
+      const lightThemeUrl =
+        "//cdn.jsdelivr.net/npm/docsify@4.13.1/lib/themes/vue.css";
+
+      function applyTheme(isDark) {
+        themeLink.href = isDark ? darkThemeUrl : lightThemeUrl;
+        document.body.classList.toggle("dark-theme", isDark);
+        themeIcon.innerHTML = isDark
+          ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'
+          : '<circle cx="12" cy="12" r="5"></circle><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>';
+
+        const label = isDark ? "Ativar tema claro" : "Ativar tema escuro";
+        themeToggle.setAttribute("aria-label", label);
+        themeToggle.title = label;
+      }
+
+      applyTheme(localStorage.getItem("docsify-theme") === "dark");
+
+      themeToggle.addEventListener("click", function () {
+        const newIsDark = !document.body.classList.contains("dark-theme");
+        applyTheme(newIsDark);
+        localStorage.setItem("docsify-theme", newIsDark ? "dark" : "light");
+      });
+    </script>
+  </body>
+</html>
