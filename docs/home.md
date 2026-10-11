@@ -1,4 +1,4 @@
-# SIGMA-UnB
+# <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/icone.png" alt="icone" width="50"> Sigma-UnB 
 
 **Sistema Integrado de Gestão de Materiais e Almoxarifado**
 
