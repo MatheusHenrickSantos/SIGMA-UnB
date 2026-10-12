@@ -8,6 +8,8 @@
 #   2. migrate  — Flyway aplica db/migrations/V*.sql em ordem, a partir do banco vazio
 #   3. ingest   — baixa os dados abertos da UnB (dados/bruto) e carrega no banco
 #   (em paralelo) minio — armazenamento de objetos compatível com S3: o data lake
+#   4. extract  — E2: bruto do portal -> bronze, lote e CDC do Postgres -> Parquet,
+#                 e verificação de que tudo chegou
 #
 # Todas as variáveis têm valor padrão, então nenhum .env é obrigatório.
 # Para trocar senha ou porta, copie .env.example para .env e edite.
@@ -65,6 +67,33 @@ services:
     volumes:
       # Os arquivos baixados ficam em ./dados no host (ignorado pelo git).
       - ./dados:/app/dados
+
+  extract:
+    build:
+      context: ./codigos
+    depends_on:
+      ingest:
+        condition: service_completed_successfully
+      minio:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DB:-sigma}
+      PGUSER: ${POSTGRES_USER:-sigma}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-sigma}
+      LAKE_ENDPOINT: minio:9000
+      LAKE_USER: ${MINIO_USER:-sigma}
+      LAKE_PASSWORD: ${MINIO_PASSWORD:-sigma12345}
+    volumes:
+      - ./dados:/app/dados
+    # Os dois caminhos da E2, nesta ordem. Para rodar só um:
+    #   docker compose run --rm extract python capturar_mudancas.py
+    command: >
+      sh -c "python enviar_bruto.py
+             && python extrair_lote.py
+             && python capturar_mudancas.py
+             && python verificar_e2.py"
 
   minio:
     # Armazenamento analítico em formato aberto (Parquet), compatível com S3.
