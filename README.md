@@ -274,6 +274,7 @@ SIIGMA-UnB/
 │   ├── _sidebar.md             # navegação
 │   ├── home.md                 # página inicial
 │   ├── adr/                    # decisões de arquitetura (adr-1.md, adr-2.md, ...)
+│   ├── dicionarios/            # dicionários de dados dos 5 datasets do portal
 │   ├── modelagem/              # diagrama ER, modelo relacional e fonte .drawio
 │   └── ...                     # demais páginas e assets da documentação
 ├── AI-USAGE.md                 # aponta para docs/ai-usage.md
