@@ -60,8 +60,8 @@ Use o **PowerShell**.
 2. **Clone o repositório e entre na pasta:**
 
    ```powershell
-   git clone https://github.com/samarawwleticia/SIGMA-UnB.git
-   cd SIGMA-UnB
+   git clone https://github.com/samarawwleticia/SIIGMA-UnB.git
+   cd SIIGMA-UnB
    ```
 
 3. **(Opcional) Crie o `.env`** — só se quiser trocar senha ou porta (veja [Configuração](#configuração)):
@@ -97,8 +97,8 @@ Use o **PowerShell**.
 2. **Clone o repositório e entre na pasta:**
 
    ```bash
-   git clone https://github.com/samarawwleticia/SIGMA-UnB.git
-   cd SIGMA-UnB
+   git clone https://github.com/samarawwleticia/SIIGMA-UnB.git
+   cd SIIGMA-UnB
    ```
 
 3. **(Opcional) Crie o `.env`:**
@@ -206,7 +206,7 @@ O `.env` está no `.gitignore` e não deve ser versionado.
 ## Estrutura do repositório
 
 ```
-SIGMA-UnB/
+SIIGMA-UnB/
 ├── docker-compose.yml          # sobe db, migrate e ingest
 ├── .env.example                # modelo de configuração
 ├── codigos/

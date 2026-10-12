@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/icone.png" alt="logo" width="200" />
+  <img src="assets/icone.png" alt="logo" width="200" />
 </p>
 
 
@@ -7,5 +7,5 @@
 
 > Sistema Integrado de Gestão de Materiais e Almoxarifado da UnB
 
-[GitHub](https://github.com/MatheusHenrickSantos/SIGMA-UnB)
+[GitHub](https://github.com/samarawwleticia/SIIGMA-UnB)
 [Acesse a documentação](#-sigma-unb)
