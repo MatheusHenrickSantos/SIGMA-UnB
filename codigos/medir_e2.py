@@ -10,7 +10,7 @@ Medições dos ADRs da E2, com os dados do próprio projeto.
                            captura incremental a partir da marca atual.
 
 Rode depois de o compose ter subido tudo (o lote e o CDC já precisam existir):
-    docker compose run --rm extract python medir_e2.py
+    docker compose run --rm --no-deps extract python medir_e2.py
 
 A saída é Markdown, pronta para colar na seção Medição de cada ADR.
 Cada tempo é a mediana de REPETICOES execuções.

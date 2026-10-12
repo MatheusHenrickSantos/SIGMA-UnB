@@ -57,7 +57,7 @@ de um clone limpo. O Git LFS tem cota baixa no plano gratuito do GitHub.
 Medido com os dados reais do portal, depois de `docker compose up --build`:
 
 ```
-docker compose run --rm extract python medir_e2.py
+docker compose run --rm --no-deps extract python medir_e2.py
 ```
 
 | Alternativa | Onde o original fica | Volume guardado | Reprocessar sem o portal |

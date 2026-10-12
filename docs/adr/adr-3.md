@@ -56,7 +56,7 @@ bronze é só acréscimo, com um escritor por vez.
 Medido com os dados reais do portal, depois de `docker compose up --build`:
 
 ```
-docker compose run --rm extract python medir_e2.py
+docker compose run --rm --no-deps extract python medir_e2.py
 ```
 
 Tamanho em disco (seção "ADR 3" da saída):

@@ -88,7 +88,7 @@ services:
     volumes:
       - ./dados:/app/dados
     # Os dois caminhos da E2, nesta ordem. Para rodar só um:
-    #   docker compose run --rm extract python capturar_mudancas.py
+    #   docker compose run --rm --no-deps extract python capturar_mudancas.py
     command:
       - sh
       - -c
