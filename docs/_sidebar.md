@@ -6,6 +6,7 @@
 - Registro de Decisão Arquitetural (ADR)
   - [ADR 1](adr/adr-1.md)
 - Modelagem
+  - [Diagrama de Arquitetura](modelagem/diagrama-de-arquitetura.md)
   - [Dicionário de Dados](modelagem/dicionario-de-dados.md)
   - [Diagrama entidade-relacionamento](modelagem/diagrama-entidade-relacionamento.md)
   - [Modelo relacional](modelagem/modelo-relacional.md)
