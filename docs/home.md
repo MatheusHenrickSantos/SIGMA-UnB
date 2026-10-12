@@ -35,7 +35,7 @@ Todos os dados vêm do portal de dados abertos da UnB, o [dados.unb.br](https://
 
 ## Arquitetura em uma linha
 
-**Portal da UnB** → camada bruta (`dados/bruto/`, arquivos originais + manifesto) → **banco transacional PostgreSQL** (esquema versionado com Flyway) → camada analítica em **Parquet** (lida com DuckDB, E2/E3) → painéis e relatórios (E4).
+**Portal da UnB** → camada bruta (`dados/bruto/`, arquivos originais + manifesto) → **banco transacional PostgreSQL** (esquema versionado com Flyway) → **bronze no MinIO em Parquet**, por dois caminhos: foto em lote e captura de mudanças (E2) → camadas prata e ouro transformadas e testadas (E3) → painéis e relatórios (E4).
 
 Tudo sobe com um único `docker compose up --build`. O passo a passo está no [README do repositório](https://github.com/samarawwleticia/SIIGMA-UnB#readme).
 
