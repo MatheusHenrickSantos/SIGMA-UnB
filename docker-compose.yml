@@ -89,11 +89,14 @@ services:
       - ./dados:/app/dados
     # Os dois caminhos da E2, nesta ordem. Para rodar só um:
     #   docker compose run --rm extract python capturar_mudancas.py
-    command: >
-      sh -c "python enviar_bruto.py
-             && python extrair_lote.py
-             && python capturar_mudancas.py
-             && python verificar_e2.py"
+    command:
+      - sh
+      - -c
+      - >-
+        python enviar_bruto.py &&
+        python extrair_lote.py &&
+        python capturar_mudancas.py &&
+        python verificar_e2.py
 
   minio:
     # Armazenamento analítico em formato aberto (Parquet), compatível com S3.
