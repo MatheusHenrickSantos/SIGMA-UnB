@@ -37,6 +37,15 @@ tradução. Registre o que produziu artefato ou mudou uma decisão.
 - **Quem revisou:** Samara Letícia
 
 
+### 2026-10-12 — implementação da E2 (ingestão em lote e captura de mudanças)
+
+- **Ferramenta:** Claude (opus 5.5), em modo agente, com o repositório clonado num ambiente de nuvem
+- **Onde:** `docker-compose.yml`, `.env.example`, `db/migrations/V2__indices_cdc.sql`, `db/demo/mudancas_demo.sql`, `codigos/lake.py`, `codigos/enviar_bruto.py`, `codigos/extrair_lote.py`, `codigos/capturar_mudancas.py`, `codigos/verificar_e2.py`, `codigos/medir_e2.py`, `docs/adr/adr-2.md` a `adr-4.md`, README, `docs/_sidebar.md`, `docs/home.md`, links para o repositório oficial
+- **O que foi pedido:** a partir do feedback da professora (faltava ADR, faltava dizer *como*, usar ELT, repensar o armazenamento), um plano passo a passo da E2 e depois a implementação em commits pequenos.
+- **O que foi aproveitado:** o código e os rascunhos dos ADRs 2, 3 e 4. Os ADRs ficaram como *proposto*: a IA escreveu contexto, alternativas e consequências, mas as tabelas de Medição estão em branco e precisam ser preenchidas pela Squad com a saída do `medir_e2.py` sobre os dados reais. A IA não teve acesso ao portal dados.unb.br nem ao Docker Hub, então não inventou números.
+- **Como foi verificado:** pela IA, num Postgres 16 local com as migrações V1 e V2, um emulador de S3 no lugar do MinIO e dados **sintéticos** (não os do portal): lote, três rodadas de CDC (inicial, sem mudança = 0 linhas, depois do `mudancas_demo.sql` = só as 6 linhas alteradas), uma transação longa aberta durante a captura (nenhuma linha perdida) e o `verificar_e2.py` acusando divergência quando o CDC não roda. **Falta a Squad verificar:** `git clone` numa pasta nova, `docker compose up --build` com os dados reais, a imagem do MinIO baixando, e preencher a Medição dos ADRs.
+- **Quem revisou:** _preencher_
+
 ### AAAA-MM-DD — [o que estava sendo feito]
 
 - **Ferramenta:**
