@@ -1,4 +1,4 @@
-# Semana 06 — Definir Arquitetura de Dados
+# Semana 06 — Organização para Entrega E2
 
 **Período:** 04/10/2026 a 10/10/2026
 **Entrega relacionada:** E2

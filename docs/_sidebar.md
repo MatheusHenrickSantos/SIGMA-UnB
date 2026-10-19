@@ -7,6 +7,7 @@
 - Documentação
   - [Modelo de ADR](adr-template.md)
   - [Diário de bordo](diario/README.md)
+  - [Backlog do produto](backlog.md)
   - [Uso de IA](ai-usage.md)
 - Registro de Decisão Arquitetural (ADR)
   - [ADR 1](adr/adr-1.md)
