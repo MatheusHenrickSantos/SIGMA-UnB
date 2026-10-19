@@ -1,4 +1,4 @@
-# AI-USAGE.md — Squad [nome]
+# AI-USAGE.md — Squad [13]
 
 Registro de uso de assistentes e agentes de IA no Projeto Integrado.
 
@@ -37,13 +37,13 @@ tradução. Registre o que produziu artefato ou mudou uma decisão.
 - **Quem revisou:** Samara Letícia
 
 
-### 2026-10-19 — backlog da E2
+### 2026-10-19 — backlog do produto
 
 - **Ferramenta:** Claude (sonnet 5.5), em modo agente com acesso ao repositório
 - **Onde:** docs/backlog.md e docs/_sidebar.md
-- **O que foi pedido:** comparar o repositório com o enunciado da E2 (o que já existe e o que falta) e escrever o backlog com o corte do MVP.
-- **O que foi aproveitado:** o backlog e a entrada na sidebar. As escolhas do MVP (Iceberg, Debezium, Redpanda, DuckDB) são sugestões da ferramenta e seguem sujeitas à decisão da Squad no ADR 2.
-- **Como foi verificado:** o backlog foi comparado item a item com o checklist de aceite da E2.
+- **O que foi pedido:** escrever o backlog do produto (requisitos do que esperamos ter construído no fim da disciplina), a partir da pergunta de gestão, das fontes de dados, do que o repositório já tem e dos enunciados da E2, E3 e E4. Uma primeira versão tratava só do aceite da E2 e foi descartada.
+- **O que foi aproveitado:** a estrutura (histórias, requisitos de dados e não funcionais, fora do escopo) e a situação de cada item. As prioridades e a divisão em requisitos são sugestões da ferramenta, a revisar pela Squad.
+- **Como foi verificado:** a situação de cada item foi conferida contra o repositório e o banco; as etapas E2, E3 e E4 foram conferidas com os enunciados colados pela Squad; a pergunta de gestão e o tema do quinto ADR ainda precisam ser definidos.
 - **Quem revisou:** Magno
 
 ### AAAA-MM-DD — [o que estava sendo feito]
