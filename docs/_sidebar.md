@@ -1,12 +1,24 @@
 - [Início](/)
+- Projeto
+  - [Domínio e pergunta de gestão](dominio-e-pergunta.md)
+  - [Fontes e histórico da origem](fontes-e-historico-da-origem.md)
+  - [Como executar](como-executar.md)
+  - [Glossário](glossario.md)
 - Documentação
   - [Modelo de ADR](adr-template.md)
-  - [Diário de bordo](diario-de-bordo.md)
+  - [Diário de bordo](diario/README.md)
   - [Uso de IA](ai-usage.md)
 - Registro de Decisão Arquitetural (ADR)
   - [ADR 1](adr/adr-1.md)
+  - [ADR 2 — Ingestão e formato aberto](adr/0002-mecanismo-de-ingestao-e-formato-aberto.md)
 - Modelagem
   - [Diagrama de Arquitetura](modelagem/diagrama-de-arquitetura.md)
   - [Dicionário de Dados](modelagem/dicionario-de-dados.md)
   - [Diagrama entidade-relacionamento](modelagem/diagrama-entidade-relacionamento.md)
   - [Modelo relacional](modelagem/modelo-relacional.md)
+- Dados e pipeline
+  - [Caracterização da carga](caracterizacao-da-carga.md)
+  - [Pipeline e camadas](arquitetura-em-camadas.md)
+  - [Consultas](consultas.md)
+  - [Testes e validação](testes.md)
+- [Notas de versão](https://github.com/MatheusHenrickSantos/SIGMA-UnB/blob/main/RELEASE_NOTES.md)
