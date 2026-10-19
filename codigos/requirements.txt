@@ -1,2 +1,4 @@
 requests==2.32.3
 psycopg[binary]==3.2.3
+deltalake==1.1.4
+pyarrow==17.0.0
