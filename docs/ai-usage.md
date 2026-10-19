@@ -53,7 +53,7 @@ tradução. Registre o que produziu artefato ou mudou uma decisão.
 - **O que foi pedido:** descobrir por que 30 meses de estoque eram rejeitados e corrigir; alinhar a pergunta de gestão do README à da página inicial.
 - **O que foi aproveitado:** o diagnóstico do mecanismo (a trava comparava com o último mês carregado e rejeitava os 30 meses seguintes em cadeia, a partir de uma queda de ~1.800 para ~830 linhas em 11/2022) e a correção com a lista `QUEDAS_ACEITAS`. O texto do README.
 - **Como foi verificado:** rodamos a carga antes e depois: 30 arquivos com erro caíram para zero e `estoque_saldo` passou de 18.848 para 41.116 linhas. Investigamos a queda de 11/2022 nos dados: as 4 versões do mês publicadas no mesmo dia têm 830 linhas (não é arquivo truncado); a queda se concentra no almoxarifado PRC (1.660 para 695, enquanto o Central quase não muda); os 990 itens que sumiram tinham saldo positivo (cerca de R$ 1,05 milhão), então não é remoção de itens zerados. **A causa continua sem confirmação** (mudança de escopo do portal ou perda na origem) e depende de resposta do portal dados.unb.br; até lá, a análise de preço deve tratar a série do PRC com cautela.
-- **Quem revisou:** Magno pediu e acompanhou; revisão do código a confirmar pela Squad
+- **Quem revisou:** Magno
 
 ### 2026-10-19 — captura de mudanças do OLTP (RD-05)
 
@@ -62,7 +62,7 @@ tradução. Registre o que produziu artefato ou mudou uma decisão.
 - **O que foi pedido:** implementar CDC por decodificação lógica do Postgres, com consumidor e script que altera linhas e mostra o efeito. A escolha por pgoutput com consumidor em Python, em vez de Debezium + Kafka, foi discutida e decidida pela Squad, pelo prazo.
 - **O que foi aproveitado:** o desenho inteiro: publicação com REPLICA IDENTITY FULL, leitura por *peek* e avanço do slot só depois de gravar o lote, e a demonstração.
 - **Como foi verificado:** rodamos `cdc_demo.py` contra o banco real: insert, update (com antes e depois), delete e releitura sem eventos duplicados. A queda do processo entre gravar o lote e avançar o slot foi simulada em `testar_queda_cdc.py`: o reinício regravou o mesmo arquivo, o slot avançou e o lake ficou com uma linha só.
-- **Quem revisou:** Magno pediu e acompanhou; revisão do código a confirmar pela Squad
+- **Quem revisou:** Magno
 
 ### 2026-10-19 — camada analítica em Delta Lake e ADR 2 (RD-04, RD-06 a RD-10)
 
@@ -71,7 +71,7 @@ tradução. Registre o que produziu artefato ou mudou uma decisão.
 - **O que foi pedido:** criar a camada em formato aberto, com carga idempotente, tratamento de dado atrasado e a justificativa de formato, compressão e partição.
 - **O que foi aproveitado:** o código e a estrutura do ADR. A escolha de Delta em vez de Iceberg foi sugerida pela ferramenta e aceita pela Squad. Os gatilhos de revisão do ADR (5 milhões de linhas, 2 s) são propostas a revisar.
 - **Como foi verificado:** `demo_lake.py` passou nos cinco cenários (evento novo, reprocessamento, evento atrasado, insert antigo após delete, janela reprocessada duas vezes). Os números do ADR vêm de `medir_adr0002.py` sobre o estoque real. A leitura por outro motor foi testada com DuckDB (extensão `delta`): as 41.116 linhas do estoque e os 2.382 materiais batem com o Postgres. Spark e Trino não foram testados.
-- **Quem revisou:** Magno pediu e acompanhou; revisão do código a confirmar pela Squad
+- **Quem revisou:** Magno
 
 ### 2026-10-19 — coleta semanal de preços (RF-11, RF-12)
 
@@ -80,7 +80,7 @@ tradução. Registre o que produziu artefato ou mudou uma decisão.
 - **O que foi pedido:** ligar o coletor ao banco, deduplicar por semana, filtrar anúncios de outro produto e agendar a execução.
 - **O que foi aproveitado:** a gravação em `cotacao_online`, o filtro de relevância do título (mínimo de 60% das palavras do termo, número arbitrário a validar) e o serviço semanal do compose.
 - **Como foi verificado:** só com resposta simulada da API: o filtro descartou o anúncio errado e a segunda rodada não duplicou. **A coleta real não foi testada**: a API respondeu com erro sem o token do Mercado Livre.
-- **Quem revisou:** Magno pediu e acompanhou; revisão do código a confirmar pela Squad
+- **Quem revisou:** Magno
 
 ### AAAA-MM-DD — [o que estava sendo feito]
 
