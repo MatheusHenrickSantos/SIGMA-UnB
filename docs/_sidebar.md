@@ -6,6 +6,7 @@
   - [Uso de IA](ai-usage.md)
 - Registro de Decisão Arquitetural (ADR)
   - [ADR 1](adr/adr-1.md)
+  - [ADR 2](adr/adr-2.md)
 - Modelagem
   - [Diagrama de Arquitetura](modelagem/diagrama-de-arquitetura.md)
   - [Dicionário de Dados](modelagem/dicionario-de-dados.md)
