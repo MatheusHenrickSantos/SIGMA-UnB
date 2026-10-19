@@ -83,7 +83,7 @@ Cada item é uma história: **como** [usuário], **quero** [capacidade], **para*
 |---|---|---|---|---|
 | RD-01 | Ingerir os cinco datasets do portal dados.unb.br de forma automatizada, com manifesto (url, data, sha256). | Must | E1 | ✅ |
 | RD-02 | Carregar os dados em um banco transacional PostgreSQL com esquema versionado (Flyway), integridade referencial e registro de rejeitados. | Must | E1 | ✅ |
-| RD-03 | A carga completa deve funcionar: todos os meses de estoque carregados (hoje 30 meses são rejeitados pela trava de queda de 30%). | Must | E2 | ✅ queda de 11/2022 registrada em `QUEDAS_ACEITAS` |
+| RD-03 | A carga completa deve funcionar: todos os meses de estoque carregados (hoje 30 meses são rejeitados pela trava de queda de 30%). | Must | E2 | ✅ queda de 11/2022 aceita em `QUEDAS_ACEITAS`; causa a confirmar com o portal (ver `docs/ai-usage.md`) |
 | RD-04 | Ingestão em lote idempotente e reexecutável, sem duplicar linhas. | Must | E2 | ✅ MERGE por chave no OLTP e no lake (`lake.py`) |
 | RD-05 | Captura de mudanças do OLTP (CDC por decodificação lógica ou fluxo equivalente), entregue a jusante, com script que altera linhas e mostra o efeito. | Must | E2 | ✅ `cdc_consumidor.py` + `cdc_demo.py` (pgoutput, entrega ao menos uma vez) |
 | RD-06 | Camada analítica em formato aberto: Parquet, com tabela Iceberg ou Delta por cima. | Must | E2 | ✅ Delta Lake sobre Parquet em `dados/lake/` |

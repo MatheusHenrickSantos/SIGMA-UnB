@@ -97,8 +97,8 @@ Escolhemos **Delta Lake sobre Parquet com compressão ZSTD (nível 3)**, com
 `ultimo_evento` tornam reprocessar seguro); histórico de versões para auditoria;
 sem servidor nem catálogo para operar.
 
-**O que perdemos:** só o `deltalake`/Python escreve com garantia; ler de Spark ou
-Trino funciona, mas não testamos. O runtime nativo do `deltalake` às vezes aborta
+**O que perdemos:** só o `deltalake`/Python escreve com garantia; a leitura por DuckDB foi testada
+(contagens idênticas ao Postgres); Spark e Trino não. O runtime nativo do `deltalake` às vezes aborta
 ao encerrar o interpretador, e contornamos com saída direta (`os._exit`) nos
 scripts. A tabela precisa de `lake.py compactar` periodicamente, para juntar
 arquivos pequenos criados por `MERGE`; quem paga é quem opera a carga.

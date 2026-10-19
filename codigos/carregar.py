@@ -35,12 +35,17 @@ PASTA_BRUTO = RAIZ_PROJETO / "dados" / "bruto"
 QUEDA_MAXIMA = 0.30
 
 # Quedas já investigadas e aceitas: (dataset, mês) -> motivo. Em 11/2022 o
-# portal passou de ~1.800 para ~830 linhas e manteve esse patamar (com
-# redução gradual) até 12/2025: é mudança de escopo da publicação, não
-# arquivo incompleto. Sem a exceção, a trava compara todo mês seguinte com
-# o último mês carregado (07/2022) e rejeita 30 meses em cadeia.
+# estoque publicado caiu de 1.800 para 830 linhas e ficou nesse patamar até
+# 12/2025. Os dados mostram que: (1) as 4 versões publicadas no mesmo dia têm
+# 830 linhas, então não é arquivo truncado; (2) a queda se concentra no
+# almoxarifado PRC (1.660 -> 695; o Central quase não muda); (3) os 990 itens
+# que sumiram tinham saldo positivo (cerca de R$ 1,05 milhão), então não é
+# remoção de saldo zero. A CAUSA (mudança de escopo do portal ou perda na
+# origem) NÃO está confirmada e depende de resposta do portal dados.unb.br.
+# Sem a exceção, a trava compara todo mês seguinte com o último mês carregado
+# (07/2022) e rejeita 30 meses em cadeia.
 QUEDAS_ACEITAS = {
-    ("estoque", date(2022, 11, 1)): "mudança de escopo da publicação no portal",
+    ("estoque", date(2022, 11, 1)): "queda persistente no PRC, causa a confirmar com o portal",
 }
 
 
