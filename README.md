@@ -2,7 +2,9 @@
 
 Plataforma de dados construída sobre os **dados abertos da Universidade de Brasília** ([dados.unb.br](https://dados.unb.br)) — estoque do almoxarifado, unidades acadêmicas, gastos por unidade, empenhos e requisições de serviços — como Projeto Integrado da disciplina.
 
-> **Pergunta de gestão:** _Quais materiais do almoxarifado da UnB tiveram o preço unitário registrado acima do preço de mercado em lojas online entre 2026 e 2027, em quais almoxarifados, e quanto a UnB gastaria a menos se tivesse pago o preço de mercado?._
+> **Pergunta de gestão:** _Entre 2021 e 2025, quais materiais de consumo do almoxarifado da UnB tiveram o preço unitário registrado subindo mais rápido, e quais fornecedores concentraram os empenhos desses materiais?_
+>
+> A comparação com o preço de mercado em lojas online é um complemento, não o núcleo da pergunta.
 
 Tudo roda localmente em Docker Compose, sem instalar Postgres nem Python na máquina.
 
@@ -180,6 +182,13 @@ Para conectar de fora (DBeaver, pgAdmin, VS Code): host `localhost`, porta `5432
 | Só carregar                                     | `docker compose run --rm ingest python carregar.py` |
 | Resumir a camada bruta (linhas, colunas)        | `docker compose run --rm ingest python inspecionar_bruto.py` |
 | Medições do ADR 0001                            | `docker compose run --rm ingest python medir_adr0001.py` |
+| Demonstrar o CDC (insert, update, delete)       | `docker compose run --rm --no-deps ingest python cdc_demo.py` |
+| Rodar o consumidor do CDC continuamente         | `docker compose --profile cdc up cdc` |
+| Carregar o lake (Delta) a partir do OLTP      | `docker compose run --rm --no-deps ingest python lake.py carga` |
+| Aplicar eventos do CDC no lake                  | `docker compose run --rm --no-deps ingest python lake.py cdc` |
+| Demonstrar idempotência e dado atrasado         | `docker compose run --rm --no-deps ingest python demo_lake.py` |
+| Versões, linhas e arquivos do lake              | `docker compose run --rm --no-deps ingest python lake.py status` |
+| Coleta semanal de preços (precisa de token)     | `docker compose --profile coleta up -d coleta` |
 | Aplicar migrações novas                         | `docker compose run --rm migrate` |
 | Parar (mantém os dados do banco)                | `docker compose down` |
 | **Apagar o banco e recomeçar do zero**          | `docker compose down -v` |

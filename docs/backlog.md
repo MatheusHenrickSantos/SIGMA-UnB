@@ -25,7 +25,7 @@ A comparação com o preço de mercado em lojas online (a pergunta que o [README
 | Etapa | Tema | Prazo | Peso | Estado |
 |---|---|---|---|---|
 | E1 | Modelagem e carga da origem (OLTP) | — | — | ✅ tag `e1` |
-| E2 | Ingestão em lote e captura de mudanças | 19/10/2026 | 12% | 🚧 |
+| E2 | Ingestão em lote e captura de mudanças | 19/10/2026 | 12% | ✅ (RF-11 depende de token) |
 | E3 | Camada analítica transformada, testada e orquestrada | 03/11/2026 | 14% | ⏳ |
 | E4 | Plataforma completa, governada e defendida | 24/11/2026 | 14% | ⏳ |
 
@@ -39,7 +39,7 @@ Cada item é uma história: **como** [usuário], **quero** [capacidade], **para*
 
 | ID | História | Prio | Etapa | Situação |
 |---|---|---|---|---|
-| RF-00 | Como equipe, quero a mesma pergunta de gestão no README e na página inicial, para que o escopo, o painel e as métricas respondam a ela. A pergunta base é a da página inicial; o README ainda traz a antiga. | Must | E2 | 🚧 |
+| RF-00 | Como equipe, quero a mesma pergunta de gestão no README e na página inicial, para que o escopo, o painel e as métricas respondam a ela. A pergunta base é a da página inicial; o README ainda traz a antiga. | Must | E2 | ✅ README alinhado à página inicial |
 | RF-01 | Como gestor, quero ver a evolução do preço unitário de cada material ao longo do tempo, para identificar os que subiram mais rápido. | Must | E3 | ⏳ |
 | RF-02 | Como gestor, quero um ranking dos materiais com maior alta de preço no período, para priorizar a revisão de compras. | Must | E3 | ⏳ |
 | RF-03 | Como gestor, quero ver quais fornecedores (credores) concentraram os empenhos de cada material, para avaliar dependência e concorrência. | Must | E3 | ⏳ |
@@ -60,8 +60,8 @@ Cada item é uma história: **como** [usuário], **quero** [capacidade], **para*
 
 | ID | História | Prio | Etapa | Situação |
 |---|---|---|---|---|
-| RF-11 | Como sistema, quero coletar toda semana o preço de cada material em lojas online, para ter uma série de preços de mercado. | Should | E2 | 🚧 script existe, sem execução agendada |
-| RF-12 | Como sistema, quero ligar cada material do almoxarifado a uma busca confiável (`termo_busca`), para que a cotação seja do produto certo. | Should | E2 | 🚧 |
+| RF-11 | Como sistema, quero coletar toda semana o preço de cada material em lojas online, para ter uma série de preços de mercado. | Should | E2 | 🚧 grava em `cotacao_online`, semanal e idempotente (serviço `coleta`); falta rodar com token do Mercado Livre |
+| RF-12 | Como sistema, quero ligar cada material do almoxarifado a uma busca confiável (`termo_busca`), para que a cotação seja do produto certo. | Should | E2 | ✅ `termo_busca` em todos os materiais e filtro de relevância do título |
 | RF-13 | Como gestor, quero que cotações atípicas (outliers, produto errado) sejam sinalizadas ou descartadas, para que a comparação de preço seja confiável. | Should | E3 | ⏳ |
 
 ### Consumo e devolução ao operacional (E4)
@@ -84,13 +84,13 @@ Cada item é uma história: **como** [usuário], **quero** [capacidade], **para*
 | RD-01 | Ingerir os cinco datasets do portal dados.unb.br de forma automatizada, com manifesto (url, data, sha256). | Must | E1 | ✅ |
 | RD-02 | Carregar os dados em um banco transacional PostgreSQL com esquema versionado (Flyway), integridade referencial e registro de rejeitados. | Must | E1 | ✅ |
 | RD-03 | A carga completa deve funcionar: todos os meses de estoque carregados (hoje 30 meses são rejeitados pela trava de queda de 30%). | Must | E2 | ✅ queda de 11/2022 registrada em `QUEDAS_ACEITAS` |
-| RD-04 | Ingestão em lote idempotente e reexecutável, sem duplicar linhas. | Must | E2 | 🚧 idempotente no OLTP; falta o destino analítico |
-| RD-05 | Captura de mudanças do OLTP (CDC por decodificação lógica ou fluxo equivalente), entregue a jusante, com script que altera linhas e mostra o efeito. | Must | E2 | ⏳ |
-| RD-06 | Camada analítica em formato aberto: Parquet, com tabela Iceberg ou Delta por cima. | Must | E2 | ⏳ |
-| RD-07 | Parquet particionado e compactado, com serialização e compressão justificadas pelo padrão de acesso. | Must | E2 | ⏳ |
-| RD-08 | Semântica de entrega declarada e demonstrada (reprocessar não muda o resultado). | Must | E2 | ⏳ |
-| RD-09 | Tratamento explícito de dado atrasado e de reprocessamento de janela. | Must | E2 | ⏳ |
-| RD-10 | Histórico de cargas: snapshots append-only do estoque, para comparar versões (ADR 1). | Should | E2 | 🚧 `estoque_saldo` é insert-only |
+| RD-04 | Ingestão em lote idempotente e reexecutável, sem duplicar linhas. | Must | E2 | ✅ MERGE por chave no OLTP e no lake (`lake.py`) |
+| RD-05 | Captura de mudanças do OLTP (CDC por decodificação lógica ou fluxo equivalente), entregue a jusante, com script que altera linhas e mostra o efeito. | Must | E2 | ✅ `cdc_consumidor.py` + `cdc_demo.py` (pgoutput, entrega ao menos uma vez) |
+| RD-06 | Camada analítica em formato aberto: Parquet, com tabela Iceberg ou Delta por cima. | Must | E2 | ✅ Delta Lake sobre Parquet em `dados/lake/` |
+| RD-07 | Parquet particionado e compactado, com serialização e compressão justificadas pelo padrão de acesso. | Must | E2 | ✅ ZSTD, partição por ano; ver [ADR 2](adr/adr-2.md) |
+| RD-08 | Semântica de entrega declarada e demonstrada (reprocessar não muda o resultado). | Must | E2 | ✅ ao menos uma vez + idempotência; `demo_lake.py` |
+| RD-09 | Tratamento explícito de dado atrasado e de reprocessamento de janela. | Must | E2 | ✅ regra `ultimo_evento`, `atrasado` e `--janela`; `demo_lake.py` |
+| RD-10 | Histórico de cargas: snapshots append-only do estoque, para comparar versões (ADR 1). | Should | E2 | ✅ `estoque_saldo` com `id_carga`; reenvio mais novo substitui |
 
 ### Modelagem, transformação e orquestração (E3)
 
