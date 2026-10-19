@@ -37,6 +37,15 @@ tradução. Registre o que produziu artefato ou mudou uma decisão.
 - **Quem revisou:** Samara Letícia
 
 
+### 2026-10-19 — backlog da E2
+
+- **Ferramenta:** Claude (sonnet 5.5), em modo agente com acesso ao repositório
+- **Onde:** docs/backlog.md e docs/_sidebar.md
+- **O que foi pedido:** comparar o repositório com o enunciado da E2 (o que já existe e o que falta) e escrever o backlog com o corte do MVP.
+- **O que foi aproveitado:** o backlog e a entrada na sidebar. As escolhas do MVP (Iceberg, Debezium, Redpanda, DuckDB) são sugestões da ferramenta e seguem sujeitas à decisão da Squad no ADR 2.
+- **Como foi verificado:** o backlog foi comparado item a item com o checklist de aceite da E2.
+- **Quem revisou:** Magno
+
 ### AAAA-MM-DD — [o que estava sendo feito]
 
 - **Ferramenta:**
