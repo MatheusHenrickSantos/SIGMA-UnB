@@ -17,6 +17,8 @@ services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
+    # wal_level=logical habilita a captura de mudanças (CDC) via slot de replicação.
+    command: ["postgres", "-c", "wal_level=logical", "-c", "max_replication_slots=4", "-c", "max_wal_senders=4"]
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-sigma}
       POSTGRES_USER: ${POSTGRES_USER:-sigma}
@@ -64,6 +66,50 @@ services:
     volumes:
       # Os arquivos baixados ficam em ./dados no host (ignorado pelo git).
       - ./dados:/app/dados
+
+  # Consumidor do CDC: lê o slot lógico e grava os eventos em dados/cdc/.
+  # Fica fora do fluxo padrão; sobe com: docker compose --profile cdc up cdc
+  cdc:
+    build:
+      context: ./codigos
+    profiles: ["cdc"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DB:-sigma}
+      PGUSER: ${POSTGRES_USER:-sigma}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-sigma}
+    volumes:
+      - ./dados:/app/dados
+    command: ["python", "cdc_consumidor.py", "--continuo"]
+
+  # Coleta semanal de preços de mercado (RF-11). Roda uma vez ao subir e depois
+  # a cada 7 dias; repetir na mesma semana não duplica cotações. Na E3 o
+  # agendamento passa para a orquestração.
+  # Sobe com: docker compose --profile coleta up -d coleta
+  # Requer MERCADO_LIVRE_ACCESS_TOKEN no .env.
+  coleta:
+    build:
+      context: ./codigos
+    profiles: ["coleta"]
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DB:-sigma}
+      PGUSER: ${POSTGRES_USER:-sigma}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-sigma}
+      MERCADO_LIVRE_ACCESS_TOKEN: ${MERCADO_LIVRE_ACCESS_TOKEN:-}
+      COLETA_LIMITE_MATERIAIS: ${COLETA_LIMITE_MATERIAIS:-50}
+    volumes:
+      - ./dados:/app/dados
+    command: ["sh", "-c", "while true; do python coletar_precos_mercado_livre.py || true; sleep 604800; done"]
 
 volumes:
   pgdata:
