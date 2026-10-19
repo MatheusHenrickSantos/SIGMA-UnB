@@ -2,20 +2,15 @@ import json
 import os
 import statistics
 import time
-from datetime import datetime, timezone
+import unicodedata
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
+import psycopg
 import requests
 
 RAIZ_PROJETO = Path(__file__).resolve().parent.parent
-
-ARQUIVO_ENTRADA = (
-    RAIZ_PROJETO
-    / "dados"
-    / "processados"
-    / "almoxarifado_normalizado.json"
-)
 
 PASTA_SAIDA = (
     RAIZ_PROJETO
@@ -35,20 +30,78 @@ MAX_RETENTATIVAS = 3
 # Filtrar apenas produtos novos nas buscas?
 APENAS_PRODUTOS_NOVOS = True
 
-LIMITE_MATERIAIS = 3
+# Quantos materiais coletar por rodada (os de maior valor em estoque primeiro).
+LIMITE_MATERIAIS = int(os.getenv("COLETA_LIMITE_MATERIAIS", "50"))
 
 
-def carregar_materiais():
-    if not ARQUIVO_ENTRADA.exists():
-        raise FileNotFoundError(f"Arquivo não encontrado: {ARQUIVO_ENTRADA}")
+def carregar_materiais(conn):
+    """
+    Materiais com saldo no último mês de estoque, dos maiores valores para os
+    menores, no formato que o coletor já usava. Só quem tem termo_busca entra.
+    """
+    linhas = conn.execute(
+        """
+        WITH ultimo AS (SELECT max(data_referencia) AS mes FROM estoque_saldo)
+        SELECT m.id_material, m.descricao, m.termo_busca, a.nome,
+               e.saldo, e.preco_unitario, e.valor_total, e.data_referencia
+        FROM estoque_saldo e
+        JOIN ultimo u ON e.data_referencia = u.mes
+        JOIN material m USING (id_material)
+        JOIN almoxarifado a USING (id_almoxarifado)
+        WHERE e.saldo > 0 AND m.termo_busca IS NOT NULL AND btrim(m.termo_busca) <> ''
+        ORDER BY e.valor_total DESC NULLS LAST, m.id_material
+        LIMIT %s
+        """,
+        (LIMITE_MATERIAIS,),
+    ).fetchall()
+    return [
+        {
+            "id_material": r[0], "material": r[1], "termo_busca": r[2],
+            "almoxarifado": r[3], "quantidade": str(r[4]),
+            "preco_unitario": str(r[5]) if r[5] is not None else None,
+            "valor_total_original": str(r[6]) if r[6] is not None else None,
+            "mes": r[7].month, "ano": r[7].year,
+        }
+        for r in linhas
+    ]
 
-    with ARQUIVO_ENTRADA.open("r", encoding="utf-8") as arquivo:
-        conteudo = json.load(arquivo)
 
-    if not isinstance(conteudo, list):
-        raise ValueError("O JSON normalizado deve possuir uma lista na raiz.")
+def titulo_relevante(titulo, termo_busca):
+    """
+    Descarta anúncio de outro produto: o título precisa conter ao menos 60% das
+    palavras do termo de busca (ignora números soltos de 1 caractere).
+    """
+    palavras = [p for p in normalizar_texto(termo_busca).split() if len(p) > 1]
+    if not palavras:
+        return True
+    titulo_norm = normalizar_texto(titulo or "")
+    achadas = sum(1 for p in palavras if p in titulo_norm)
+    return achadas / len(palavras) >= 0.6
 
-    return conteudo
+
+def normalizar_texto(texto):
+    sem_acento = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode()
+    return " ".join("".join(c if c.isalnum() else " " for c in sem_acento.lower()).split())
+
+
+def gravar_cotacoes(conn, material, coleta):
+    """Grava os anúncios no banco. Idempotente por (material, loja, url, semana)."""
+    agora = datetime.now(timezone.utc)
+    semana = (agora - timedelta(days=agora.weekday())).date()
+    gravadas = 0
+    for anuncio in coleta["anuncios"]:
+        preco = converter_decimal(anuncio.get("preco"))
+        if preco is None or preco <= 0 or not anuncio.get("url"):
+            continue
+        cur = conn.execute(
+            "INSERT INTO cotacao_online (id_material, loja, titulo, preco, url, "
+            "data_coleta, semana_coleta) VALUES (%s, %s, %s, %s, %s, %s, %s) "
+            "ON CONFLICT (id_material, loja, url, semana_coleta) DO NOTHING",
+            (material["id_material"], coleta["fonte"], anuncio.get("titulo"), preco,
+             anuncio["url"], agora, semana),
+        )
+        gravadas += cur.rowcount
+    return gravadas
 
 
 def criar_sessao():
@@ -221,6 +274,8 @@ def coletar_material(sessao, material, numero, total, cache_buscas):
             normalizar_resultado(anuncio, posicao)
             for posicao, anuncio in enumerate(resultados, start=1)
         ]
+        # descarta anúncios de outro produto (termo_busca confiável, RF-12)
+        anuncios = [a for a in anuncios if titulo_relevante(a["titulo"], termo_busca)]
 
         coleta["anuncios"] = anuncios
         coleta["resumo"] = calcular_resumo(anuncios, preco_unitario_estoque)
@@ -267,44 +322,41 @@ def salvar_resultados(resultados, caminho_saida):
 
 
 def main():
-    materiais = carregar_materiais()
+    with psycopg.connect(autocommit=True) as conn:
+        materiais = carregar_materiais(conn)
+        total = len(materiais)
 
-    if LIMITE_MATERIAIS is not None:
-        materiais = materiais[:LIMITE_MATERIAIS]
+        if total == 0:
+            print("Nenhum material encontrado.")
+            return
 
-    total = len(materiais)
+        sessao = criar_sessao()
+        caminho_saida = gerar_caminho_saida()
+        cache_buscas = {}
 
-    if total == 0:
-        print("Nenhum material encontrado.")
-        return
+        resultados = {
+            "data_inicio_coleta": datetime.now(timezone.utc).isoformat(),
+            "coletas": [],
+        }
+        gravadas = erros = 0
 
-    sessao = criar_sessao()
-    caminho_saida = gerar_caminho_saida()
-    cache_buscas = {}
+        for numero, material in enumerate(materiais, start=1):
+            coleta = coletar_material(sessao, material, numero, total, cache_buscas)
+            gravadas += gravar_cotacoes(conn, material, coleta)
+            erros += coleta["status"] == "erro"
 
-    resultados = {
-        "data_inicio_coleta": datetime.now(timezone.utc).isoformat(),
-        "coletas": [],
-    }
+            resultados["coletas"].append(coleta)
+            salvar_resultados(resultados, caminho_saida)
 
-    for numero, material in enumerate(materiais, start=1):
-        coleta = coletar_material(
-            sessao,
-            material,
-            numero,
-            total,
-            cache_buscas,
-        )
-
-        resultados["coletas"].append(coleta)
-        salvar_resultados(resultados, caminho_saida)
-
-        if numero < total:
-            time.sleep(INTERVALO_SEGUNDOS)
+            if numero < total:
+                time.sleep(INTERVALO_SEGUNDOS)
 
     print()
-    print("Coleta concluída com sucesso.")
+    print(f"Coleta concluída: {total} material(is), {gravadas} cotação(ões) nova(s) "
+          f"no banco, {erros} com erro.")
     print(f"Arquivo gerado: {caminho_saida}")
+    if erros == total:
+        raise SystemExit("Todas as buscas falharam (token do Mercado Livre?).")
 
 
 if __name__ == "__main__":
