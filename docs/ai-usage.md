@@ -18,6 +18,15 @@ tradução. Registre o que produziu artefato ou mudou uma decisão.
 
 ## Entradas
 
+### 2026-09-12 — [o que estava sendo feito]
+
+- **Ferramenta:** [Claude, opus 5.5]
+- **Onde:** [codigos/baixar_dados.py]
+- **O que foi pedido:** [Criar um script para baixar os dados do site da UnB que iremos usar.]
+- **O que foi aproveitado:** [Tudo.]
+- **Como foi verificado:** [Testamos nas nossas máquinas para ver se as instruções funcionavam]
+- **Quem revisou:** [Samara Letícia]
+
 ### 2026-09-28 — [o que estava sendo feito]
 
 - **Ferramenta:** [Claude, opus 5.5]
