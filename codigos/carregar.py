@@ -556,10 +556,12 @@ def verificar_queda(cur, dataset, data_referencia, gravadas):
     )
     anterior = cur.fetchone()[0]
     if anterior and gravadas < anterior * (1 - QUEDA_MAXIMA):
-        raise RuntimeError(
+        # Quebra de patamar na origem (ver ADR 0003): registra e segue, não recusa.
+        return (
             f"{dataset} {data_referencia:%m/%Y}: {gravadas} linhas contra {anterior} "
             f"do mês anterior (queda maior que {QUEDA_MAXIMA:.0%})"
         )
+    return None
 
 
 def carregar_arquivo(conn, dataset, caminho, hash_arquivo, data_referencia, gravar):
@@ -612,8 +614,10 @@ def carregar_arquivo(conn, dataset, caminho, hash_arquivo, data_referencia, grav
                     print(f"  AVISO: {soltas} referência(s) a unidade superior inexistente "
                           "foram deixadas em branco")
 
-            verificar_queda(cur, dataset, data_referencia, gravadas)
-
+            aviso = verificar_queda(cur, dataset, data_referencia, gravadas)
+            if aviso:
+                print(f"  AVISO: {aviso}")
+                
             cur.execute(
                 "UPDATE carga_execucao SET linhas_gravadas = %s, linhas_rejeitadas = %s, "
                 "finalizado_em = now() WHERE id_carga = %s",
