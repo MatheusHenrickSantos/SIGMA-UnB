@@ -1,4 +1,4 @@
-# Semana 05 — Revisitar Banco de Dados
+# Semana 05 — Arrumar mkdocs, Revisitar Banco de Dados, Definir Arquitetura de Dados
 
 **Período:** 27/09/2026 a 10/10/2026
 **Entrega relacionada:** E2
@@ -12,29 +12,22 @@ Arrumar o gitpages do repositório que foi feito utilizando mkdocs, revisitar a 
 
 | Tarefa | Responsável | Status | Evidência (PR, commit, arquivo) |
 |---|---|---|---|
-| [ex.: Script de download dos 5 datasets] | [nome] | ✅ concluído | [#PR / `codigos/baixar_dados.py`] |
-| [tarefa] | [nome] | 🔄 em andamento | [link] |
-| [tarefa] | [nome] | ⏳ não iniciado | — |
+| Arrumar MkDocs e Gitpages | Matheus | ✅ concluído | `b3bd890` (08/09)|
+
 
 ## Decisões tomadas
 
-- [Decisão e motivo. Se for decisão de arquitetura, criar/atualizar um ADR em `docs/adr/`.]
 
 ## Problemas e como foram resolvidos
 
 | Problema | Causa | Solução / encaminhamento |
 |---|---|---|
-| [ex.: portal dados.unb.br retornando 502] | [instabilidade do portal] | [retry com até 5 tentativas] |
+| O antigo site estava em um fork e não no repositório do projeto. | Não havia sido definido qual seria o rep principal| Site foi refeito (`b3bd890`) |
 
 ## Uso de IA na semana
 
-- [Resumo do que foi feito com IA; o registro detalhado fica em [Uso de IA](../ai-usage.md).]
 
 ## Aprendizados
 
-- [O que a squad aprendeu tecnicamente ou sobre o processo.]
 
 ## Próximos passos
-
-- [ ] [tarefa] — [responsável]
-- [ ] [tarefa] — [responsável]

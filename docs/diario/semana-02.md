@@ -1,4 +1,4 @@
-# Semana 02 — [Buscar Bases de Dados]]
+# Semana 02 — [Buscar Bases de Dados]
 
 **Período:** 06/09/2026 a 12/09/2026
 **Entrega relacionada:** E1
