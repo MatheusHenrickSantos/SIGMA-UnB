@@ -271,7 +271,7 @@ Rode com `--build` para reconstruir a imagem: `docker compose up --build`.
 | Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql` |
 | Download automatizado dos 5 datasets, com manifesto | ✅ |
 | Carga dos dados no banco, idempotente, com rejeitados registrados | ✅ |
-| ADR da E1 ([`docs/adr/0001-modelagem-da-origem.md`](docs/adr/0001-modelagem-da-origem.md)) | ✅ |
+| ADR da E1 ([`docs/adr/0001-modelagem-da-origem.md`](docs/adr/adr-1.md)) | ✅ |
 | Diário ([`docs/diario/`](docs/diario/)) | ✅ |
 | Registro de uso de IA ([`docs/ai-usage.md`](docs/ai-usage.md)) | ✅ |
 | Cotações de mercado no banco | ⏳ Tabela criada; coleta entra na E2 |
