@@ -9,6 +9,8 @@
 
 ## Definição das Tabelas
 
+### Camada Bronze
+
 A **Tabela 1** abaixo apresenta a descrição da tabela `estoque`, que é oriunda dos **Dados Abertos da UnB**. Os
  campos `preco`, `valor_total`,`material`, `almoxarifado` e `saldo` são armazenados na camada bronze como *TEXT*
  e sem nenhum tipo de restrição para preservar os valores conforme disponibilizados pela fonte e evitar falhas de
@@ -34,24 +36,6 @@ A **Tabela 1** abaixo apresenta a descrição da tabela `estoque`, que é oriund
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td><code>IdentificadorMaterial</code></td>
-          <td>Identificador único do material.</td>
-          <td>ID</td>
-          <td>6</td>
-          <td>Padrão do tipo ID</td>
-          <td>PK, FK</td>
-          <td>Unique / Not NULL / CHECK</td>
-        </tr>
-        <tr>
-          <td><code>IdentificadorAlmoxarifado</code></td>
-          <td>Identificador único do almoxarifado.</td>
-          <td>ID</td>
-          <td>6</td>
-          <td>Padrão do tipo ID</td>
-          <td>PK, FK</td>
-          <td>Unique / Not NULL / CHECK</td>
-        </tr>
         <tr>
           <td><code>material</code></td>
           <td>Descrição resumida do material.</td>
@@ -97,6 +81,195 @@ A **Tabela 1** abaixo apresenta a descrição da tabela `estoque`, que é oriund
           <td>-</td>
           <td>-</td>
         </tr>
+        <tr>
+          <td><code>ArquivoDeOrigem</code></td>
+          <td>Nome do arquivo de origem dos dados.</td>
+          <td>CHAR</td>
+          <td>50</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>LinhaDoArquivo</code></td>
+          <td>Número da linha onde o material está salvo no arquivo de origem.</td>
+          <td>SMALLINT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>DataDaInsercao</code></td>
+          <td>Data em que o arquivo foi salvo.</td>
+          <td>TIMESTAMP</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+
+
+---
+
+### Camada Prata
+
+<details>
+  <summary>Tabela 2 – Dicionário de Dados da Tabela Estoque
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 2 – Dicionário de Dados da Tabela Estoque</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do Atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de Dados</th>
+          <th>Tamanho</th>
+          <th>Valores Permitidos</th>
+          <th>É chave?</th>
+          <th>Outras Restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>IdentificadorMaterial</code></td>
+          <td>Identificador único do material.</td>
+          <td>ID</td>
+          <td>6</td>
+          <td>Padrão do tipo ID</td>
+          <td>PK, FK</td>
+          <td>Unique / Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>IdentificadorAlmoxarifado</code></td>
+          <td>Identificador único do almoxarifado.</td>
+          <td>ID</td>
+          <td>6</td>
+          <td>Padrão do tipo ID</td>
+          <td>PK, FK</td>
+          <td>Unique / Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>quantidade</code></td>
+          <td>Quantidade de itens em estoque.</td>
+          <td>NUMERIC</td>
+          <td>(10,2)</td>
+          <td>Maior que 0</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 3 – Dicionário de Dados da Tabela Material
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 2 – Dicionário de Dados da Tabela Material</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do Atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de Dados</th>
+          <th>Tamanho</th>
+          <th>Valores Permitidos</th>
+          <th>É chave?</th>
+          <th>Outras Restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>IdentificadorMaterial</code></td>
+          <td>Identificador único do material.</td>
+          <td>ID</td>
+          <td>6</td>
+          <td>Padrão do tipo ID</td>
+          <td>PK</td>
+          <td>Unique / Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>nome</code></td>
+          <td>Nome do material.</td>
+          <td>CHAR</td>
+          <td>50</td>
+          <td>A-Z, 0-9</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>descricao</code></td>
+          <td>Descrição do material.</td>
+          <td>CHAR</td>
+          <td>100</td>
+          <td>A-Z, 0-9</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>preco</code></td>
+          <td>Preço praticado do material.</td>
+          <td>NUMERIC</td>
+          <td>(10,2)</td>
+          <td>Maior que 0</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 4 – Dicionário de Dados da Tabela Almoxarifado
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 4 – Dicionário de Dados da Tabela Almoxarifado</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do Atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de Dados</th>
+          <th>Tamanho</th>
+          <th>Valores Permitidos</th>
+          <th>É chave?</th>
+          <th>Outras Restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>IdentificadorAlmoxarifado</code></td>
+          <td>Identificador único do almoxarifado.</td>
+          <td>ID</td>
+          <td>6</td>
+          <td>Padrão do tipo ID</td>
+          <td>PK</td>
+          <td>Unique / Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>nome</code></td>
+          <td>Nome do almoxarifado.</td>
+          <td>CHAR</td>
+          <td>20</td>
+          <td>CENTRAL, PRC</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
       </tbody>
     </table>
     <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
@@ -121,4 +294,5 @@ A **Tabela 1** abaixo apresenta a descrição da tabela `estoque`, que é oriund
 
 | Versão | Descrição | Autor(es) | Data de Produção | Revisor(es) | Data de Revisão | 
 | :----: | --------- | --------- | :--------------: | ----------- | :-------------: |
-| `1.0` | Criação do documento | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 12/10/2026 |  |  |
+| `1.0` | Criação do documento | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 12/10/2026 | - | - |
+| `1.1` | Atualiza a tabela _estoque_ da camada bronze e adiciona as tabelas _estoque_, _material_ e _almoxarifado_ na camada prata. | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 18/10/2026 |  |  |

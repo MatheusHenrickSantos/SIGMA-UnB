@@ -6,9 +6,9 @@
   </summary>
   <div align="center">
     <div align="center">
-    <p><strong>Figura 1 – Modelo relacional (Versão 1.1)</strong></p>
-    <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/diagramas/Modelo relacional.v1.1.png">
-    <p>Autor: <a href="https://github.com/IsraelThalles">Israel Thalles</a>.</p>
+    <p><strong>Figura 1 – Modelo relacional (Versão 1.2)</strong></p>
+    <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/diagramas/Modelo relacional.v1.2.png">
+    <p>Autor(es): <a href="https://github.com/IsraelThalles">Israel Thalles</a> e <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
   </div>
 </details>
 
@@ -28,4 +28,5 @@
 
 | Versão | Descrição | Autor(es) | Data de Produção | Revisor(es) | Data de Revisão | 
 | :----: | --------- | --------- | :--------------: | ----------- | :-------------: |
-| `1.0` | Criação do documento | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 12/10/2026 |  |  |
+| `1.0` | Criação do documento | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 12/10/2026 | - | - |
+| `1.1` | Atualiza o diagrama | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 18/10/2026 |  |  |
