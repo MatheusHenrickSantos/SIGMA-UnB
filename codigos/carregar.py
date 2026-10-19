@@ -34,6 +34,15 @@ PASTA_BRUTO = RAIZ_PROJETO / "dados" / "bruto"
 # anterior, a carga do arquivo é desfeita (provável arquivo incompleto).
 QUEDA_MAXIMA = 0.30
 
+# Quedas já investigadas e aceitas: (dataset, mês) -> motivo. Em 11/2022 o
+# portal passou de ~1.800 para ~830 linhas e manteve esse patamar (com
+# redução gradual) até 12/2025: é mudança de escopo da publicação, não
+# arquivo incompleto. Sem a exceção, a trava compara todo mês seguinte com
+# o último mês carregado (07/2022) e rejeita 30 meses em cadeia.
+QUEDAS_ACEITAS = {
+    ("estoque", date(2022, 11, 1)): "mudança de escopo da publicação no portal",
+}
+
 
 class RegistroInvalido(Exception):
     pass
@@ -556,6 +565,10 @@ def verificar_queda(cur, dataset, data_referencia, gravadas):
     )
     anterior = cur.fetchone()[0]
     if anterior and gravadas < anterior * (1 - QUEDA_MAXIMA):
+        motivo = QUEDAS_ACEITAS.get((dataset, data_referencia))
+        if motivo:
+            print(f"  AVISO: queda de {anterior} para {gravadas} linhas aceita ({motivo})")
+            return
         raise RuntimeError(
             f"{dataset} {data_referencia:%m/%Y}: {gravadas} linhas contra {anterior} "
             f"do mês anterior (queda maior que {QUEDA_MAXIMA:.0%})"
