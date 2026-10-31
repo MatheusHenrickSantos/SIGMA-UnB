@@ -23,4 +23,6 @@
   - [Pipeline e camadas](arquitetura-em-camadas.md)
   - [Consultas](consultas.md)
   - [Testes e validação](testes.md)
+- Testes
+  - [Teste de Viabilidade](testes/teste-de-viabilidade.md)
 - [Notas de versão](https://github.com/MatheusHenrickSantos/SIGMA-UnB/blob/main/RELEASE_NOTES.md)
