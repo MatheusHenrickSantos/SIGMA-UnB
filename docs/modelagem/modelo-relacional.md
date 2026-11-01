@@ -1,4 +1,6 @@
-# Modelo relacional
+# Modelo Relacional
+
+A **Figura 1** abaixo apresenta o Modelo Relacional do sistema, organizando as principais entidades envolvidas no controle de estoque. O modelo organiza essas informações em tabelas, evidenciando os atributos principais e as relações entre os dados, incluindo a identificação de chaves primárias e estrangeiras.
 
 <details>
   <summary>Figura 1 – Modelo relacional
@@ -6,8 +8,8 @@
   </summary>
   <div align="center">
     <div align="center">
-    <p><strong>Figura 1 – Modelo relacional (Versão 1.2)</strong></p>
-    <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/diagramas/Modelo relacional.v1.2.png">
+    <p><strong>Figura 1 – Modelo relacional (Versão 2,0)</strong></p>
+    <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/diagramas/Modelo relacional.v2.0.png">
     <p>Autor(es): <a href="https://github.com/IsraelThalles">Israel Thalles</a> e <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
   </div>
 </details>
@@ -29,4 +31,5 @@
 | Versão | Descrição | Autor(es) | Data de Produção | Revisor(es) | Data de Revisão | 
 | :----: | --------- | --------- | :--------------: | ----------- | :-------------: |
 | `1.0` | Criação do documento | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 12/10/2026 | - | - |
-| `1.1` | Atualiza o diagrama | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 18/10/2026 |  |  |
+| `1.1` | Atualiza o diagrama | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 18/10/2026 | - | - |
+| `2.0` | Atualiza o diagrama | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 01/11/2026 |  |  |
