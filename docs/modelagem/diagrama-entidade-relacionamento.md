@@ -1,15 +1,15 @@
-# Diagrama Entidade-Relacionamento
+# Diagrama entidade-relacionamento
 
-A **Figura 1** abaixo apresenta o Diagrama entidade-relacionamento do sistema, que apresenta as entidades envolvidas no controle de estoque, como o almoxarifado da UnB, o catálogo CATMAT e as compras públicas registradas no site governamental _gov.br_.
+A **Figura 1** abaixo apresenta o diagrama entidade-relacionamento do sistema, que apresenta as entidades envolvidas no controle de estoque, como o almoxarifado da UnB, o catálogo CATMAT e as compras públicas registradas no site governamental _gov.br_.
 
 <details>
   <summary>Figura 1 – Diagrama entidade-relacionamento
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Figura 1 – Diagrama entidade-relacionamento (Versão 2.0)</strong></p>
+    <p><strong>Figura 1 – Diagrama entidade-relacionamento (versão 2.0)</strong></p>
     <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/diagramas/Diagrama entidade-relacionamento.v2.0.png">
-    <p>Autor(es): <a href="https://github.com/IsraelThalles">Israel Thalles</a> e <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+    <p>Autores: <a href="https://github.com/IsraelThalles">Israel Thalles</a> e <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
   </div>
 </details>
 
@@ -25,10 +25,10 @@ A **Figura 1** abaixo apresenta o Diagrama entidade-relacionamento do sistema, q
 
 
 
-## 📑 Histórico de Versões
+## 📑 Histórico de versões
 
-| Versão | Descrição | Autor(es) | Data de Produção | Revisor(es) | Data de Revisão | 
+| Versão | Descrição | Autor(es) | Data de produção | Revisor(es) | Data de revisão | 
 | :----: | --------- | --------- | :--------------: | ----------- | :-------------: |
 | `1.0` | Criação do documento | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 12/10/2026 | - | - |
 | `1.1` | Atualiza o diagrama | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 18/10/2026 | - | - |
-| `2.0` | Atualiza o diagrama | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 01/11/2026 |  |  |
+| `2.0` | Atualiza o diagrama | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 01/11/2026 | [Israel Thalles](https://github.com/IsraelThalles) | 05/11/2026 |
