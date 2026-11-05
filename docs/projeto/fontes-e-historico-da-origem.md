@@ -14,8 +14,8 @@ O script de download do CATMAT e a consulta de preços são separados do `docker
 
 ## Histórico das fontes anteriores
 
+O motivo da mudança de escopo está registrado na [ADR 04 — Adotar o estoque da UnB e preços públicos como foco do projeto](../adr/0004-adotar-dados-de-estoque-e-precos-publicos.md).
+
 O desenho anterior incluía cinco datasets do portal da UnB: **Estoque do almoxarifado**, **Unidades acadêmicas**, **Empenhos**, **Gastos por unidade** e **Requisições de serviços**. A coleta documentada em 19/10/2026 inventariou 453 recursos JSON. Esse registro é histórico e não comprova quais arquivos foram aceitos na carga.
 
-O estoque continua entre as fontes atuais. Os outros quatro datasets não fazem parte da pergunta de gestão vigente. Ainda assim, o serviço `ingest` do Compose mantém a configuração antiga e baixa esses cinco datasets; ele ainda não integra CATMAT nem a pesquisa de preços públicos. Consulte [Como executar](como-executar.md) para os limites do pipeline atual.
-
-Para contexto sobre o modelo e as decisões anteriores, consulte o [dicionário de dados](../modelagem/dicionario-de-dados.md), a [caracterização da carga](../dados-e-pipeline/caracterizacao-da-carga.md) e o [backlog](../gestao/backlog.md).
+O estoque continua entre as fontes atuais. Os outros quatro datasets não fazem parte da pergunta de gestão vigente. Consulte [Como executar](como-executar.md) para os limites do pipeline atual.

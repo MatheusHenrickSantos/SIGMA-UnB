@@ -13,6 +13,7 @@
   - [ADR 1](adr/adr-1.md)
   - [ADR 2 — Ingestão e formato aberto](adr/0002-mecanismo-de-ingestao-e-formato-aberto.md)
   - [ADR 3](adr/0003-validacao-de-volume-na-carga_1.md)
+  - [ADR 4 — Mudança do tema](adr/0004-adotar-dados-de-estoque-e-precos-publicos.md)
 - Modelagem
   - [Diagrama de Arquitetura](modelagem/diagrama-de-arquitetura.md)
   - [Dicionário de Dados](modelagem/dicionario-de-dados.md)
