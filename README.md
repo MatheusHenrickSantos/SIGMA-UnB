@@ -1,10 +1,18 @@
 # SIGMA-UnB
 
-Plataforma de dados construída sobre os **dados abertos da Universidade de Brasília** ([dados.unb.br](https://dados.unb.br)) — estoque do almoxarifado, unidades acadêmicas, gastos por unidade, empenhos e requisições de serviços — como Projeto Integrado da disciplina.
+O SIGMA-UnB é uma plataforma de dados para apoiar a gestão de materiais e as decisões de compra da Universidade de Brasília. A análise proposta reúne três fontes:
 
-> **Pergunta de gestão:** _Quais materiais do almoxarifado da UnB tiveram o preço unitário registrado acima do preço de mercado em lojas online entre 2026 e 2027, em quais almoxarifados, e quanto a UnB gastaria a menos se tivesse pago o preço de mercado?._
+| Fonte | Papel |
+| :---: | :---- |
+| Estoque do almoxarifado da UnB | Materiais, almoxarifados, saldos e preços registrados. |
+| Catálogo de Materiais (CATMAT) | Códigos e descrições para apoiar a identificação dos itens. |
+| Pesquisa de preços públicos | Registros de preços observados em compras da Administração Pública. |
 
-Tudo roda localmente em Docker Compose, sem instalar Postgres nem Python na máquina.
+> **Pergunta de gestão:** _Para quais materiais do estoque da UnB é possível encontrar um item correspondente no CATMAT e em compras públicas comparáveis, e quais apresentam as maiores diferenças entre o preço registrado no estoque e os preços dessas compras, por almoxarifado e período?_
+
+A comparação depende de validar a correspondência do item e a equivalência de unidade e período. Os preços de compras públicas são referências de compras, não cotações de lojas nem prova, por si só, de sobrepreço.
+
+O banco e o pipeline Docker descritos abaixo podem ser executados localmente, sem instalar PostgreSQL nem Python na máquina. **A ingestão Docker ainda está na configuração anterior:** baixa cinco datasets do portal da UnB e não integra o CATMAT nem a pesquisa de preços públicos. Esses fluxos novos ainda não estão orquestrados pelo Compose.
 
 ---
 
@@ -28,11 +36,11 @@ Tudo roda localmente em Docker Compose, sem instalar Postgres nem Python na máq
 
 Um único comando sobe três serviços, nesta ordem:
 
-| Serviço   | O que faz                                                                                              | Termina? |
-|-----------|--------------------------------------------------------------------------------------------------------|----------|
+| Serviço | O que faz | Termina? |
+| ------- | --------- | -------- |
 | `db`      | PostgreSQL 16: o banco transacional (OLTP).                                                            | Não, fica rodando |
 | `migrate` | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio.                   | Sim |
-| `ingest`  | Python: baixa os 5 datasets do portal da UnB para `dados/bruto/` e carrega no banco.                    | Sim |
+| `ingest`  | Python: baixa os cinco datasets legados configurados do portal da UnB para `dados/bruto/` e os carrega no banco. Não integra CATMAT nem preços públicos. | Sim |
 
 `migrate` só começa quando o banco está pronto, e `ingest` só começa se todas as migrações tiverem sido aplicadas com sucesso.
 
@@ -124,7 +132,7 @@ Os comandos são os mesmos nos dois sistemas daqui em diante. No terminal, cada 
 1. Download das imagens e build do container Python — **só na primeira vez**, pode levar alguns minutos.
 2. `db-1 | ... database system is ready to accept connections`
 3. `migrate-1 | ...` — o Flyway lista as migrações aplicadas, e depois `migrate-1 exited with code 0`.
-4. `ingest-1 | Buscando datasets no portal de dados abertos da UnB...` e uma linha `baixando: ...` por arquivo. Na primeira vez são cerca de 850 MB (os empenhos são a maior parte); o portal às vezes responde `502` e o script tenta de novo sozinho.
+4. `ingest-1 | Buscando datasets no portal de dados abertos da UnB...` e uma linha `baixando: ...` por arquivo. Na primeira vez são cerca de 850 MB para os cinco datasets legados (os empenhos são a maior parte); o portal às vezes responde `502` e o script tenta de novo sozinho.
 5. `ingest-1 | [unidades]`, `[estoque]`, ... com uma linha `N gravadas, M rejeitadas` por arquivo carregado, a tabela **Linhas por tabela** e `ingest-1 exited with code 0`. A carga completa leva alguns minutos.
 6. **O terminal fica parado mostrando os logs do banco.** Isso é esperado: o banco continua rodando. Para parar, `Ctrl+C`.
 
@@ -221,12 +229,18 @@ SIGMA-UnB/
 ├── db/
 │   └── migrations/             # V1__descricao.sql, V2__..., aplicados em ordem pelo Flyway
 ├── docs/                       # site estático Docsify
-│   ├── index.html              # configuração do Docsify
+│   ├── projeto/                # domínio, fontes, execução e glossário
+│   ├── gestao/                 # backlog, diário e uso de IA
+│   ├── adr/                    # decisões arquiteturais
+│   ├── modelagem/              # diagramas, modelos e dicionário
+│   ├── dados-e-pipeline/       # ingestão, camadas, consultas e validação
+│   ├── testes/                 # testes de viabilidade
+│   ├── assets/                 # imagens e diagramas
+│   ├── home.md                 # página inicial do Docsify
 │   ├── _sidebar.md             # navegação
-│   ├── index.md                # página inicial
-│   └── ...                     # demais páginas e assets da documentação
+│   └── index.html              # configuração do Docsify
 ├── modelagem/                  # diagrama ER, modelo relacional e fonte .drawio
-├── AI-USAGE.md                 # aponta para docs/ai-usage.md
+├── AI-USAGE.md                 # aponta para docs/gestao/ai-usage.md
 └── dados/                      # criado na execução; ignorado pelo git
 ```
 
@@ -269,9 +283,10 @@ Rode com `--build` para reconstruir a imagem: `docker compose up --build`.
 |---|---|
 | Banco PostgreSQL em Docker | ✅ |
 | Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql` |
-| Download automatizado dos 5 datasets, com manifesto | ✅ |
+| Download automatizado dos cinco datasets legados da UnB, com manifesto | ✅ |
 | Carga dos dados no banco, idempotente, com rejeitados registrados | ✅ |
-| ADR da E1 ([`docs/adr/0001-modelagem-da-origem.md`](docs/adr/adr-1.md)) | ✅ |
-| Diário ([`docs/diario/`](docs/diario/)) | ✅ |
-| Registro de uso de IA ([`docs/ai-usage.md`](docs/ai-usage.md)) | ✅ |
-| Cotações de mercado no banco | ⏳ Tabela criada; coleta entra na E2 |
+| Download do CATMAT e consulta exploratória de preços públicos por scripts separados | 🚧 Não integrados ao Compose |
+| ADR da E1 ([`docs/adr/adr-1.md`](docs/adr/adr-1.md)) | ✅ |
+| Diário ([`docs/gestao/diario/`](docs/gestao/diario/)) | ✅ |
+| Registro de uso de IA ([`docs/gestao/ai-usage.md`](docs/gestao/ai-usage.md)) | ✅ |
+| Cotações de lojas online | Fora da pergunta de gestão atual |

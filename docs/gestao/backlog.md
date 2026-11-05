@@ -14,11 +14,11 @@ O SIGMA-UnB mostra os materiais disponíveis no almoxarifado da UnB e monitora s
 
 **Usuários:** gestores da UnB, chefes de departamento e Centro Acadêmico.
 
-**Pergunta de gestão** (base: [página inicial](home.md)):
+**Pergunta de gestão** (base: [página inicial](../home.md)):
 
 > Entre 2021 e 2025, quais materiais de consumo do almoxarifado da UnB tiveram o preço unitário registrado subindo mais rápido, e quais fornecedores concentraram os empenhos desses materiais?
 
-A comparação com o preço de mercado em lojas online (a pergunta que o [README](../README.md) traz hoje) fica como complemento, não como núcleo.
+A comparação com o preço de mercado em lojas online (a pergunta que o [README](../../README.md) traz hoje) fica como complemento, não como núcleo.
 
 ## Etapas
 
@@ -162,4 +162,3 @@ Cada item é uma história: **como** [usuário], **quero** [capacidade], **para*
 - Decidir se a comparação com o mercado (RF-04, RF-05) entra no MVP; se entrar, sobem para Must e as cotações (RF-11, RF-12) também.
 - Definir o tema do quinto ADR.
 - Escolher as ferramentas das etapas seguintes (dbt ou SQLMesh; Airflow ou Dagster; ferramenta de catálogo e linhagem; ferramenta de painel). Cada escolha vira decisão registrada em ADR.
-

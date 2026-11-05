@@ -20,14 +20,14 @@ Responsável atribuído pelo autor do commit. Os itens marcados como *branch `e2
 | Páginas do diagrama ER e do modelo relacional | Matheus | ✅ concluído | `b3bd890`, `ab925dc` (12/10) |
 | Dicionário de dados | Matheus | ✅ concluído | `48d34fc` (12/10), ampliado em `590b69c` (19/10) |
 | Diagrama de arquitetura Bronze/Prata/Ouro (v1.1) e ER/relacional v1.2 | Matheus e Israel | ✅ concluído | `50c793b` (12/10), `590b69c`, `71c589e` (19/10) |
-| Backlog do produto (MoSCoW, por etapa) | Magno | ✅ concluído | `a7d789a`, `c7d077c`, `ccf30f2`, PR #5 (19/10) — `docs/backlog.md` |
+| Backlog do produto (MoSCoW, por etapa) | Magno | ✅ concluído | `a7d789a`, `c7d077c`, `ccf30f2`, PR #5 (19/10) — `docs/gestao/backlog.md` |
 | Templates de documentação da E2 | Samara | ✅ concluído | `ddcad07` (19/10) |
-| Diário das semanas 01 a 05 | Samara | ✅ concluído | `bb5b598`, `324eb83` (19/10) — `docs/diario/` |
+| Diário das semanas 01 a 05 | Samara | ✅ concluído | `bb5b598`, `324eb83` (19/10) — `docs/gestao/diario/` |
 | Domínio e pergunta de gestão | Samara | ✅ concluído | `51d62a8` — `docs/dominio-e-pergunta.md` |
-| Fontes e histórico da origem | Samara | ✅ concluído | `2dd6482` — `docs/fontes-e-historico-da-origem.md` |
-| Caracterização da carga e ADR 0003 (queda de volume vira aviso) | Samara | ✅ concluído | `6d489c5`, `618c33d` — `docs/caracterizacao-da-carga.md`, `docs/adr/0003-validacao-de-volume-na-carga_1.md`, `codigos/carregar.py` |
-| Arquitetura em camadas e consultas sobre estoque e almoxarifado | Samara | ✅ concluído | `3ee766f` — `docs/arquitetura-em-camadas.md`, `docs/consultas.md` |
-| Registro de uso de IA atualizado | Samara e Magno | ✅ concluído | `a7d789a`, `6a47e76` — `docs/ai-usage.md` |
+| Fontes e histórico da origem | Samara | ✅ concluído | `2dd6482` — `docs/projeto/fontes-e-historico-da-origem.md` |
+| Caracterização da carga e ADR 0003 (queda de volume vira aviso) | Samara | ✅ concluído | `6d489c5`, `618c33d` — `docs/dados-e-pipeline/caracterizacao-da-carga.md`, `docs/adr/0003-validacao-de-volume-na-carga_1.md`, `codigos/carregar.py` |
+| Arquitetura em camadas e consultas sobre estoque e almoxarifado | Samara | ✅ concluído | `3ee766f` — `docs/dados-e-pipeline/arquitetura-em-camadas.md`, `docs/dados-e-pipeline/consultas.md` |
+| Registro de uso de IA atualizado | Samara e Magno | ✅ concluído | `a7d789a`, `6a47e76` — `docs/gestao/ai-usage.md` |
 | Carga completa do estoque (30 meses que eram rejeitados) | Magno | 🔄 branch `e2-entrega` | `dc67d85` — `codigos/carregar.py` |
 | CDC por decodificação lógica (pgoutput) | Magno | 🔄 branch `e2-entrega` | `5bf6c5e` — `db/migrations/V2__cdc_publicacao.sql`, `codigos/cdc_consumidor.py`, `codigos/cdc_demo.py` |
 | Teste de queda do consumidor do CDC | Magno | 🔄 branch `e2-entrega` | `ce34cd5` — `codigos/testar_queda_cdc.py` |
@@ -88,10 +88,10 @@ Responsável atribuído pelo autor do commit. Os itens marcados como *branch `e2
 
 - [ ] Integrar a branch `e2-entrega` à `main`, escolhendo uma única correção para a queda de 11/2022 em `carregar.py` — Magno e Samara
 - [ ] Unificar a numeração dos ADRs: hoje a `main` tem `0002-...` (template não preenchido) e `0003-...`, e a `e2-entrega` tem `adr-2.md` (Delta Lake) — equipe
-- [ ] Atualizar `docs/arquitetura-em-camadas.md` para Delta Lake + ZSTD e incluir o CDC no pipeline — Samara
+- [ ] Atualizar `docs/dados-e-pipeline/arquitetura-em-camadas.md` para Delta Lake + ZSTD e incluir o CDC no pipeline — Samara
 - [ ] Alinhar a pergunta de gestão entre README, `home.md`, backlog e `dominio-e-pergunta.md`, e ajustar `consultas.md` se o período mudar para 2021–2025 — equipe
 - [ ] Obter o token do Mercado Livre e rodar uma coleta real — Magno
 - [ ] Remover `codigos/__pycache__/` do repositório e adicioná-lo ao `.gitignore` — Samara
-- [ ] Corrigir no `docs/diario/README.md` os rótulos das semanas 05 e 06 (aparecem como "Semana 06" e "Semana 07") — Samara
+- [ ] Corrigir no `docs/gestao/diario/README.md` os rótulos das semanas 05 e 06 (aparecem como "Semana 06" e "Semana 07") — Samara
 - [ ] Preencher os autores do ADR 0003 — Samara
 - [ ] Pedir ao portal dados.unb.br a explicação da queda do estoque do PRC em 11/2022 — equipe
