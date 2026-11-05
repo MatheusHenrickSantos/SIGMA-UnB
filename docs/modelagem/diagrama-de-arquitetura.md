@@ -7,7 +7,7 @@ A **Figura 1** abaixo apresenta o diagrama de arquitetura do sistema, organizand
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Figura 1 – Arquitetura do banco (Versão 2.0)</strong></p>
+    <p><strong>Figura 1 – Arquitetura do banco (Versão 2.1)</strong></p>
     <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/diagramas/Arquitetura do banco.v2.1.png">
     <p>Autores: <a href="https://github.com/IsraelThalles">Israel Thalles</a> e <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
   </div>
