@@ -1,0 +1,41 @@
+
+# Dê um nome ao seu projeto! Os nomes de projeto devem conter apenas caracteres minúsculos
+# e sublinhados. Um bom nome de pacote deve refletir o nome da sua organização
+# ou a finalidade de uso destes modelos.
+name: 'sigma'
+version: '1.0.0'
+
+# Esta configuração define qual "perfil" o dbt utiliza para este projeto.
+profile: 'sigma'
+
+# Estas configurações especificam onde o dbt deve procurar diferentes tipos de arquivos.
+# A configuração `model-paths`, por exemplo, indica que os modelos deste projeto podem ser
+# encontrados no diretório "models/". Provavelmente você não precisará alterá-las!
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:         # diretórios a serem removidos pelo `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+
+# Configurando modelos
+# Documentação completa: https://docs.getdbt.com/docs/configuring-models
+
+# Nesta configuração de exemplo, instruímos o dbt a criar todos os modelos do diretório
+# example/ como views. Essas configurações podem ser sobrescritas nos arquivos
+# individuais de modelo utilizando a macro `{{ config(...) }}`.
+models:
+  sigma:
+    bronze:
+      +materialized: table
+      +schema: bronze
+    prata:
+      +materialized: table
+      +schema: prata
+    ouro:
+      +materialized: table
+      +schema: ouro
