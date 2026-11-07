@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: material_prata
+    description: >
+      Cadastro de materiais identificados a partir das descrições distintas
+      encontradas nos arquivos mensais de estoque da UnB. Os identificadores
+      são atribuídos incrementalmente e preservados nas execuções seguintes.
+    columns:
+      - name: identificador_material
+        description: Identificador interno do material (prefixo mat e três algarismos).
+        tests:
+          - not_null
+          - unique
+
+      - name: nome
+        description: Nome resumido do material, obtido do primeiro trecho da descrição original.
+        tests:
+          - not_null
+
+      - name: descricao
+        description: Descrição complementar do material.
+        tests:
+          - not_null
+
+      - name: material_original
+        description: Descrição integral recebida do arquivo de estoque da UnB.
+        tests:
+          - not_null
+          - unique

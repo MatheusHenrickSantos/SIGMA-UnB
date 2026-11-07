@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: estoque_prata
+    description: >
+      Fotografia mensal da quantidade e do preço praticado para cada material
+      em cada almoxarifado da UnB.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - identificador_material
+              - identificador_almoxarifado
+              - ano_de_referencia
+              - mes_de_referencia
+
+    columns:
+      - name: identificador_material
+        description: Material armazenado.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('material')
+                field: identificador_material
+
+      - name: identificador_almoxarifado
+        description: Almoxarifado onde o material está armazenado.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('almoxarifado')
+                field: identificador_almoxarifado
+
+      - name: mes_de_referencia
+        description: Mês de referência do registro.
+        tests:
+          - not_null
+
+      - name: ano_de_referencia
+        description: Ano de referência do registro.
+        tests:
+          - not_null
+
+      - name: quantidade
+        description: Quantidade disponível do material no período.
+        tests:
+          - not_null
+
+      - name: preco
+        description: Preço praticado do material no período, conforme o arquivo de estoque da UnB.
+        tests:
+          - not_null
