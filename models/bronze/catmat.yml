@@ -1,0 +1,70 @@
+version: 2
+
+models:
+  - name: catmat_bronze
+    description: >
+      Catálogo de Materiais (CATMAT), contendo informações de
+      identificação, classificação e descrição dos materiais,
+      além de seus atributos complementares.
+
+    columns:
+      - name: codigo_item
+        description: Código identificador do item no CATMAT.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: codigo_grupo
+        description: Código do grupo ao qual o item pertence.
+        data_tests:
+          - not_null
+
+      - name: nome_grupo
+        description: Nome do grupo do item.
+
+      - name: codigo_classe
+        description: Código da classe do item.
+        data_tests:
+          - not_null
+
+      - name: nome_classe
+        description: Nome da classe do item.
+
+      - name: codigo_pdm
+        description: Código do Padrão Descritivo de Material (PDM).
+        data_tests:
+          - not_null
+
+      - name: nome_pdm
+        description: Nome do PDM.
+
+      - name: descricao_item
+        description: Descrição detalhada do material.
+
+      - name: status_item
+        description: Indica se o item está ativo no catálogo.
+
+      - name: item_sustentavel
+        description: Indica se o item é considerado sustentável.
+
+      - name: codigo_ncm
+        description: Código da Nomenclatura Comum do Mercosul (NCM).
+
+      - name: descricao_ncm
+        description: Descrição da classificação NCM.
+
+      - name: aplica_margem_preferencia
+        description: Indica se o item aplica margem de preferência.
+
+      - name: data_hora_atualizacao
+        description: Data e hora da última atualização do item.
+
+      - name: hash_do_arquivo
+        description: Hash SHA-256 do arquivo de origem.
+        data_tests:
+          - not_null
+
+      - name: data_da_insercao
+        description: Data e hora em que o arquivo foi inserido na camada RAW.
+        data_tests:
+          - not_null
