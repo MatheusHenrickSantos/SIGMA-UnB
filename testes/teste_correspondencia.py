@@ -106,7 +106,9 @@ def teste_busca_exata_e_indice_concordam(banco):
         exata = correspondencia.executar_correspondencia(
             conn, id_modelo, ParametrosBusca(top_k=5, busca_exata=True)
         )
-        # com 300 linhas o planejador prefere varrer a tabela; força o índice
+        # sem índice desde a V3: recria-o e, como com 300 linhas o planejador
+        # prefere varrer a tabela, força o uso dele
+        conn.execute(correspondencia.SQL_INDICE_HNSW.format(nome="ix_embedding_catmat_hnsw"))
         conn.execute("SET enable_seqscan = off")
         plano = "\n".join(linha[0] for linha in conn.execute(
             "EXPLAIN " + correspondencia._BUSCA,
@@ -121,9 +123,19 @@ def teste_busca_exata_e_indice_concordam(banco):
     assert a == b and len(a) == 25
 
 
-def teste_plano_usa_indice_so_na_busca_aproximada(banco):
+def teste_sem_indice_a_busca_padrao_e_exata(banco):
+    parametros = {"modelo": 1, "top_k": 5, "limiar": None, "chaves": None}
+    with conectar(banco) as conn:
+        plano = "\n".join(r[0] for r in conn.execute("EXPLAIN " + correspondencia._BUSCA, parametros))
+    assert "hnsw" not in plano.lower()
+    # a ordem por distância sai de uma ordenação completa (exata), não de índice
+    assert "Sort Key: ((c.vetor <=> em.vetor))" in plano
+
+
+def teste_com_indice_recriado_so_a_busca_aproximada_o_usa(banco):
     parametros = {"modelo": 1, "top_k": 5, "limiar": None, "chaves": None}
     with conectar(banco) as conn, conn.transaction():
+        conn.execute(correspondencia.SQL_INDICE_HNSW.format(nome="ix_embedding_catmat_hnsw"))
         conn.execute("SET LOCAL enable_seqscan = off")
         aproximada = "\n".join(r[0] for r in conn.execute("EXPLAIN " + correspondencia._BUSCA, parametros))
         conn.execute("SET LOCAL enable_seqscan = on")

@@ -32,6 +32,14 @@ from .normalizacao import VERSAO_NORMALIZACAO
 # ef_search vizinhos por consulta, então ele nunca pode ficar abaixo de top_k.
 EF_SEARCH_PADRAO = 40
 
+# Índice HNSW que a V2 criava e a V3 removeu (ADR 0005): hoje a busca é exata.
+# Usado pela medição (medir_adr0005.py) e pelos testes; para voltar a usá-lo,
+# crie-o numa migração nova com este mesmo comando.
+SQL_INDICE_HNSW = (
+    "CREATE INDEX {nome} ON semantica.embedding "
+    "USING hnsw (vetor vector_cosine_ops) WHERE origem = 'catmat'"
+)
+
 DECISOES = ("equivalente", "nao_equivalente", "incerto")
 
 
@@ -47,9 +55,10 @@ class ParametrosBusca:
     # Não há padrão calibrado: o valor depende do modelo e precisa ser
     # escolhido olhando pares revisados (ver docs/semantica.md).
     limiar_similaridade: float | None = None
-    # True = varredura completa, resultado exato (mais lento)
+    # True = proíbe índice mesmo que exista. Sem índice HNSW (situação desde a
+    # V3), a busca já é exata nos dois casos.
     busca_exata: bool = False
-    # None = max(EF_SEARCH_PADRAO, top_k)
+    # só vale se houver índice HNSW; None = max(EF_SEARCH_PADRAO, top_k)
     ef_search: int | None = None
 
     def validar(self) -> None:
@@ -85,7 +94,8 @@ FROM semantica.descricao AS m
 JOIN semantica.embedding AS em
   ON em.id_descricao = m.id_descricao AND em.id_modelo = %(modelo)s
 CROSS JOIN LATERAL (
-    -- só ORDER BY distância + LIMIT aqui dentro, para o índice HNSW ser usado
+    -- só ORDER BY distância + LIMIT aqui dentro, para um índice HNSW, se
+    -- existir, poder ser usado; sem índice é uma varredura exata
     SELECT c.id_descricao, c.vetor <=> em.vetor AS distancia
     FROM semantica.embedding AS c
     WHERE c.origem = 'catmat' AND c.id_modelo = %(modelo)s

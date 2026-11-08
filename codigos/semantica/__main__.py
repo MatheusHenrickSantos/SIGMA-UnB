@@ -169,9 +169,10 @@ def _argumentos(argv: list[str] | None) -> argparse.Namespace:
                        help="descarta candidatos abaixo deste valor; sem padrão calibrado (SEMANTICA_LIMIAR)")
     busca.add_argument("--busca-exata", action="store_true",
                        default=_ambiente("SEMANTICA_BUSCA_EXATA", "") in ("1", "true", "sim"),
-                       help="varredura completa em vez do índice HNSW (SEMANTICA_BUSCA_EXATA=1)")
+                       help="proíbe o uso de índice HNSW, se houver; sem índice a busca já é exata "
+                            "(SEMANTICA_BUSCA_EXATA=1)")
     busca.add_argument("--ef-search", type=int, default=_numero_opcional(_ambiente("SEMANTICA_EF_SEARCH"), int),
-                       help="hnsw.ef_search; padrão max(40, top_k) (SEMANTICA_EF_SEARCH)")
+                       help="hnsw.ef_search, só com índice HNSW; padrão max(40, top_k) (SEMANTICA_EF_SEARCH)")
     busca.add_argument("--incluir-catmat-inativo", action="store_true",
                        help="sincroniza também itens CATMAT inativos")
 

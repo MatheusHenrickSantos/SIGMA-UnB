@@ -7,6 +7,8 @@ import math
 import psycopg
 import pytest
 
+from semantica.correspondencia import SQL_INDICE_HNSW
+
 DIMENSAO = 384
 
 
@@ -57,8 +59,8 @@ def teste_objetos_criados(banco):
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'semantica'"
             )
         }
-        indice = conn.execute(
-            "SELECT indexdef FROM pg_indexes WHERE indexname = 'ix_embedding_catmat_hnsw'"
+        indices_hnsw = conn.execute(
+            "SELECT count(*) FROM pg_indexes WHERE schemaname = 'semantica' AND indexdef ILIKE '%%hnsw%%'"
         ).fetchone()[0]
         dimensao = conn.execute(
             "SELECT atttypmod FROM pg_attribute "
@@ -70,7 +72,8 @@ def teste_objetos_criados(banco):
         "modelo_embedding", "descricao", "embedding", "execucao_correspondencia",
         "candidato_catmat", "revisao_correspondencia", "v_candidato_catmat", "v_fila_revisao",
     } <= tabelas
-    assert "hnsw" in indice and "vector_cosine_ops" in indice and "catmat" in indice
+    # criado na V2 e removido na V3 (ADR 0005): a busca é exata
+    assert indices_hnsw == 0
     assert dimensao == DIMENSAO
 
 
@@ -80,7 +83,7 @@ def teste_tabelas_da_v1_continuam_existindo(banco):
             assert conn.execute("SELECT to_regclass(%s)", (tabela,)).fetchone()[0] is not None
 
 
-def teste_ordem_por_distancia_de_cosseno_e_uso_do_indice(banco):
+def teste_ordem_por_distancia_de_cosseno_e_indice_recriavel(banco):
     with psycopg.connect(banco) as conn, conn.cursor() as cur:
         id_modelo = _modelo(cur)
         # ângulos crescentes em relação à consulta (1, 0)
@@ -97,6 +100,8 @@ def teste_ordem_por_distancia_de_cosseno_e_uso_do_indice(banco):
         """
         linhas = cur.execute(sql, (consulta, consulta)).fetchall()
 
+        # o índice removido na V3 pode ser recriado e é usado pela mesma consulta
+        cur.execute(SQL_INDICE_HNSW.format(nome="ix_embedding_catmat_hnsw"))
         cur.execute("SET enable_seqscan = off")
         plano = "\n".join(
             linha[0]
