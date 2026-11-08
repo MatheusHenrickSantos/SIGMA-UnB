@@ -42,7 +42,7 @@ almoxarifados_numerados AS (
 
 SELECT
     {{ gerar_identificador(
-        'alm',
+        'al',
         'ultimo_identificador.numero + almoxarifados_numerados.numero_linha'
     ) }} AS identificador_almoxarifado,
 

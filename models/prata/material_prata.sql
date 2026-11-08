@@ -42,7 +42,7 @@ materiais_numerados AS (
 
 SELECT
     {{ gerar_identificador(
-        'mat',
+        'ma',
         'ultimo_identificador.numero + materiais_numerados.numero_linha'
     ) }} AS identificador_material,
 
