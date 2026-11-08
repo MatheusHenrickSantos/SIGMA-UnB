@@ -1,49 +1,91 @@
-import os
+import json
+import re
+from pathlib import Path
+from urllib.parse import unquote, urlsplit
+
 import requests
 
-# 1. URL da API do CKAN para o dataset do almoxarifado da UnB
-dataset_id = "estoque-do-almoxarifado"
-api_url = f"https://dados.unb.br/api/3/action/package_show?id={dataset_id}"
+RAIZ_PROJETO = Path(__file__).resolve().parents[1]
+PASTA_DESTINO = RAIZ_PROJETO / "dados" / "estoque"
+URL_API = "https://dados.unb.br/api/3/action/package_show"
+DATASET_ID = "estoque-do-almoxarifado"
+TIMEOUT_SEGUNDOS = 60
+PADRAO_ARQUIVO = re.compile(
+    r"estoque-do-almoxarifado-\d{2}-\d{4}\.json"
+)
 
-# Pasta onde os arquivos JSON serão salvos
-pasta_destino = "../dados/almoxarifado"
-os.makedirs(pasta_destino, exist_ok=True)
 
-print(f"Buscando recursos no portal de dados abertos da UnB...")
+def selecionar_recursos_json(recursos: list[dict]) -> dict[str, dict]:
+    """Seleciona a versão mais recente de cada recurso JSON mensal."""
+    selecionados = {}
 
-try:
-    # 2. Requisição para a API
-    response = requests.get(api_url, timeout=30)
-    response.raise_for_status()
-    data = response.json()
-
-    # 3. Filtrar e baixar os recursos em CSV
-    recursos = data.get("result", {}).get("resources", [])
-
-    downloads_realizados = 0
     for recurso in recursos:
-        formato = (recurso.get("format") or "").upper()
-        url_download = recurso.get("url")
-        nome_arquivo = (recurso.get("name") or "recurso").strip()
+        url = recurso.get("url") or ""
+        nome_arquivo = unquote(Path(urlsplit(url).path).name)
+        formato = (recurso.get("format") or "").strip().upper()
 
-        # Verifica se o recurso é CSV ou se a URL termina com .csv
-        url_base = url_download.lower().split("?")[0] if url_download else ""
-        if formato == "CSV" or url_base.endswith(".csv"):
-            nome_limpo = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in nome_arquivo)
-            caminho_arquivo = os.path.join(pasta_destino, f"{nome_limpo}.csv")
+        if formato != "JSON" or not PADRAO_ARQUIVO.fullmatch(nome_arquivo):
+            continue
 
-            print(f"Baixando: {nome_arquivo}...")
+        atual = selecionados.get(nome_arquivo)
+        data_recurso = (
+            recurso.get("last_modified") or recurso.get("created") or ""
+        )
+        data_atual = (
+            atual.get("last_modified") or atual.get("created") or ""
+            if atual
+            else ""
+        )
 
-            res_file = requests.get(url_download, timeout=30)
-            res_file.raise_for_status()
+        if atual is None or data_recurso > data_atual:
+            selecionados[nome_arquivo] = recurso
 
-            with open(caminho_arquivo, "w", encoding="utf-8", newline="") as f:
-                f.write(res_file.text)
+    return selecionados
 
-            downloads_realizados += 1
-            print(f"Salvo em: {caminho_arquivo}")
 
-    print(f"\nConcluído! Total de {downloads_realizados} arquivos CSV baixados na pasta '{pasta_destino}'.")
+def baixar_dados(pasta_destino: Path = PASTA_DESTINO) -> int:
+    pasta_destino.mkdir(parents=True, exist_ok=True)
 
-except Exception as e:
-    print(f"Ocorreu um erro ao buscar os dados: {e}")
+    resposta = requests.get(
+        URL_API,
+        params={"id": DATASET_ID},
+        timeout=TIMEOUT_SEGUNDOS,
+    )
+    resposta.raise_for_status()
+    pacote = resposta.json()
+
+    if not pacote.get("success"):
+        raise RuntimeError(
+            f"Falha ao consultar o portal: {pacote.get('error')}"
+        )
+
+    recursos = pacote.get("result", {}).get("resources", [])
+    selecionados = selecionar_recursos_json(recursos)
+    if not selecionados:
+        raise RuntimeError("O portal não retornou recursos JSON mensais.")
+
+    for nome_arquivo, recurso in sorted(selecionados.items()):
+        print(f"Baixando: {nome_arquivo}")
+        resposta_arquivo = requests.get(
+            recurso["url"],
+            timeout=TIMEOUT_SEGUNDOS,
+        )
+        resposta_arquivo.raise_for_status()
+        conteudo = resposta_arquivo.content.decode("utf-8-sig")
+        json.loads(conteudo)
+
+        destino = pasta_destino / nome_arquivo
+        temporario = destino.with_suffix(destino.suffix + ".tmp")
+        temporario.write_text(conteudo, encoding="utf-8")
+        temporario.replace(destino)
+        print(f"Salvo em: {destino}")
+
+    print(
+        f"Concluído: {len(selecionados)} arquivo(s) JSON salvo(s) "
+        f"em '{pasta_destino}'."
+    )
+    return len(selecionados)
+
+
+if __name__ == "__main__":
+    baixar_dados()
