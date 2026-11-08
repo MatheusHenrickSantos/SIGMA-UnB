@@ -7,7 +7,9 @@ Cada responsabilidade fica num módulo separado:
 - repositorio: lê e grava no PostgreSQL (schema semantica);
 - processamento: junta os três acima em etapas incrementais;
 - especificacoes: regras que conferem medidas, unidades, cores e códigos;
-- correspondencia: busca top-K por cosseno, grava candidatos e revisões.
+- correspondencia: busca top-K por cosseno, grava candidatos e revisões;
+- fontes: de quais tabelas da Prata vêm as descrições;
+- __main__: linha de comando (python -m semantica).
 
 Ver docs/semantica.md.
 """
