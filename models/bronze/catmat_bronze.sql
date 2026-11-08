@@ -15,12 +15,6 @@ SELECT
     item ->> 'descricaoItem' AS descricao_item,
 
     NULLIF(item ->> 'statusItem', '')::BOOLEAN AS status_item,
-    NULLIF(item ->> 'itemSustentavel', '')::BOOLEAN AS item_sustentavel,
-
-    NULLIF(item ->> 'codigo_ncm', '')::INTEGER AS codigo_ncm,
-    item ->> 'descricao_ncm' AS descricao_ncm,
-    NULLIF(item ->> 'aplica_margem_preferencia', '')::BOOLEAN
-        AS aplica_margem_preferencia,
 
     NULLIF(item ->> 'dataHoraAtualizacao', '')::TIMESTAMP
         AS data_hora_atualizacao,
