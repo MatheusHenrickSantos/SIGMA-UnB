@@ -21,7 +21,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('material')
+                to: ref('material_prata')
                 field: identificador_material
 
       - name: identificador_almoxarifado
@@ -30,7 +30,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('almoxarifado')
+                to: ref('almoxarifado_prata')
                 field: identificador_almoxarifado
 
       - name: mes_de_referencia
