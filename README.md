@@ -26,15 +26,20 @@ Tudo roda localmente em Docker Compose, sem instalar Postgres nem Python na máq
 
 ## O que sobe
 
-Um único comando sobe três serviços, nesta ordem:
+Um único comando sobe estes serviços, nesta ordem:
 
-| Serviço   | O que faz                                                                                              | Termina? |
-|-----------|--------------------------------------------------------------------------------------------------------|----------|
-| `db`      | PostgreSQL 16: o banco transacional (OLTP).                                                            | Não, fica rodando |
-| `migrate` | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio.                   | Sim |
-| `ingest`  | Python: baixa os 5 datasets do portal da UnB para `dados/bruto/` e carrega no banco.                    | Sim |
+| Serviço       | O que faz                                                                                          | Termina? |
+|---------------|----------------------------------------------------------------------------------------------------|----------|
+| `db`          | PostgreSQL 16 com a extensão pgvector (imagem construída em `db/Dockerfile`).                      | Não, fica rodando |
+| `migrate`     | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio.               | Sim |
+| `ingest`      | Python: baixa os 5 datasets do portal da UnB para `dados/bruto/` e carrega no banco (OLTP).        | Sim |
+| `raw`         | Python: baixa o estoque e o catálogo CATMAT e grava no schema `raw`.                               | Sim |
+| `transformar` | dbt: `raw` → `bronze` → `prata`, com os testes de dados (`dbt build`).                             | Sim |
+| `semantica`   | Python: embeddings das descrições e candidatos CATMAT para cada material ([detalhes](docs/semantica.md)). | Sim |
 
-`migrate` só começa quando o banco está pronto, e `ingest` só começa se todas as migrações tiverem sido aplicadas com sucesso.
+`migrate` só começa quando o banco está pronto; `ingest` e `raw` só começam se todas as migrações tiverem sido aplicadas; `transformar` espera o `raw` e `semantica` espera o `transformar` terminarem com sucesso.
+
+O catálogo CATMAT tem centenas de páginas e o `semantica` baixa um modelo de linguagem (~0,5 GB) e calcula os vetores na CPU: a primeira execução completa leva bem mais que a carga do `ingest`. Para um teste rápido, use `CATMAT_MAX_PAGINAS=5` no `.env`.
 
 ---
 
@@ -181,6 +186,10 @@ Para conectar de fora (DBeaver, pgAdmin, VS Code): host `localhost`, porta `5432
 | Resumir a camada bruta (linhas, colunas)        | `docker compose run --rm ingest python inspecionar_bruto.py` |
 | Medições do ADR 0001                            | `docker compose run --rm ingest python medir_adr0001.py` |
 | Aplicar migrações novas                         | `docker compose run --rm migrate` |
+| Recalcular só a busca semântica (incremental)   | `docker compose run --rm semantica` |
+| Exportar a fila de revisão de candidatos CATMAT | `docker compose run --rm semantica python -m semantica fila` (gera `dados/semantica/fila_revisao.csv`) |
+| Registrar a revisão de um candidato             | `docker compose run --rm semantica python -m semantica revisar --material ma0001 --codigo 123456 --decisao equivalente --revisor "Nome"` |
+| Medições do ADR 0005 (exata x HNSW, vetores reais) | `docker compose run --rm semantica python medir_adr0005.py real` |
 | Parar (mantém os dados do banco)                | `docker compose down` |
 | **Apagar o banco e recomeçar do zero**          | `docker compose down -v` |
 
@@ -198,6 +207,11 @@ Todas as variáveis têm valor padrão, então **o `.env` é opcional**. Crie-o 
 | `POSTGRES_USER`     | `sigma` | Usuário |
 | `POSTGRES_PASSWORD` | `sigma` | Senha |
 | `POSTGRES_PORT`     | `5432`  | Porta **na sua máquina** (dentro da rede do Compose é sempre 5432) |
+| `CATMAT_MAX_PAGINAS` | vazio (todas) | Limita as páginas do CATMAT baixadas pelo `raw` (500 itens cada) |
+| `SEMANTICA_MODELO`  | `intfloat/multilingual-e5-small` | Modelo de embeddings (384 dimensões) |
+| `SEMANTICA_TOP_K`   | `10`    | Candidatos CATMAT guardados por material |
+| `SEMANTICA_LIMIAR`  | vazio   | Similaridade mínima para guardar um candidato (sem valor calibrado ainda) |
+| `SEMANTICA_BUSCA_EXATA` | vazio | `1` = proíbe índice HNSW (hoje não há índice: a busca já é exata; ver ADR 0005) |
 
 O `.env` está no `.gitignore` e não deve ser versionado.
 
@@ -207,7 +221,7 @@ O `.env` está no `.gitignore` e não deve ser versionado.
 
 ```
 SIGMA-UnB/
-├── docker-compose.yml          # sobe db, migrate e ingest
+├── docker-compose.yml          # sobe db, migrate, ingest, raw, transformar e semantica
 ├── .env.example                # modelo de configuração
 ├── codigos/
 │   ├── Dockerfile              # imagem Python do serviço ingest
@@ -217,8 +231,11 @@ SIGMA-UnB/
 │   ├── normalizar.py           # funções de limpeza de texto e números
 │   ├── inspecionar_bruto.py    # resumo da camada bruta
 │   ├── medir_adr0001.py        # medições do ADR 0001
+│   ├── medir_adr0005.py        # medições do ADR 0005 (busca exata x HNSW)
+│   ├── semantica/              # busca semântica: normalização, embeddings, pgvector, candidatos
 │   └── coletar_precos_mercado_livre.py
 ├── db/
+│   ├── Dockerfile              # postgres:16-alpine + pgvector
 │   └── migrations/             # V1__descricao.sql, V2__..., aplicados em ordem pelo Flyway
 ├── docs/                       # site estático Docsify
 │   ├── index.html              # configuração do Docsify
@@ -268,10 +285,11 @@ Rode com `--build` para reconstruir a imagem: `docker compose up --build`.
 | Item | Situação |
 |---|---|
 | Banco PostgreSQL em Docker | ✅ |
-| Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql` |
+| Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql`, `V2__semantica_pgvector.sql`, `V3__semantica_sem_indice_hnsw.sql` |
 | Download automatizado dos 5 datasets, com manifesto | ✅ |
 | Carga dos dados no banco, idempotente, com rejeitados registrados | ✅ |
 | ADR da E1 ([`docs/adr/0001-modelagem-da-origem.md`](docs/adr/adr-1.md)) | ✅ |
 | Diário ([`docs/diario/`](docs/diario/)) | ✅ |
 | Registro de uso de IA ([`docs/ai-usage.md`](docs/ai-usage.md)) | ✅ |
 | Cotações de mercado no banco | ⏳ Tabela criada; coleta entra na E2 |
+| Candidatos CATMAT por similaridade semântica (pgvector) | 🚧 Pipeline e testes prontos; falta rodar com o modelo e os dados reais e calibrar o limiar ([docs](docs/semantica.md)) |
