@@ -4,7 +4,7 @@
 #     docker compose up --build
 #
 # Ordem de execução (garantida pelos depends_on):
-#   1. db       — PostgreSQL, o sistema transacional (OLTP)
+#   1. db       — PostgreSQL com pgvector (imagem construída em db/Dockerfile)
 #   2. migrate  — Flyway aplica db/migrations/V*.sql em ordem, a partir do banco vazio
 #   3. ingest   — baixa os dados abertos da UnB (dados/bruto) e carrega no banco
 #
@@ -15,7 +15,11 @@ name: sigma-unb
 
 services:
   db:
-    image: postgres:16-alpine
+    # postgres:16-alpine + pgvector. Mesma base de antes: o volume pgdata
+    # existente continua válido (ver comentário em db/Dockerfile).
+    build:
+      context: ./db
+    image: sigma-unb/postgres-pgvector:16
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-sigma}
