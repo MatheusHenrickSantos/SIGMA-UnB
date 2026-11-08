@@ -6,7 +6,8 @@ Cada responsabilidade fica num módulo separado:
 - embeddings: transforma texto normalizado em vetor (modelo de linguagem);
 - repositorio: lê e grava no PostgreSQL (schema semantica);
 - processamento: junta os três acima em etapas incrementais;
-- especificacoes: regras que conferem medidas, unidades, cores e códigos.
+- especificacoes: regras que conferem medidas, unidades, cores e códigos;
+- correspondencia: busca top-K por cosseno, grava candidatos e revisões.
 
 Ver docs/semantica.md.
 """

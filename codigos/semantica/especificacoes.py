@@ -20,6 +20,10 @@ from collections import defaultdict
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
+# Gravada em semantica.execucao_correspondencia. Mude ao alterar uma regra,
+# para saber com quais regras cada lista de candidatos foi avaliada.
+VERSAO_REGRAS = "1"
+
 
 def maiuscula_ascii(valor: Any) -> str:
     if valor is None or (isinstance(valor, float) and math.isnan(valor)):
