@@ -4,14 +4,18 @@ from pathlib import Path
 from typing import Any, Literal, TypeAlias
 
 PASTA_CODIGOS = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(PASTA_CODIGOS))
 
 import psycopg
 from psycopg import sql
 from psycopg.types.json import Jsonb
 
-from conectar_com_banco_de_dados import conectar
-from utilidades import calcular_hash
+if __package__:
+    from ..utilidades import calcular_hash
+    from .conectar_com_banco_de_dados import conectar
+else:
+    sys.path.insert(0, str(PASTA_CODIGOS))
+    from conectar_com_banco_de_dados import conectar
+    from utilidades import calcular_hash
 
 TipoDaTabela: TypeAlias = Literal["estoque", "compras", "catmat"]
 

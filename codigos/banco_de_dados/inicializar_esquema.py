@@ -1,7 +1,11 @@
 from pathlib import Path
-from conectar_com_banco_de_dados import conectar
 from typing import LiteralString, cast
 import psycopg
+
+if __package__:
+    from .conectar_com_banco_de_dados import conectar
+else:
+    from conectar_com_banco_de_dados import conectar
 
 
 
