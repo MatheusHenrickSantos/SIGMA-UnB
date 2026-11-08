@@ -67,6 +67,19 @@ recebem vetor.
 Mudou uma regra? Incremente `VERSAO_NORMALIZACAO`: o hash do texto
 normalizado muda e só os vetores afetados são recalculados.
 
+Conferido com as 2.327 descrições reais de `seeds/materiais_normalizados.csv`
+(`testes/teste_normalizacao_dados_reais.py`): todas válidas, normalização
+idempotente, nenhuma sequência de dígitos perdida, 16 grupos de variações de
+escrita convergindo para o mesmo texto.
+
+**Duas normalizações no repositório.** `codigos/normalizar/` (camada Bronze)
+gera a descrição canônica legível, em maiúsculas, da semente
+`materiais_normalizados.csv`, com correção de erros de digitação
+(`FEVERDOR` → `FERVEDOR`). Esta aqui gera a entrada do modelo (minúsculas,
+abreviações expandidas). Os objetivos são diferentes, mas parte das regras se
+sobrepõe (HTML, acentos, unidades); consolidar as duas — e usar aqui o
+dicionário de correções — fica para a Squad decidir.
+
 ## 2. Modelo de embeddings
 
 Padrão: [`intfloat/multilingual-e5-small`](https://huggingface.co/intfloat/multilingual-e5-small)

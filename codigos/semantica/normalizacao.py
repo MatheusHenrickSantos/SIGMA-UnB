@@ -6,7 +6,8 @@ nunca é alterado: ele é guardado ao lado do normalizado.
 
 Regras, na ordem em que são aplicadas (versão VERSAO_NORMALIZACAO):
 
- 1. entidades HTML desfeitas (&amp;, &Aacute;...);
+ 1. entidades HTML desfeitas (&amp;, &Aacute;...), inclusive as escritas em
+    maiúsculas, que o padrão HTML não reconhece (&EACUTE; -> é);
  2. mojibake (UTF-8 lido como cp1252/latin-1, ex.: 'SABÃƒO') corrigido,
     só quando a conversão de volta é exata;
  3. Unicode NFKC (², ½, espaços especiais, ligaduras viram a forma comum);
@@ -37,7 +38,8 @@ import re
 import unicodedata
 from dataclasses import dataclass
 
-VERSAO_NORMALIZACAO = "1"
+# 2: entidades HTML em maiúsculas (&EACUTE;) passaram a ser desfeitas
+VERSAO_NORMALIZACAO = "2"
 
 TAMANHO_MINIMO = 3
 
@@ -148,10 +150,23 @@ def corrigir_mojibake(texto: str) -> str:
         return texto
 
 
+_ENTIDADE_HTML = re.compile(r"&([A-Za-z][A-Za-z0-9]*);")
+
+
+def _entidade_sem_caixa(achado: re.Match) -> str:
+    # o texto vai para minúsculas depois, então &EACUTE; pode virar &eacute;
+    nome = achado.group(1)
+    for candidato in (nome, nome.lower(), nome.capitalize()):
+        decodificado = html.unescape(f"&{candidato};")
+        if decodificado != f"&{candidato};":
+            return decodificado
+    return achado.group(0)
+
+
 def _desfazer_html(texto: str) -> str:
     # até 3 voltas cobre '&amp;Aacute;' (escapado duas vezes)
     for _ in range(3):
-        novo = html.unescape(texto)
+        novo = _ENTIDADE_HTML.sub(_entidade_sem_caixa, html.unescape(texto))
         if novo == texto:
             break
         texto = novo
