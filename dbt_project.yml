@@ -12,6 +12,7 @@ profile: 'sigma'
 # A configuração `model-paths`, por exemplo, indica que os modelos deste projeto podem ser
 # encontrados no diretório "models/". Provavelmente você não precisará alterá-las!
 model-paths: ["models"]
+seed-paths: ["seeds"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
 macro-paths: ["macros"]
@@ -21,6 +22,11 @@ clean-targets:         # diretórios a serem removidos pelo `dbt clean`
   - "target"
   - "dbt_packages"
 
+seeds:
+  # Configurações de sementes
+  # Documentação completa: https://docs.getdbt.com/docs/building-a-dbt-project/seeds
+  sigma:
+    +schema: bronze
 
 # Configurando modelos
 # Documentação completa: https://docs.getdbt.com/docs/configuring-models
