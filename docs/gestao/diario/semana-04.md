@@ -24,10 +24,10 @@ Responsável atribuído pelo autor do commit. Os commits da semana começam em 2
 | Inspeção da camada bruta e medições do ADR 0001 | Samara | ✅ concluído | `55307a4` — `codigos/inspecionar_bruto.py`, `codigos/medir_adr0001.py` |
 | Ambiente Docker Compose (`db`, `migrate`, `ingest`) | Samara | ✅ concluído | `368a63c`, `55307a4` — `docker-compose.yml`, `codigos/Dockerfile` |
 | README com instruções de instalação e uso | Matheus | ✅ concluído | `cab24c8` — `README.md` |
-| Documentação: registro de IA, diário, template de ADR e site (mkdocs) | Samara | ✅ concluído | `7e00562`, `975a201` — `docs/ai-usage.md`, `docs/diario-de-bordo.md`, `docs/adr-template.md` |
+| Documentação: registro de IA, diário, template de ADR e site (mkdocs) | Samara | ✅ concluído | `7e00562`, `975a201` — `docs/gestao/ai-usage.md`, `docs/gestao/diario-de-bordo.md`, `docs/gestao/adr-template.md` |
 | Coleta de preços do Mercado Livre (script) | Matheus | 🔄 em andamento | `c6e0cf9` — coleta gravada no banco entra na E2 |
 | ADR 0001: modelagem da origem (status aceito) | Israel, Magno, Matheus, Samara (decisores) | ✅ decidido; 📄 versionado em 11/10 | `9076efa` — `docs/adr/adr-1.md` |
-| Diário da semana no repositório | Equipe | 🔄 em andamento | Existe só localmente em `docs/diario/`; ainda não está no git |
+| Diário da semana no repositório | Equipe | 🔄 em andamento | Existe só localmente em `docs/gestao/diario/`; ainda não está no git |
 
 ## Decisões tomadas
 
@@ -65,8 +65,8 @@ Responsável atribuído pelo autor do commit. Os commits da semana começam em 2
 
 ## Próximos passos
 
-- [x] Versionar `docs/diario/` no repositório, incluindo esta semana — equipe
+- [x] Versionar `docs/gestao/diario/` no repositório, incluindo esta semana — equipe
 - [x] Alinhar o nome do ADR 0001 (`adr-1.md` ou `0001-modelagem-da-origem.md`) com os links do README — Matheus
-- [x] Remover a entrada modelo `AAAA-MM-DD` de `docs/ai-usage.md` — Samara
+- [x] Remover a entrada modelo `AAAA-MM-DD` de `docs/gestao/ai-usage.md` — Samara
 - [x] Testar a subida do zero em máquina limpa (`git clone` e `docker compose up --build`) antes da apresentação — equipe
 - [x] Definir a coleta de cotações do Mercado Livre para a E2 e gravar no banco — Matheus

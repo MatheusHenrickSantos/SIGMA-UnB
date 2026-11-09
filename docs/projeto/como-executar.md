@@ -2,6 +2,10 @@
 
 Versão resumida do README para o site da documentação.
 
+## Escopo deste passo a passo
+
+Os comandos abaixo sobem o pipeline Docker já existente. O serviço `ingest` ainda baixa os cinco datasets da configuração anterior do portal da UnB; não baixa o CATMAT nem consulta preços públicos. A coleta do CATMAT e a exploração da API de preços são feitas por scripts separados e ainda não estão integradas à execução do Compose. Consulte o [teste de viabilidade](../testes/teste-de-viabilidade.md) para esse fluxo.
+
 ## Pré-requisitos
 
 - Docker (Docker Desktop no Windows, Docker Engine no Linux) com Compose v2 (`docker compose`)

@@ -11,7 +11,7 @@
 
 ### Camada raw
 
-A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena os dados brutos mensais de estoque oriundos dos dados abertos da UnB. O campo `DadoBruto` é armazenado como _TEXT_ para preservar o arquivo exatamente como disponibilizado pela fonte, enquanto `MesDeReferencia` e `AnoDeReferencia` utilizam o tipo _SMALLINT_ e a `HashDoArquivo` utiliza _CHAR(64)_ (gerada via SHA-256) para garantir a integridade e unicidade da carga. As __Tabelas 2 e 3__ apresentam, respectivamente, a descrição da tabela `compras` e da tabela `CATMAT`, compostas pelos atributos `DadoBruto`, `HashDoArquivo` e `DataDaInsercao` (_TIMESTAMP_). Essa estruturação garante a rastreabilidade e a imutabilidade do dado de entrada sem nenhum tipo de tratamento prévio.
+A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena os dados brutos mensais de estoque oriundos dos dados abertos da UnB. O campo `DadoBruto` é armazenado como _JSONB_ para preservar o arquivo exatamente como disponibilizado pela fonte, enquanto `MesDeReferencia` e `AnoDeReferencia` utilizam o tipo _SMALLINT_ e a `HashDoArquivo` utiliza _CHAR(64)_ (gerada via SHA-256) para garantir a integridade e unicidade da carga. As __Tabelas 2 e 3__ apresentam, respectivamente, a descrição da tabela `compras` e da tabela `CATMAT`, compostas pelos atributos `DadoBruto`, `HashDoArquivo` e `DataDaInsercao` (_TIMESTAMP_). Essa estruturação garante a rastreabilidade e a imutabilidade do dado de entrada sem nenhum tipo de tratamento prévio.
 
 <details>
   <summary>Tabela 1 – Dicionário de dados da tabela estoque
@@ -34,8 +34,8 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
       <tbody>
         <tr>
           <td><code>DadoBruto</code></td>
-          <td>Linha bruta ou conteúdo integral do arquivo CSV mensal de estoque.</td>
-          <td>TEXT</td>
+          <td>Linha bruta ou conteúdo integral do arquivo JSON mensal de estoque.</td>
+          <td>JSONB</td>
           <td>-</td>
           <td>-</td>
           <td>-</td>
@@ -96,7 +96,7 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
         <tr>
           <td><code>DadoBruto</code></td>
           <td>Conteúdo integral ou registro bruto dos dados de compras do gov.br.</td>
-          <td>TEXT</td>
+          <td>JSONB</td>
           <td>-</td>
           <td>-</td>
           <td>-</td>
@@ -148,7 +148,7 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
         <tr>
           <td><code>DadoBruto</code></td>
           <td>Conteúdo integral ou registro bruto do arquivo CATMAT.</td>
-          <td>TEXT</td>
+          <td>JSONB</td>
           <td>-</td>
           <td>-</td>
           <td>-</td>

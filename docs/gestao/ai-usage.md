@@ -49,7 +49,7 @@ tradução. Registre o que produziu artefato ou mudou uma decisão.
 ### 2026-10-19 — backlog do produto
 
 - **Ferramenta:** Claude (sonnet 5.5), em modo agente com acesso ao repositório
-- **Onde:** docs/backlog.md e docs/_sidebar.md
+- **Onde:** docs/gestao/backlog.md e docs/_sidebar.md
 - **O que foi pedido:** escrever o backlog do produto (requisitos do que esperamos ter construído no fim da disciplina), a partir da pergunta de gestão, das fontes de dados, do que o repositório já tem e dos enunciados da E2, E3 e E4. Uma primeira versão tratava só do aceite da E2 e foi descartada.
 - **O que foi aproveitado:** a estrutura (histórias, requisitos de dados e não funcionais, fora do escopo) e a situação de cada item. As prioridades e a divisão em requisitos são sugestões da ferramenta, a revisar pela Squad.
 - **Como foi verificado:** a situação de cada item foi conferida contra o repositório e o banco; as etapas E2, E3 e E4 foram conferidas com os enunciados colados pela Squad; a pergunta de gestão e o tema do quinto ADR ainda precisam ser definidos.

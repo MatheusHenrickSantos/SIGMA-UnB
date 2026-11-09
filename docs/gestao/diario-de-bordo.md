@@ -4,7 +4,7 @@ Registro semanal curto. Três perguntas, uma entrada por Semana. É insumo das
 retrospectivas e da defesa final, e é a evidência que sustenta o componente de
 processo da avaliação de Entrega.
 
-Guarde em `docs/diario/` no repositório da Squad, um arquivo por Semana ou um
+Guarde em `docs/gestao/diario/` no repositório da Squad, um arquivo por Semana ou um
 arquivo só — o que a Squad preferir manter.
 
 ---

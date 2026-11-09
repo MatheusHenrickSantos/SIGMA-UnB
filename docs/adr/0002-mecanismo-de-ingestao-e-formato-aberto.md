@@ -6,7 +6,7 @@
 | Data | DD/MM/AAAA |
 | Entrega | E2 |
 | Autores | [nomes] |
-| ADRs relacionados | [ADR 1](adr/adr-1.md) |
+| ADRs relacionados | [ADR 1](adr-1.md) |
 
 ## Contexto
 

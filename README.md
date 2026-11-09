@@ -1,10 +1,18 @@
 # SIGMA-UnB
 
-Plataforma de dados construída sobre os **dados abertos da Universidade de Brasília** ([dados.unb.br](https://dados.unb.br)) — estoque do almoxarifado, unidades acadêmicas, gastos por unidade, empenhos e requisições de serviços — como Projeto Integrado da disciplina.
+O SIGMA-UnB é uma plataforma de dados para apoiar a gestão de materiais e as decisões de compra da Universidade de Brasília. A análise proposta reúne três fontes:
 
-> **Pergunta de gestão:** _Quais materiais do almoxarifado da UnB tiveram o preço unitário registrado acima do preço de mercado em lojas online entre 2026 e 2027, em quais almoxarifados, e quanto a UnB gastaria a menos se tivesse pago o preço de mercado?._
+| Fonte | Papel |
+| :---: | :---- |
+| Estoque do almoxarifado da UnB | Materiais, almoxarifados, saldos e preços registrados. |
+| Catálogo de Materiais (CATMAT) | Códigos e descrições para apoiar a identificação dos itens. |
+| Pesquisa de preços públicos | Registros de preços observados em compras da Administração Pública. |
 
-Tudo roda localmente em Docker Compose, sem instalar Postgres nem Python na máquina.
+> **Pergunta de gestão:** _Para quais materiais do estoque da UnB é possível encontrar um item correspondente no CATMAT e em compras públicas comparáveis, e quais apresentam as maiores diferenças entre o preço registrado no estoque e os preços dessas compras, por almoxarifado e período?_
+
+A comparação depende de validar a correspondência do item e a equivalência de unidade e período. Os preços de compras públicas são referências de compras, não cotações de lojas nem prova, por si só, de sobrepreço.
+
+O banco e o pipeline Docker descritos abaixo podem ser executados localmente, sem instalar PostgreSQL nem Python na máquina. **A ingestão Docker ainda está na configuração anterior:** baixa cinco datasets do portal da UnB e não integra o CATMAT nem a pesquisa de preços públicos. Esses fluxos novos ainda não estão orquestrados pelo Compose.
 
 ---
 
@@ -28,13 +36,13 @@ Tudo roda localmente em Docker Compose, sem instalar Postgres nem Python na máq
 
 Um único comando sobe estes serviços, nesta ordem:
 
-| Serviço       | O que faz                                                                                          | Termina? |
-|---------------|----------------------------------------------------------------------------------------------------|----------|
-| `db`          | PostgreSQL 16 com a extensão pgvector (imagem construída em `db/Dockerfile`).                      | Não, fica rodando |
-| `migrate`     | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio.               | Sim |
-| `ingest`      | Python: baixa o estoque e o catálogo CATMAT e grava no schema `raw`.                               | Sim |
-| `transformar` | dbt: `raw` → `bronze` → `prata`, com os testes de dados (`dbt build`).                             | Sim |
-| `semantica`   | Python: embeddings das descrições e candidatos CATMAT para cada material ([detalhes](docs/semantica.md)). | Sim |
+| Serviço | O que faz | Termina? |
+| ------- | --------- | -------- |
+| `db` | PostgreSQL 16 com a extensão pgvector (imagem construída em `db/Dockerfile`). | Não, fica rodando |
+| `migrate` | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio. | Sim |
+| `ingest` | Python: baixa o estoque e o catálogo CATMAT e grava no schema `raw`. | Sim |
+| `transformar` | dbt: `raw` → `bronze` → `prata`, com os testes de dados (`dbt build`). | Sim |
+| `semantica` | Python: embeddings das descrições e candidatos CATMAT para cada material ([detalhes](docs/dados-e-pipeline/semantica.md)). | Sim |
 
 `migrate` só começa quando o banco está pronto; `ingest` só começa se as migrações tiverem sido aplicadas; `transformar` espera o `ingest` e `semantica` espera o `transformar` terminarem com sucesso.
 
@@ -238,12 +246,18 @@ SIGMA-UnB/
 │   ├── Dockerfile              # postgres:16-alpine + pgvector
 │   └── migrations/             # V1__descricao.sql, V2__..., aplicados em ordem pelo Flyway
 ├── docs/                       # site estático Docsify
-│   ├── index.html              # configuração do Docsify
+│   ├── projeto/                # domínio, fontes, execução e glossário
+│   ├── gestao/                 # backlog, diário e uso de IA
+│   ├── adr/                    # decisões arquiteturais
+│   ├── modelagem/              # diagramas, modelos e dicionário
+│   ├── dados-e-pipeline/       # ingestão, camadas, consultas e validação
+│   ├── testes/                 # testes de viabilidade
+│   ├── assets/                 # imagens e diagramas
+│   ├── home.md                 # página inicial do Docsify
 │   ├── _sidebar.md             # navegação
-│   ├── index.md                # página inicial
-│   └── ...                     # demais páginas e assets da documentação
+│   └── index.html              # configuração do Docsify
 ├── modelagem/                  # diagrama ER, modelo relacional e fonte .drawio
-├── AI-USAGE.md                 # aponta para docs/ai-usage.md
+├── AI-USAGE.md                 # aponta para docs/gestao/ai-usage.md
 └── dados/                      # criado na execução; ignorado pelo git
 ```
 
@@ -286,10 +300,10 @@ Rode com `--build` para reconstruir a imagem: `docker compose up --build`.
 |---|---|
 | Banco PostgreSQL em Docker | ✅ |
 | Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql`, `V2__semantica_pgvector.sql`, `V3__semantica_sem_indice_hnsw.sql` |
-| Download automatizado dos 5 datasets, com manifesto | ✅ |
 | Carga dos dados no banco, idempotente, com rejeitados registrados | ✅ |
-| ADR da E1 ([`docs/adr/0001-modelagem-da-origem.md`](docs/adr/adr-1.md)) | ✅ |
-| Diário ([`docs/diario/`](docs/diario/)) | ✅ |
-| Registro de uso de IA ([`docs/ai-usage.md`](docs/ai-usage.md)) | ✅ |
-| Cotações de mercado no banco | ⏳ Tabela criada; coleta entra na E2 |
+| Download do CATMAT e consulta exploratória de preços públicos por scripts separados | 🚧 Não integrados ao Compose |
+| ADR da E1 ([`docs/adr/adr-1.md`](docs/adr/adr-1.md)) | ✅ |
+| Diário ([`docs/gestao/diario/`](docs/gestao/diario/)) | ✅ |
+| Registro de uso de IA ([`docs/gestao/ai-usage.md`](docs/gestao/ai-usage.md)) | ✅ |
+| Cotações de lojas online | Fora da pergunta de gestão atual |
 | Candidatos CATMAT por similaridade semântica (pgvector) | 🚧 Pipeline e testes prontos; falta rodar com o modelo e os dados reais e calibrar o limiar ([docs](docs/semantica.md)) |
