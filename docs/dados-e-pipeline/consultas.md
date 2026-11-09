@@ -1,6 +1,6 @@
 # Consultas
 
-Consultas SQL sobre o estoque do almoxarifado que apoiam a [pergunta de gestão](dominio-e-pergunta.md). Elas usam só as tabelas `estoque_saldo`, `material`, `almoxarifado` e `unidade`. As consultas que comparam com o preço de mercado (`cotacao_online`) entram quando a coleta de cotações estiver no banco.
+Consultas SQL sobre o estoque do almoxarifado que apoiam a [pergunta de gestão](../projeto/dominio-e-pergunta.md). Elas usam só as tabelas `estoque_saldo`, `material`, `almoxarifado` e `unidade`. As consultas que comparam com o preço de mercado (`cotacao_online`) entram quando a coleta de cotações estiver no banco.
 
 Para rodar:
 
@@ -8,7 +8,7 @@ Para rodar:
 docker compose exec db psql -U sigma -d sigma
 ```
 
-**Como ler o estoque:** `estoque_saldo` guarda uma *foto mensal* do saldo (insert-only, ver [ADR 1](adr/adr-1.md)). Cada linha é um material em um almoxarifado em um mês (`data_referencia` é sempre o dia 1º). Por isso:
+**Como ler o estoque:** `estoque_saldo` guarda uma *foto mensal* do saldo (insert-only, ver [ADR 1](../adr/adr-1.md)). Cada linha é um material em um almoxarifado em um mês (`data_referencia` é sempre o dia 1º). Por isso:
 
 - para saber "como está agora", use o mês mais recente;
 - `valor_total` é o valor **em estoque** (saldo × preço), e não o valor gasto na compra.

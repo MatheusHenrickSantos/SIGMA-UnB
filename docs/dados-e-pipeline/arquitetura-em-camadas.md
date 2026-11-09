@@ -1,6 +1,6 @@
 # Pipeline e arquitetura em camadas
 
-O SIGMA-UnB organiza os dados em três camadas (arquitetura *medallion*): **Bronze**, **Prata** e **Ouro**. Os dados saem do portal de dados abertos da UnB e das lojas online e terminam em um modelo dimensional que responde à [pergunta de gestão](dominio-e-pergunta.md).
+O SIGMA-UnB organiza os dados em três camadas (arquitetura *medallion*): **Bronze**, **Prata** e **Ouro**. Os dados saem do portal de dados abertos da UnB e das lojas online e terminam em um modelo dimensional que responde à [pergunta de gestão](../projeto/dominio-e-pergunta.md).
 
 <div align="center">
   <p><strong>Figura 1 – Arquitetura do Banco (Versão 1.1)</strong></p>
@@ -81,7 +81,7 @@ O diagrama prevê que cada registro da Bronze carregue de onde veio:
 
 ## Prata — dados limpos e relacionados
 
-**Objetivo:** dados com tipos corretos, sem duplicatas, com chaves e relacionamentos, prontos para consulta. A Prata corresponde ao [modelo entidade-relacionamento](modelagem/diagrama-entidade-relacionamento.md) e ao [modelo relacional](modelagem/modelo-relacional.md).
+**Objetivo:** dados com tipos corretos, sem duplicatas, com chaves e relacionamentos, prontos para consulta. A Prata corresponde ao [modelo entidade-relacionamento](../modelagem/diagrama-entidade-relacionamento.md) e ao [modelo relacional](../modelagem/modelo-relacional.md).
 
 O esquema é criado pelo Flyway a partir de `db/migrations/V1__esquema_inicial.sql`. A carga é feita pelo `codigos/carregar.py`, que usa as funções de limpeza de `normalizar.py`.
 
@@ -113,7 +113,7 @@ Tabelas de apoio que também ficam na Prata:
 | Linha inválida não interrompe a carga: vai para `carga_rejeitado` com o motivo | `carregar.py` |
 | Arquivo com o mesmo sha256 não é carregado de novo (idempotência) | `UNIQUE (dataset, sha256)` em `carga_execucao` |
 
-As decisões de modelagem (cadastros CRUD, fatos *insert-only*) estão justificadas no [ADR 1](adr/adr-1.md).
+As decisões de modelagem (cadastros CRUD, fatos *insert-only*) estão justificadas no [ADR 1](../adr/adr-1.md).
 
 ---
 
@@ -121,7 +121,7 @@ As decisões de modelagem (cadastros CRUD, fatos *insert-only*) estão justifica
 
 **Objetivo:** uma tabela fato e quatro dimensões que respondem diretamente quais materiais foram pagos acima do mercado, em quais almoxarifados e quanto se economizaria.
 
-**Formato:** Parquet, lido com DuckDB ([ver ADR 0002](adr/0002-mecanismo-de-ingestao-e-formato-aberto.md)).
+**Formato:** Parquet, lido com DuckDB ([ver ADR 0002](../adr/0002-mecanismo-de-ingestao-e-formato-aberto.md)).
 **Situação:** ⏳ planejada para a E3. Os campos abaixo são a proposta e devem ser confirmados pela squad.
 
 ### Modelo estrela
@@ -181,7 +181,7 @@ A ordem 1 → 2 → 3 é garantida pelo `docker-compose.yml`: o `migrate` só co
 
 ## Como executar
 
-Ver [Como executar](como-executar.md).
+Ver [Como executar](../projeto/como-executar.md).
 
 ---
 

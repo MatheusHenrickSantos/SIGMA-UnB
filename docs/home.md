@@ -1,16 +1,14 @@
-# <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/icone.png" alt="icone" width="50"> Sigma-UnB 
+# <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/icone.png" alt="icone" width="50"> SIGMA-UnB
 
 **Sistema Integrado de Gestão de Materiais e Almoxarifado**
 
-O SIGMA-UnB mostra os materiais disponíveis no almoxarifado da Universidade de Brasília e monitora seus preços em lojas online ao longo do tempo.
+O SIGMA-UnB é uma plataforma de dados para apoiar a gestão de materiais e as decisões de compra da Universidade de Brasília. Ela reúne informações do estoque dos almoxarifados, do catálogo CATMAT e de compras públicas para identificar materiais, acompanhar sua disponibilidade e analisar preços.
 
-Ele foi feito para evitar compras acima do preço de mercado e facilitar o acompanhamento da disponibilidade e do custo dos materiais.
+As comparações de preços dependem de identificar correspondências confiáveis entre os itens e de comparar unidades e períodos equivalentes.
 
 > **Pergunta de gestão**
 >
-> Entre 2021 e 2025, quais materiais de consumo do almoxarifado da UnB tiveram
-> o preço unitário registrado subindo mais rápido, e quais fornecedores
-> concentraram os empenhos desses materiais?
+> Para quais materiais do estoque da UnB é possível encontrar um item correspondente no CATMAT e em compras públicas comparáveis, e quais apresentam as maiores diferenças entre o preço registrado no estoque e os preços dessas compras, por almoxarifado e período?
 
 ---
 
@@ -22,37 +20,22 @@ Ele foi feito para evitar compras acima do preço de mercado e facilitar o acomp
 
 ## Fontes de dados
 
-Todos os dados vêm do portal de dados abertos da UnB, o [dados.unb.br](https://dados.unb.br). Os preços de mercado são coletados pelo próprio SIGMA.
+O Estoque de Materiais vem do portal de [Dados Abertos da UnB](https://dados.unb.br) e representa os itens de almoxarifado da UnB.  
+
+O Catálogo de Materiais, do Sistema Integrado de Administração e Serviços Gerais – SIASG, é uma base de dados que identifica todos os materiais licitados e adquiridos pela Administração Pública Federal. Já o serviço de consulta de preços permite acesso aos dados e informações de itens comprados por meio da Administração, o qual tem como objetivo auxiliar os órgãos governamentais na etapa de pesquisa de preços, que é um passo crucial no planejamento de compras e contratações públicas. Ambos são extraídos por meio da [API de Dados Abertos do Compras.gov.br](Comprashttps://dadosabertos.compras.gov.br/swagger-ui/index.html).
 
 | Fonte | Conteúdo | Dado pessoal? |
-|---|---|---|
-| Estoque de Materiais | Material, almoxarifado, saldo, preço e valor total | Não |
-| Requisições de Serviços | Pedidos de manutenção, limpeza, transporte etc., com datas e situação | Sim |
-| Gastos por Unidade | Gastos de cada unidade por natureza da despesa e período | Não |
-| Empenhos | Notas de empenho: número, data, credor, valor e natureza da despesa | Sim |
-| Unidades Acadêmicas | Código, sigla, nome, tipo e unidade superior | Não |
-| Cotações online | Preço de cada material em lojas online, coletado toda semana | Não |
+| :---: | :------- | :-----------: |
+| Estoque de Materiais | Material, almoxarifado, saldo, preço e valor total. | Não |
+| Catálogo de Materiais (CATMAT) | Códigos que identificam a família do item e os respectivos nomes. | Não |
+| Compras Públicas | Dados como data da compra, item comprado, quantidade, preço e comprador. | Sim |
 
-## Arquitetura em uma linha
 
-**Portal da UnB** → camada bruta (`dados/bruto/`, arquivos originais + manifesto) → **banco transacional PostgreSQL** (esquema versionado com Flyway) → camada analítica em **Parquet** (lida com DuckDB, E2/E3) → painéis e relatórios (E4).
-
-Tudo sobe com um único `docker compose up --build`. O passo a passo está no [README do repositório](https://github.com/samarawwleticia/SIGMA-UnB#readme).
-
-## Modelagem
-
-### Diagrama entidade-relacionamento
-
-![Diagrama entidade-relacionamento](assets/Diagrama%20entidade-relacionamento.v1.0.png)
-
-### Modelo relacional
-
-![Modelo relacional](assets/Modelo%20relacional.v1.0.png)
 
 ## Entregas
 
 | Entrega | Tema | Data |
-|---|---|---|
+| :-----: | :--- | :--: |
 | E1 | Fonte transacional modelada e populada | 22/09/2026 |
 | E2 | Ingestão em lote e captura de mudanças | 13/10/2026 |
 | E3 | Camada analítica transformada, testada e orquestrada | 03/11/2026 |

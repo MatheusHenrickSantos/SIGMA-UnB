@@ -6,7 +6,7 @@
 | Data | 19/10/2026 |
 | Entrega | E1 / E2 |
 | Autores | [nomes] |
-| ADRs relacionados | [ADR 1](adr/adr-1.md) |
+| ADRs relacionados | [ADR 1](adr-1.md) |
 
 ## Contexto
 
@@ -62,7 +62,7 @@ FROM estoque_saldo GROUP BY 1 ORDER BY 1;
 
 Adotamos a **alternativa C**. `verificar_queda` passa a devolver uma mensagem em vez de levantar `RuntimeError`, e `carregar_arquivo` imprime essa mensagem como `AVISO:` e grava o arquivo normalmente.
 
-A quebra de 11/2022 fica registrada como **mudança de patamar na origem, de causa não identificada**, em [Caracterização da carga](caracterizacao-da-carga.md#_5-qualidade-dos-dados).
+A quebra de 11/2022 fica registrada como **mudança de patamar na origem, de causa não identificada**, em [Caracterização da carga](../dados-e-pipeline/caracterizacao-da-carga.md#_5-qualidade-dos-dados).
 
 ## Consequências
 

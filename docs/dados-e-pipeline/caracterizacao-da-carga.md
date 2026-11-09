@@ -1,6 +1,6 @@
 # Caracterização e volume da carga
 
-Medições da carga dos dados abertos da UnB no PostgreSQL. Os números aqui embasam o [ADR 1](adr/adr-1.md) e o [ADR 0003](adr/0003-validacao-de-volume-na-carga.md).
+Medições da carga dos dados abertos da UnB no PostgreSQL. Os números aqui embasam o [ADR 1](../adr/adr-1.md) e o [ADR 0003](../adr/0003-validacao-de-volume-na-carga_1.md).
 
 | Campo | Valor |
 |---|---|
@@ -126,7 +126,7 @@ Na alternativa A, os preços antigos dos 148 pares que mudaram de preço seriam 
 - **Não são itens zerados**: os materiais que sumiram tinham saldo positivo em 07/2022 (ex.: 2.000 L de álcool etílico no Central).
 - A mudança acontece dentro de uma lacuna da origem (não há arquivos de 08, 09 e 10/2022), por isso aparece como um salto.
 - A causa não foi identificada (baixa/inventário no PRC, mudança no critério do relatório ou extração parcial).
-- A validação original recusava os 30 meses a partir de 11/2022. A correção está no [ADR 0003](adr/0003-validacao-de-volume-na-carga.md).
+- A validação original recusava os 30 meses a partir de 11/2022. A correção está no [ADR 0003](../adr/0003-validacao-de-volume-na-carga_1.md).
 
 ### Empenhos: possível truncamento em 10.000 registros
 

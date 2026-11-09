@@ -35,7 +35,7 @@ O ganho esperado é concentrar a revisão de compras nos poucos materiais que ex
 
 ## 2. Fontes de dados
 
-Todas as fontes vêm do [Portal de Dados Abertos da UnB](https://dados.unb.br/), via API CKAN. O detalhamento está em [Fontes e histórico da origem](docs/fontes-e-historico-da-origem.md).
+Todas as fontes vêm do [Portal de Dados Abertos da UnB](https://dados.unb.br/), via API CKAN. O detalhamento está em [Fontes e histórico da origem](docs/projeto/fontes-e-historico-da-origem.md).
 
 | Fonte | Link | Formato | Período | Pergunta(s) que apoia |
 |---|---|---|---|---|
@@ -65,11 +65,11 @@ Todas as fontes vêm do [Portal de Dados Abertos da UnB](https://dados.unb.br/),
 - [ADR 1 — Modelo transacional *current-state* com snapshots *append-only*](docs/adr/adr-1.md)
 - [ADR 0003 — Queda de volume entre meses vira aviso, não recusa](docs/adr/0003-validacao-de-volume-na-carga_1.md)
 
-A justificativa da escolha do SGBD está em [Diário — Semana 03](docs/diario/semana-03.md).
+A justificativa da escolha do SGBD está em [Diário — Semana 03](docs/gestao/diario/semana-03.md).
 
 ## 4. Pipeline de dados (versão atual)
 
-**Diagrama:** [Arquitetura do banco v1.1](docs/assets/diagramas/Arquitetura%20do%20banco.v1.1.png). A explicação de cada camada está em [Pipeline e arquitetura em camadas](docs/arquitetura-em-camadas.md).
+**Diagrama:** [Arquitetura do banco v1.1](docs/assets/diagramas/Arquitetura%20do%20banco.v1.1.png). A explicação de cada camada está em [Pipeline e arquitetura em camadas](docs/dados-e-pipeline/arquitetura-em-camadas.md).
 
 **Etapas:**
 
@@ -79,7 +79,7 @@ A justificativa da escolha do SGBD está em [Diário — Semana 03](docs/diario/
 | Armazenamento bruto (Bronze) | Grava os arquivos exatamente como vieram, com `manifesto.json` (URL, data no portal, tamanho e sha256) | `dados/bruto/<dataset>/` |
 | Transformação | Limpa texto e números, deduplica cadastros e gera o termo de busca de cada material | `codigos/normalizar.py` |
 | Carga (Prata) | Grava no PostgreSQL. Cada arquivo entra em uma transação, o sha256 evita carga duplicada e linhas inválidas vão para `carga_rejeitado` | `codigos/carregar.py` + Flyway (`db/migrations/V1__esquema_inicial.sql`) |
-| Consumo | Consultas SQL sobre estoque e almoxarifado | [`docs/consultas.md`](docs/consultas.md) |
+| Consumo | Consultas SQL sobre estoque e almoxarifado | [`docs/dados-e-pipeline/consultas.md`](docs/dados-e-pipeline/consultas.md) |
 
 **Status atual:**
 
