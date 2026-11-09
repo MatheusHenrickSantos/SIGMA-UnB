@@ -10,7 +10,7 @@ O escopo atual usa três fontes: o estoque vem do [Portal de Dados Abertos da Un
 | Catálogo de Materiais (CATMAT) | API de Materiais (`modulo-material/4_consultarItemMaterial`) | Códigos e descrições para apoiar a identificação dos materiais. | Correspondência sugerida por texto precisa ser validada. |
 | Pesquisa de preços públicos | API de Pesquisa de Preços (`modulo-pesquisa-preco/1_consultarMaterial`) | Registros de preços observados em compras da Administração Pública. | Não equivale a cotação de loja ou preço de mercado atual; comparar somente itens, unidades e períodos compatíveis. |
 
-O script de download do CATMAT e a consulta de preços são separados do `docker compose` atual; veja [Como executar](como-executar.md) e o [teste de viabilidade](../testes/teste-de-viabilidade.md). A associação entre estoque e preços públicos ainda depende de validação.
+O download do estoque e do CATMAT faz parte do `docker compose` atual, que também gera candidatos semânticos para revisão. A consulta de preços públicos pela API do Compras.gov.br é um fluxo exploratório separado, ainda não integrado ao Compose; veja [Como executar](como-executar.md) e o [teste de viabilidade](../testes/teste-de-viabilidade.md). A associação entre estoque, CATMAT e preços públicos ainda depende de validação.
 
 ## Histórico das fontes anteriores
 

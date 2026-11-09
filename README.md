@@ -12,7 +12,7 @@ O SIGMA-UnB é uma plataforma de dados para apoiar a gestão de materiais e as d
 
 A comparação depende de validar a correspondência do item e a equivalência de unidade e período. Os preços de compras públicas são referências de compras, não cotações de lojas nem prova, por si só, de sobrepreço.
 
-O banco e o pipeline Docker descritos abaixo podem ser executados localmente, sem instalar PostgreSQL nem Python na máquina. **A ingestão Docker ainda está na configuração anterior:** baixa cinco datasets do portal da UnB e não integra o CATMAT nem a pesquisa de preços públicos. Esses fluxos novos ainda não estão orquestrados pelo Compose.
+O banco e o pipeline Docker descritos abaixo podem ser executados localmente, sem instalar PostgreSQL nem Python na máquina. O Compose baixa o estoque da UnB e o catálogo CATMAT, transforma esses dados e gera candidatos de correspondência semântica. A consulta de preços públicos na API do Compras.gov.br permanece exploratória e fora do pipeline automatizado.
 
 ---
 
@@ -57,7 +57,7 @@ O catálogo CATMAT tem centenas de páginas e o `semantica` baixa um modelo de l
 | **Docker** | [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/) com backend WSL 2 | [Docker Engine](https://docs.docker.com/engine/install/) |
 | **Docker Compose** | Já vem com o Docker Desktop | Plugin `docker-compose-plugin` (comando `docker compose`, com espaço) |
 | **Git** | [Git for Windows](https://git-scm.com/download/win) | `git` do gerenciador de pacotes |
-| **Internet** | Para baixar as imagens e os dados da UnB | Idem |
+| **Internet** | Para baixar imagens, dados da UnB e CATMAT e o modelo de embeddings | Idem |
 
 Não é preciso ter Python nem PostgreSQL instalados.
 
@@ -168,16 +168,18 @@ docker compose exec db psql -U sigma -d sigma
 Dentro do `psql`:
 
 ```sql
-\dt                                                      -- lista as tabelas
-SELECT count(*) FROM estoque_saldo;                      -- deve ter dezenas de milhares de linhas
-SELECT dataset, count(*), sum(linhas_gravadas), sum(linhas_rejeitadas)
-  FROM carga_execucao GROUP BY 1;                        -- resumo da carga por dataset
+\dt *.*                                                  -- lista tabelas de todos os schemas
+SELECT count(*) FROM raw.estoque;                        -- documentos JSON de estoque carregados
+SELECT count(*) FROM raw.catmat;                         -- documentos JSON do catálogo carregados
+SELECT count(*) FROM bronze.estoque;                     -- registros de estoque transformados
+SELECT count(*) FROM prata.material;                      -- materiais normalizados
+SELECT count(*) FROM semantica.candidato_catmat;          -- candidatos gerados para revisão
 SELECT version, description, success
   FROM flyway_schema_history ORDER BY installed_rank;    -- migrações aplicadas (existe após a 1ª)
 \q                                                       -- sai
 ```
 
-Para conectar de fora (DBeaver, pgAdmin, VS Code): host `localhost`, porta `5432`, banco `sigma`, usuário `sigma`, senha `sigma` — ou os valores do seu `.env`.
+`raw.estoque` e `raw.catmat` contam arquivos/documentos JSON; `bronze.estoque` conta registros expandidos. Para conectar de fora (DBeaver, pgAdmin, VS Code): host `localhost`, porta publicada (por padrão `5432`), banco e usuário `sigma`, senha configurada no `.env`.
 
 ---
 
@@ -237,11 +239,12 @@ SIGMA-UnB/
 │   ├── Dockerfile              # imagem Python usada pelas etapas ingest e dbt
 │   ├── requirements.txt        # dependências Python
 │   ├── normalizar.py           # funções de limpeza de texto e números
-│   ├── inspecionar_bruto.py    # resumo da camada bruta
 │   ├── medir_adr0001.py        # medições do ADR 0001
 │   ├── medir_adr0005.py        # medições do ADR 0005 (busca exata x HNSW)
 │   ├── semantica/              # busca semântica: normalização, embeddings, pgvector, candidatos
-│   └── coletar_precos_mercado_livre.py
+│   ├── inserir/                # download do estoque e do CATMAT
+│   ├── banco_de_dados/         # carga dos arquivos na camada raw
+│   └── validacao_e_cobertura_precos.py # exploração da API de preços públicos
 ├── db/
 │   ├── Dockerfile              # postgres:16-alpine + pgvector
 │   └── migrations/             # V1__descricao.sql, V2__..., aplicados em ordem pelo Flyway
@@ -300,10 +303,11 @@ Rode com `--build` para reconstruir a imagem: `docker compose up --build`.
 |---|---|
 | Banco PostgreSQL em Docker | ✅ |
 | Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql`, `V2__semantica_pgvector.sql`, `V3__semantica_sem_indice_hnsw.sql` |
-| Carga dos dados no banco, idempotente, com rejeitados registrados | ✅ |
-| Download do CATMAT e consulta exploratória de preços públicos por scripts separados | 🚧 Não integrados ao Compose |
+| Ingestão idempotente por hash em `raw.estoque` e `raw.catmat`, seguida da transformação dbt | ✅ |
+| Download do estoque e do CATMAT, transformação dbt e candidatos semânticos | ✅ Integrados ao Compose |
+| Consulta exploratória de preços públicos (API Compras.gov.br) | 🚧 Script separado; não integrada ao Compose |
 | ADR da E1 ([`docs/adr/adr-1.md`](docs/adr/adr-1.md)) | ✅ |
 | Diário ([`docs/gestao/diario/`](docs/gestao/diario/)) | ✅ |
 | Registro de uso de IA ([`docs/gestao/ai-usage.md`](docs/gestao/ai-usage.md)) | ✅ |
 | Cotações de lojas online | Fora da pergunta de gestão atual |
-| Candidatos CATMAT por similaridade semântica (pgvector) | 🚧 Pipeline e testes prontos; falta rodar com o modelo e os dados reais e calibrar o limiar ([docs](docs/semantica.md)) |
+| Candidatos CATMAT por similaridade semântica (pgvector) | ✅ Execução real gerou 23.270 candidatos para 2.327 materiais; revisão e calibração do limiar pendentes ([documentação](docs/dados-e-pipeline/semantica.md)) |
