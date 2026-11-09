@@ -5,7 +5,7 @@ from urllib.parse import unquote, urlsplit
 
 import requests
 
-RAIZ_PROJETO = Path(__file__).resolve().parents[1]
+RAIZ_PROJETO = Path(__file__).resolve().parents[2]
 PASTA_DESTINO = RAIZ_PROJETO / "dados" / "estoque"
 URL_API = "https://dados.unb.br/api/3/action/package_show"
 DATASET_ID = "estoque-do-almoxarifado"
