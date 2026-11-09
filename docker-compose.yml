@@ -4,28 +4,45 @@
 #     docker compose up --build
 #
 # Ordem de execução (garantida pelos depends_on):
-#   1. db       — PostgreSQL, o sistema transacional (OLTP)
-#   2. migrate  — Flyway aplica db/migrations/V*.sql em ordem, a partir do banco vazio
-#   3. ingest   — baixa os dados abertos da UnB (dados/bruto) e carrega no banco
+#   1. db          — PostgreSQL com pgvector (imagem construída em db/Dockerfile)
+#   2. migrate     — Flyway aplica db/migrations/V*.sql em ordem, a partir do banco vazio
+#   3. ingest      — baixa estoque e CATMAT e grava no schema raw
+#   4. transformar — dbt: raw -> bronze -> prata, com os testes de dados (dbt build)
+#   5. semantica   — embeddings e candidatos CATMAT para cada material (python -m semantica)
+#
+# Só o db fica rodando; os outros terminam (Exited 0) e o seguinte começa.
+# O semantica baixa o modelo de linguagem (~0,5 GB) na primeira vez e guarda
+# no volume `modelos`; ver docs/semantica.md.
 #
 # Todas as variáveis têm valor padrão, então nenhum .env é obrigatório.
-# Para trocar senha ou porta, copie .env.example para .env e edite.
+# Para trocar senha, porta ou parâmetros da busca, copie .env.example para .env.
 
 name: sigma-unb
 
+x-conexao-banco: &conexao-banco
+  HOST_DO_BANCO: db
+  PORTA_DO_BANCO: 5432
+  NOME_DO_BANCO: ${NOME_DO_BANCO:-sigma}
+  USUARIO_DO_BANCO: ${USUARIO_DO_BANCO:-sigma}
+  SENHA_DO_BANCO: ${SENHA_DO_BANCO:-sigma}
+
 services:
   db:
-    image: postgres:16-alpine
+    # postgres:16-alpine + pgvector. Mesma base de antes: o volume pgdata
+    # existente continua válido (ver comentário em db/Dockerfile).
+    build:
+      context: ./db
+    image: sigma-unb/postgres-pgvector:16
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-sigma}
-      POSTGRES_USER: ${POSTGRES_USER:-sigma}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sigma}
+      POSTGRES_DB: ${NOME_DO_BANCO:-sigma}
+      POSTGRES_USER: ${USUARIO_DO_BANCO:-sigma}
+      POSTGRES_PASSWORD: ${SENHA_DO_BANCO:-sigma}
       TZ: America/Sao_Paulo
       PGTZ: America/Sao_Paulo
     ports:
       # Porta do host configurável: útil se já houver um Postgres local na 5432.
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${PORTA_DO_BANCO:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -42,28 +59,74 @@ services:
     volumes:
       - ./db/migrations:/flyway/sql:ro
     command:
-      - -url=jdbc:postgresql://db:5432/${POSTGRES_DB:-sigma}
-      - -user=${POSTGRES_USER:-sigma}
-      - -password=${POSTGRES_PASSWORD:-sigma}
+      - -url=jdbc:postgresql://db:5432/${NOME_DO_BANCO:-sigma}
+      - -user=${USUARIO_DO_BANCO:-sigma}
+      - -password=${SENHA_DO_BANCO:-sigma}
       - -locations=filesystem:/flyway/sql
       - -connectRetries=10
       - migrate
 
+  # Ingestão de estoque e CATMAT na camada raw.
   ingest:
     build:
       context: ./codigos
     depends_on:
       migrate:
         condition: service_completed_successfully
+    working_dir: /app
     environment:
-      PGHOST: db
-      PGPORT: 5432
-      PGDATABASE: ${POSTGRES_DB:-sigma}
-      PGUSER: ${POSTGRES_USER:-sigma}
-      PGPASSWORD: ${POSTGRES_PASSWORD:-sigma}
+      <<: *conexao-banco
+      PYTHONUNBUFFERED: "1"
+      # vazio = catálogo inteiro; um número limita as páginas, para testes rápidos
+      CATMAT_MAX_PAGINAS: ${CATMAT_MAX_PAGINAS:-}
     volumes:
-      # Os arquivos baixados ficam em ./dados no host (ignorado pelo git).
       - ./dados:/app/dados
+      # inicializar_esquema lê db/migrations/ddl.sql
+      - ./db/migrations:/app/db/migrations:ro
+    command:
+      - sh
+      - -c
+      - >-
+        python codigos/inserir/buscar-dados-de-almoxarifado.py
+        && python codigos/inserir/baixar_catalogo_catmat.py $${CATMAT_MAX_PAGINAS:+--max-paginas $$CATMAT_MAX_PAGINAS}
+        && python -m codigos.banco_de_dados.inicializar_esquema
+        && python -m codigos.banco_de_dados.inserir_dados_na_camada_raw
+
+  # Bronze e Prata (dbt). Monta o repositório porque o projeto dbt fica na raiz;
+  # target/, logs/ e dbt_packages/ são criados no host (ignorados pelo git).
+  transformar:
+    build:
+      context: ./codigos
+    depends_on:
+      ingest:
+        condition: service_completed_successfully
+    working_dir: /projeto
+    environment: *conexao-banco
+    volumes:
+      - .:/projeto
+    command: ["sh", "-c", "dbt deps && dbt build --profiles-dir . --project-dir ."]
+
+  # Busca semântica: embeddings (pgvector) e candidatos CATMAT para revisão.
+  semantica:
+    build:
+      context: ./codigos
+      dockerfile: semantica/Dockerfile
+    depends_on:
+      transformar:
+        condition: service_completed_successfully
+    environment:
+      <<: *conexao-banco
+      SEMANTICA_MODELO: ${SEMANTICA_MODELO:-intfloat/multilingual-e5-small}
+      SEMANTICA_REVISAO: ${SEMANTICA_REVISAO:-}
+      SEMANTICA_TOP_K: ${SEMANTICA_TOP_K:-10}
+      SEMANTICA_LIMIAR: ${SEMANTICA_LIMIAR:-}
+      SEMANTICA_BUSCA_EXATA: ${SEMANTICA_BUSCA_EXATA:-}
+    volumes:
+      - modelos:/modelos
+      # a etapa `fila` grava o CSV de revisão em dados/semantica
+      - ./dados:/app/codigos/dados
 
 volumes:
   pgdata:
+  # cache do Hugging Face (modelo de embeddings)
+  modelos:

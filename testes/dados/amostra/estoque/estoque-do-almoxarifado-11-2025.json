@@ -1,0 +1,149 @@
+[
+ {
+  "material": "PAPEL A4, 75G/M2, BRANCO, 210 X 297MM, RESMA C/ 500 FOLHAS",
+  "almoxarifado": "CENTRAL",
+  "saldo": "120",
+  "preco": "R$            21,90",
+  "valor_total": "R$ 2628,00"
+ },
+ {
+  "material": "CANETA ESFEROGRAFICA AZUL, PONTA MEDIA 1,0MM, CORPO TRANSPARENTE",
+  "almoxarifado": "CENTRAL",
+  "saldo": "800",
+  "preco": "R$             0,85",
+  "valor_total": "R$ 680,00"
+ },
+ {
+  "material": "caneta esferografica azul,  ponta media 1,0mm, corpo transparente",
+  "almoxarifado": "PRC",
+  "saldo": "150",
+  "preco": "R$             0,92",
+  "valor_total": "R$ 138,00"
+ },
+ {
+  "material": "CANETA ESFEROGR&Aacute;FICA PRETA, PONTA M&Eacute;DIA 1,0MM",
+  "almoxarifado": "CENTRAL",
+  "saldo": "640",
+  "preco": "R$             0,85",
+  "valor_total": "R$ 544,00"
+ },
+ {
+  "material": "ÁLCOOL ETÍLICO 70%, LÍQUIDO, FRASCO 1 LITRO",
+  "almoxarifado": "CENTRAL",
+  "saldo": "300",
+  "preco": "R$             8,40",
+  "valor_total": "R$ 2520,00"
+ },
+ {
+  "material": "RESISTOR 10K OHMS 1/4W",
+  "almoxarifado": "PRC",
+  "saldo": "2000",
+  "preco": "R$             0,05",
+  "valor_total": "R$ 100,00"
+ },
+ {
+  "material": "RESISTOR 1K OHM 1/4 W",
+  "almoxarifado": "PRC",
+  "saldo": "1500",
+  "preco": "R$             0,05",
+  "valor_total": "R$ 75,00"
+ },
+ {
+  "material": "PILHA ALCALINA AA 1,5V",
+  "almoxarifado": "CENTRAL",
+  "saldo": "96",
+  "preco": "R$             2,10",
+  "valor_total": "R$ 201,60"
+ },
+ {
+  "material": "PILHA ALCALINA AAA 1,5V",
+  "almoxarifado": "CENTRAL",
+  "saldo": "48",
+  "preco": "R$             2,30",
+  "valor_total": "R$ 110,40"
+ },
+ {
+  "material": "DETERGENTE LÍQUIDO NEUTRO 500ML",
+  "almoxarifado": "CENTRAL",
+  "saldo": "210",
+  "preco": "R$             1,95",
+  "valor_total": "R$ 409,50"
+ },
+ {
+  "material": "SACO P/ LIXO 100 LITROS, PRETO, PCT C/ 100",
+  "almoxarifado": "CENTRAL",
+  "saldo": "35",
+  "preco": "R$            39,90",
+  "valor_total": "R$ 1396,50"
+ },
+ {
+  "material": "COPO DESCARTÁVEL 200ML, PCT C/ 100 UN",
+  "almoxarifado": "CENTRAL",
+  "saldo": "400",
+  "preco": "R$             4,10",
+  "valor_total": "R$ 1640,00"
+ },
+ {
+  "material": "TONER HP CF283A PRETO",
+  "almoxarifado": "PRC",
+  "saldo": "12",
+  "preco": "R$           189,00",
+  "valor_total": "R$ 2268,00"
+ },
+ {
+  "material": "LÂMPADA LED TUBULAR 18W BIVOLT",
+  "almoxarifado": "PRC",
+  "saldo": "60",
+  "preco": "R$            14,50",
+  "valor_total": "R$ 870,00"
+ },
+ {
+  "material": "LUVA DE PROCEDIMENTO LÁTEX TAM. M, CX C/ 100",
+  "almoxarifado": "PRC",
+  "saldo": "80",
+  "preco": "R$            27,00",
+  "valor_total": "R$ 2160,00"
+ },
+ {
+  "material": "FITA ADESIVA TRANSPARENTE 12MM X 30M",
+  "almoxarifado": "CENTRAL",
+  "saldo": "250",
+  "preco": "R$             1,20",
+  "valor_total": "R$ 300,00"
+ },
+ {
+  "material": "GRAMPO P/ GRAMPEADOR 26/6, CX C/ 5000",
+  "almoxarifado": "CENTRAL",
+  "saldo": "90",
+  "preco": "R$             6,80",
+  "valor_total": "R$ 612,00"
+ },
+ {
+  "material": "ÁGUA SANITÁRIA 1 LITRO",
+  "almoxarifado": "CENTRAL",
+  "saldo": "180",
+  "preco": "R$             3,10",
+  "valor_total": "R$ 558,00"
+ },
+ {
+  "material": "CAPACITOR ELETROLÍTICO 100UF 25V",
+  "almoxarifado": "PRC",
+  "saldo": "500",
+  "preco": "R$             0,30",
+  "valor_total": "R$ 150,00"
+ },
+ {
+  "material": "SABÃƒO EM PÃ“ 1KG",
+  "almoxarifado": "CENTRAL",
+  "saldo": "70",
+  "preco": "R$             9,90",
+  "valor_total": "R$ 693,00"
+ },
+ {
+  "material": "1234",
+  "almoxarifado": "CENTRAL",
+  "saldo": "5",
+  "preco": "R$             1,00",
+  "valor_total": "R$ 5,00"
+ }
+]

@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: almoxarifado_prata
+    description: Cadastro dos almoxarifados identificados nos arquivos de estoque da UnB.
+    columns:
+      - name: identificador_almoxarifado
+        description: Identificador interno do almoxarifado, composto pelo prefixo "al" e quatro algarismos.
+        tests:
+          - not_null
+          - unique
+
+      - name: nome
+        description: Nome do almoxarifado.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['CENTRAL', 'PRC']

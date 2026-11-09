@@ -1,0 +1,88 @@
+version: 2
+
+models:
+  - name: catmat_grupo_prata
+    description: Grupos de materiais do CATMAT.
+    columns:
+      - name: codigo_grupo
+        description: Código identificador do grupo.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: nome_grupo
+        description: Nome do grupo.
+        data_tests:
+          - not_null
+
+  - name: catmat_classe_prata
+    description: Classes de materiais do CATMAT.
+    columns:
+      - name: codigo_classe
+        description: Código identificador da classe.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: codigo_grupo
+        description: Código do grupo ao qual a classe pertence.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('catmat_grupo_prata')
+                field: codigo_grupo
+
+      - name: nome_classe
+        description: Nome da classe.
+        data_tests:
+          - not_null
+
+  - name: catmat_pdm_prata
+    description: Padrões Descritivos de Materiais do CATMAT.
+    columns:
+      - name: codigo_pdm
+        description: Código identificador do PDM.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: codigo_classe
+        description: Código da classe à qual o PDM pertence.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('catmat_classe_prata')
+                field: codigo_classe
+
+      - name: nome_pdm
+        description: Nome do PDM.
+        data_tests:
+          - not_null
+
+  - name: catmat_item_prata
+    description: Itens do catálogo de materiais do CATMAT.
+    columns:
+      - name: codigo_item
+        description: Código identificador do item.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: codigo_pdm
+        description: Código do PDM ao qual o item pertence.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('catmat_pdm_prata')
+                field: codigo_pdm
+
+      - name: descricao_item
+        description: Descrição detalhada do material.
+        data_tests:
+          - not_null
+
+      - name: status_item
+        description: Indica se o item está ativo no catálogo.

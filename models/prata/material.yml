@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: material_prata
+    description: >
+      Cadastro de materiais identificados a partir das descrições
+      normalizadas encontradas nos arquivos de estoque da UnB.
+      As descrições são obtidas por meio de uma tabela auxiliar
+      de correspondências gerada por um script Python.
+      Os identificadores são atribuídos incrementalmente e
+      preservados nas execuções seguintes.
+
+    columns:
+      - name: identificador_material
+        description: Identificador interno do material, composto pelo prefixo "ma" e quatro algarismos.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: nome
+        description: Nome resumido do material.
+        data_tests:
+          - not_null
+
+      - name: descricao
+        description: Descrição complementar do material.
+        data_tests:
+          - not_null
+
+      - name: descricao_normalizada
+        description: Descrição padronizada utilizada para identificar o material.
+        data_tests:
+          - not_null
+          - unique

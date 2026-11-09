@@ -1,0 +1,2 @@
+# As migrações são montadas no serviço migrate; não entram na imagem do banco.
+migrations/

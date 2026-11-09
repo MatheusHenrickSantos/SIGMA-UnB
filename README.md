@@ -12,7 +12,7 @@ O SIGMA-UnB é uma plataforma de dados para apoiar a gestão de materiais e as d
 
 A comparação depende de validar a correspondência do item e a equivalência de unidade e período. Os preços de compras públicas são referências de compras, não cotações de lojas nem prova, por si só, de sobrepreço.
 
-O banco e o pipeline Docker descritos abaixo podem ser executados localmente, sem instalar PostgreSQL nem Python na máquina. **A ingestão Docker ainda está na configuração anterior:** baixa cinco datasets do portal da UnB e não integra o CATMAT nem a pesquisa de preços públicos. Esses fluxos novos ainda não estão orquestrados pelo Compose.
+O banco e o pipeline Docker descritos abaixo podem ser executados localmente, sem instalar PostgreSQL nem Python na máquina. O Compose baixa o estoque da UnB e o catálogo CATMAT, transforma esses dados e gera candidatos de correspondência semântica. A consulta de preços públicos na API do Compras.gov.br permanece exploratória e fora do pipeline automatizado.
 
 ---
 
@@ -34,15 +34,19 @@ O banco e o pipeline Docker descritos abaixo podem ser executados localmente, se
 
 ## O que sobe
 
-Um único comando sobe três serviços, nesta ordem:
+Um único comando sobe estes serviços, nesta ordem:
 
 | Serviço | O que faz | Termina? |
 | ------- | --------- | -------- |
-| `db`      | PostgreSQL 16: o banco transacional (OLTP).                                                            | Não, fica rodando |
-| `migrate` | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio.                   | Sim |
-| `ingest`  | Python: baixa os cinco datasets legados configurados do portal da UnB para `dados/bruto/` e os carrega no banco. Não integra CATMAT nem preços públicos. | Sim |
+| `db` | PostgreSQL 16 com a extensão pgvector (imagem construída em `db/Dockerfile`). | Não, fica rodando |
+| `migrate` | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio. | Sim |
+| `ingest` | Python: baixa o estoque e o catálogo CATMAT e grava no schema `raw`. | Sim |
+| `transformar` | dbt: `raw` → `bronze` → `prata`, com os testes de dados (`dbt build`). | Sim |
+| `semantica` | Python: embeddings das descrições e candidatos CATMAT para cada material ([detalhes](docs/dados-e-pipeline/semantica.md)). | Sim |
 
-`migrate` só começa quando o banco está pronto, e `ingest` só começa se todas as migrações tiverem sido aplicadas com sucesso.
+`migrate` só começa quando o banco está pronto; `ingest` só começa se as migrações tiverem sido aplicadas; `transformar` espera o `ingest` e `semantica` espera o `transformar` terminarem com sucesso.
+
+O catálogo CATMAT tem centenas de páginas e o `semantica` baixa um modelo de linguagem (~0,5 GB) e calcula os vetores na CPU. Para um teste rápido, use `CATMAT_MAX_PAGINAS=5` no `.env`.
 
 ---
 
@@ -53,7 +57,7 @@ Um único comando sobe três serviços, nesta ordem:
 | **Docker** | [Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/) com backend WSL 2 | [Docker Engine](https://docs.docker.com/engine/install/) |
 | **Docker Compose** | Já vem com o Docker Desktop | Plugin `docker-compose-plugin` (comando `docker compose`, com espaço) |
 | **Git** | [Git for Windows](https://git-scm.com/download/win) | `git` do gerenciador de pacotes |
-| **Internet** | Para baixar as imagens e os dados da UnB | Idem |
+| **Internet** | Para baixar imagens, dados da UnB e CATMAT e o modelo de embeddings | Idem |
 
 Não é preciso ter Python nem PostgreSQL instalados.
 
@@ -132,9 +136,10 @@ Os comandos são os mesmos nos dois sistemas daqui em diante. No terminal, cada 
 1. Download das imagens e build do container Python — **só na primeira vez**, pode levar alguns minutos.
 2. `db-1 | ... database system is ready to accept connections`
 3. `migrate-1 | ...` — o Flyway lista as migrações aplicadas, e depois `migrate-1 exited with code 0`.
-4. `ingest-1 | Buscando datasets no portal de dados abertos da UnB...` e uma linha `baixando: ...` por arquivo. Na primeira vez são cerca de 850 MB para os cinco datasets legados (os empenhos são a maior parte); o portal às vezes responde `502` e o script tenta de novo sozinho.
-5. `ingest-1 | [unidades]`, `[estoque]`, ... com uma linha `N gravadas, M rejeitadas` por arquivo carregado, a tabela **Linhas por tabela** e `ingest-1 exited with code 0`. A carga completa leva alguns minutos.
-6. **O terminal fica parado mostrando os logs do banco.** Isso é esperado: o banco continua rodando. Para parar, `Ctrl+C`.
+4. `ingest-1 | ...` — baixa os arquivos de estoque e do CATMAT, inicializa o schema `raw` e carrega os dados.
+5. `transformar-1 | ...` — executa `dbt deps` e `dbt build`.
+6. `semantica-1 | ...` — calcula embeddings e candidatos CATMAT; na primeira execução baixa o modelo.
+7. **O terminal fica parado mostrando os logs do banco.** Isso é esperado: o banco continua rodando. Para parar, `Ctrl+C`.
 
 Para subir em segundo plano e liberar o terminal, use `docker compose up --build -d` e acompanhe com `docker compose logs -f`.
 
@@ -142,17 +147,17 @@ Para subir em segundo plano e liberar o terminal, use `docker compose up --build
 
 ## Verificar que funcionou
 
-**Estado dos serviços** — `migrate` e `ingest` devem aparecer como `Exited (0)` e `db` como `Up (healthy)`:
+**Estado dos serviços** — `migrate`, `ingest`, `transformar` e `semantica` devem aparecer como `Exited (0)` e `db` como `Up (healthy)`:
 
 ```bash
 docker compose ps -a
 ```
 
-**Arquivos baixados** — deve existir a pasta `dados/bruto/` com uma subpasta por dataset e o `manifesto.json` (url, data no portal e sha256 de cada arquivo):
+**Arquivos baixados** — devem existir `dados/estoque/` e `dados/catmat/`:
 
 | Windows (PowerShell) | Linux |
 |---|---|
-| `Get-ChildItem dados\bruto` | `ls -lh dados/bruto` |
+| `Get-ChildItem dados\estoque, dados\catmat` | `ls -lh dados/estoque dados/catmat` |
 
 **Banco e migrações** — abra o `psql` dentro do container:
 
@@ -163,16 +168,18 @@ docker compose exec db psql -U sigma -d sigma
 Dentro do `psql`:
 
 ```sql
-\dt                                                      -- lista as tabelas
-SELECT count(*) FROM estoque_saldo;                      -- deve ter dezenas de milhares de linhas
-SELECT dataset, count(*), sum(linhas_gravadas), sum(linhas_rejeitadas)
-  FROM carga_execucao GROUP BY 1;                        -- resumo da carga por dataset
+\dt *.*                                                  -- lista tabelas de todos os schemas
+SELECT count(*) FROM raw.estoque;                        -- documentos JSON de estoque carregados
+SELECT count(*) FROM raw.catmat;                         -- documentos JSON do catálogo carregados
+SELECT count(*) FROM bronze.estoque;                     -- registros de estoque transformados
+SELECT count(*) FROM prata.material;                      -- materiais normalizados
+SELECT count(*) FROM semantica.candidato_catmat;          -- candidatos gerados para revisão
 SELECT version, description, success
   FROM flyway_schema_history ORDER BY installed_rank;    -- migrações aplicadas (existe após a 1ª)
 \q                                                       -- sai
 ```
 
-Para conectar de fora (DBeaver, pgAdmin, VS Code): host `localhost`, porta `5432`, banco `sigma`, usuário `sigma`, senha `sigma` — ou os valores do seu `.env`.
+`raw.estoque` e `raw.catmat` contam arquivos/documentos JSON; `bronze.estoque` conta registros expandidos. Para conectar de fora (DBeaver, pgAdmin, VS Code): host `localhost`, porta publicada (por padrão `5432`), banco e usuário `sigma`, senha configurada no `.env`.
 
 ---
 
@@ -183,12 +190,12 @@ Para conectar de fora (DBeaver, pgAdmin, VS Code): host `localhost`, porta `5432
 | Subir tudo (reconstruindo o que mudou)          | `docker compose up --build` |
 | Subir em segundo plano                          | `docker compose up --build -d` |
 | Ver logs de um serviço                          | `docker compose logs -f ingest` |
-| Baixar e carregar de novo (só o que mudou)      | `docker compose run --rm ingest` |
-| Só baixar                                       | `docker compose run --rm ingest python baixar_dados.py` |
-| Só carregar                                     | `docker compose run --rm ingest python carregar.py` |
-| Resumir a camada bruta (linhas, colunas)        | `docker compose run --rm ingest python inspecionar_bruto.py` |
-| Medições do ADR 0001                            | `docker compose run --rm ingest python medir_adr0001.py` |
+| Reexecutar a carga e etapas seguintes           | `docker compose up --build ingest transformar semantica` |
 | Aplicar migrações novas                         | `docker compose run --rm migrate` |
+| Recalcular só a busca semântica (incremental)   | `docker compose run --rm semantica` |
+| Exportar a fila de revisão de candidatos CATMAT | `docker compose run --rm semantica python -m semantica fila` (gera `dados/semantica/fila_revisao.csv`) |
+| Registrar a revisão de um candidato             | `docker compose run --rm semantica python -m semantica revisar --material ma0001 --codigo 123456 --decisao equivalente --revisor "Nome"` |
+| Medições do ADR 0005 (exata x HNSW, vetores reais) | `docker compose run --rm semantica python medir_adr0005.py real` |
 | Parar (mantém os dados do banco)                | `docker compose down` |
 | **Apagar o banco e recomeçar do zero**          | `docker compose down -v` |
 
@@ -202,10 +209,21 @@ Todas as variáveis têm valor padrão, então **o `.env` é opcional**. Crie-o 
 
 | Variável            | Padrão  | Para que serve |
 |---------------------|---------|----------------|
-| `POSTGRES_DB`       | `sigma` | Nome do banco |
-| `POSTGRES_USER`     | `sigma` | Usuário |
-| `POSTGRES_PASSWORD` | `sigma` | Senha |
-| `POSTGRES_PORT`     | `5432`  | Porta **na sua máquina** (dentro da rede do Compose é sempre 5432) |
+| `HOST_DO_BANCO` | `localhost` | Host para conexões iniciadas fora do Compose (dentro do Compose é `db`) |
+| `PORTA_DO_BANCO` | `5432` | Porta publicada na sua máquina (dentro do Compose é sempre `5432`) |
+| `NOME_DO_BANCO` | `sigma` | Nome do banco |
+| `USUARIO_DO_BANCO` | `sigma` | Usuário |
+| `SENHA_DO_BANCO` | `sigma` | Senha |
+| `CATMAT_MAX_PAGINAS` | vazio (todas) | Limita as páginas do CATMAT baixadas pelo `ingest` (500 itens cada) |
+| `SEMANTICA_MODELO`  | `intfloat/multilingual-e5-small` | Modelo de embeddings (384 dimensões) |
+| `SEMANTICA_TOP_K`   | `10`    | Candidatos CATMAT guardados por material |
+| `SEMANTICA_LIMIAR`  | vazio   | Similaridade mínima para guardar um candidato (sem valor calibrado ainda) |
+| `SEMANTICA_BUSCA_EXATA` | vazio | `1` = proíbe índice HNSW (hoje não há índice: a busca já é exata; ver ADR 0005) |
+
+O Compose usa esses nomes em português para todos os serviços. `POSTGRES_DB`,
+`POSTGRES_USER` e `POSTGRES_PASSWORD` aparecem apenas como nomes internos
+exigidos pela imagem oficial do PostgreSQL; seus valores vêm das variáveis
+portuguesas acima.
 
 O `.env` está no `.gitignore` e não deve ser versionado.
 
@@ -215,18 +233,20 @@ O `.env` está no `.gitignore` e não deve ser versionado.
 
 ```
 SIGMA-UnB/
-├── docker-compose.yml          # sobe db, migrate e ingest
+├── docker-compose.yml          # sobe db, migrate, ingest, transformar e semantica
 ├── .env.example                # modelo de configuração
 ├── codigos/
-│   ├── Dockerfile              # imagem Python do serviço ingest
+│   ├── Dockerfile              # imagem Python usada pelas etapas ingest e dbt
 │   ├── requirements.txt        # dependências Python
-│   ├── baixar_dados.py         # portal da UnB -> dados/bruto/ (+ manifesto.json)
-│   ├── carregar.py             # dados/bruto/ -> PostgreSQL
 │   ├── normalizar.py           # funções de limpeza de texto e números
-│   ├── inspecionar_bruto.py    # resumo da camada bruta
 │   ├── medir_adr0001.py        # medições do ADR 0001
-│   └── coletar_precos_mercado_livre.py
+│   ├── medir_adr0005.py        # medições do ADR 0005 (busca exata x HNSW)
+│   ├── semantica/              # busca semântica: normalização, embeddings, pgvector, candidatos
+│   ├── inserir/                # download do estoque e do CATMAT
+│   ├── banco_de_dados/         # carga dos arquivos na camada raw
+│   └── validacao_e_cobertura_precos.py # exploração da API de preços públicos
 ├── db/
+│   ├── Dockerfile              # postgres:16-alpine + pgvector
 │   └── migrations/             # V1__descricao.sql, V2__..., aplicados em ordem pelo Flyway
 ├── docs/                       # site estático Docsify
 │   ├── projeto/                # domínio, fontes, execução e glossário
@@ -254,17 +274,17 @@ SIGMA-UnB/
 O Docker não está rodando. No Windows, abra o Docker Desktop e espere *Engine running*. No Linux, `sudo systemctl start docker`.
 
 **`port is already allocated` ou o `db` não fica pronto**
-Já existe algo usando a porta 5432 (geralmente um Postgres instalado na máquina). Crie o `.env` e troque a porta, por exemplo `POSTGRES_PORT=5433`. Para descobrir quem ocupa a porta:
+Já existe algo usando a porta 5432 (geralmente um Postgres instalado na máquina). Crie o `.env` e troque a porta, por exemplo `PORTA_DO_BANCO=5433`. Para descobrir quem ocupa a porta:
 
 | Windows (PowerShell) | Linux |
 |---|---|
 | `netstat -ano \| findstr :5432` | `sudo ss -ltnp \| grep 5432` |
 
-**`ingest` mostra `tentativa N falhou: 502 Server Error`**
-O portal `dados.unb.br` oscila. O script tenta até 5 vezes por arquivo; se ainda assim falhar, o arquivo aparece como `FALHOU` e fica registrado em `falhas` no `manifesto.json`. Rode `docker compose run --rm ingest` de novo: só o que falta é baixado.
+**`ingest` mostra falha ao baixar dados**
+Confira a conexão com a internet e os logs do serviço: `docker compose logs ingest`. CATMAT preserva o cache de páginas em `dados/catmat/cache_catmat_json`, que pode ser reutilizado na próxima execução.
 
-**`ingest` sai com código 1**
-Um dataset obrigatório (estoque ou unidades) não baixou nada, ou algum arquivo deu erro na carga. A mensagem no fim do log diz qual. Os arquivos que deram certo continuam no banco.
+**`ingest` sai com código diferente de zero**
+Confira a mensagem do serviço `ingest`; a etapa seguinte (`transformar`) só é executada após a carga terminar com sucesso.
 
 **`migrate` sai com erro de checksum**
 Uma migração já aplicada foi editada. Desfaça a edição e crie uma migração nova — ou, só em desenvolvimento, recomece com `docker compose down -v`.
@@ -282,11 +302,12 @@ Rode com `--build` para reconstruir a imagem: `docker compose up --build`.
 | Item | Situação |
 |---|---|
 | Banco PostgreSQL em Docker | ✅ |
-| Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql` |
-| Download automatizado dos cinco datasets legados da UnB, com manifesto | ✅ |
-| Carga dos dados no banco, idempotente, com rejeitados registrados | ✅ |
-| Download do CATMAT e consulta exploratória de preços públicos por scripts separados | 🚧 Não integrados ao Compose |
+| Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql`, `V2__semantica_pgvector.sql`, `V3__semantica_sem_indice_hnsw.sql` |
+| Ingestão idempotente por hash em `raw.estoque` e `raw.catmat`, seguida da transformação dbt | ✅ |
+| Download do estoque e do CATMAT, transformação dbt e candidatos semânticos | ✅ Integrados ao Compose |
+| Consulta exploratória de preços públicos (API Compras.gov.br) | 🚧 Script separado; não integrada ao Compose |
 | ADR da E1 ([`docs/adr/adr-1.md`](docs/adr/adr-1.md)) | ✅ |
 | Diário ([`docs/gestao/diario/`](docs/gestao/diario/)) | ✅ |
 | Registro de uso de IA ([`docs/gestao/ai-usage.md`](docs/gestao/ai-usage.md)) | ✅ |
 | Cotações de lojas online | Fora da pergunta de gestão atual |
+| Candidatos CATMAT por similaridade semântica (pgvector) | ✅ Execução real gerou 23.270 candidatos para 2.327 materiais; revisão e calibração do limiar pendentes ([documentação](docs/dados-e-pipeline/semantica.md)) |

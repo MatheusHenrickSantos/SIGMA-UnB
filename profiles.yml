@@ -1,0 +1,12 @@
+sigma:
+  outputs:
+    dev:
+      dbname: "{{ env_var('NOME_DO_BANCO') }}"
+      host: "{{ env_var('HOST_DO_BANCO') }}"
+      pass: "{{ env_var('SENHA_DO_BANCO') }}"
+      port: "{{ env_var('PORTA_DO_BANCO') | int }}"
+      schema: public
+      threads: 8
+      type: postgres
+      user: "{{ env_var('USUARIO_DO_BANCO') }}"
+  target: dev

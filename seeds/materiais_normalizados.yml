@@ -1,0 +1,21 @@
+﻿
+version: 2
+
+seeds:
+  - name: materiais_normalizados
+    description: >
+      Tabela auxiliar que relaciona as descrições originais
+      dos materiais com suas respectivas descrições normalizadas.
+      Gerada por um script Python a partir dos dados da Bronze.
+
+    columns:
+      - name: descricao_original
+        description: Descrição original do material encontrada no estoque.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: descricao_normalizada
+        description: Descrição padronizada utilizada para identificar materiais.
+        data_tests:
+          - not_null

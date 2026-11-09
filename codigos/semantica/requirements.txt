@@ -1,0 +1,9 @@
+# Dependências do pipeline semântico (python -m semantica).
+#
+# O torch NÃO está aqui: instale antes a versão só de CPU, do índice do
+# PyTorch. Pelo PyPI comum vêm junto as bibliotecas CUDA (vários GB):
+#   pip install --index-url https://download.pytorch.org/whl/cpu torch==2.14.1
+psycopg[binary]==3.2.3
+sentence-transformers==6.1.0
+transformers==5.20.2
+huggingface-hub==1.33.0

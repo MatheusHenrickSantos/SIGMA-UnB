@@ -70,6 +70,15 @@ o hábito de rodar um comando por vez e salvar saídas em arquivo (> medicao.txt
 - **Como foi verificado:** pelos logs: migrate-1 exited with code 0 com a migração V1 aplicada e o download dos 453 arquivos sem falhas.
 - **Quem revisou:** Samara Letícia
 
+### 2026-11-08 — busca semântica (embeddings + pgvector) para candidatos CATMAT
+
+- **Ferramenta:** Claude (modelo configurado: claude-opus-5-5), em modo agente, num ambiente de nuvem com cópia do repositório; os commits da branch `busca-semantica-catmat` foram feitos pelo agente com a autoria de quem pediu
+- **Onde:** `db/Dockerfile`, `db/migrations/V2__semantica_pgvector.sql` e `V3__semantica_sem_indice_hnsw.sql`, `codigos/semantica/`, `codigos/medir_adr0005.py`, `codigos/validacao_e_cobertura_precos.py` (extração das regras de especificação, sem mudar a lógica), `docker-compose.yml`, `.env.example`, `codigos/requirements.txt`, `testes/`, `docs/semantica.md`, ADR 0005, README
+- **O que foi pedido:** avaliar o repositório e implementar, em commits incrementais, a normalização das descrições, os embeddings, o armazenamento e a busca por cosseno no PostgreSQL com pgvector, a integração com raw/bronze/prata (branch `configuracao_do_dbt`) e com o Docker Compose, com testes e documentação
+- **O que foi aproveitado:** [a preencher pela Squad depois da revisão do PR]
+- **Como foi verificado:** pelo agente, no ambiente dele: 143 testes automatizados (PostgreSQL 16 + pgvector 0.8.7 compilado localmente), incluindo a normalização sobre as 2.327 descrições reais de `seeds/materiais_normalizados.csv` (que revelou e levou a corrigir um erro com entidades HTML em maiúsculas); fluxo raw → dbt build → `python -m semantica` sobre a amostra escrita à mão; teste da biblioteca sentence-transformers real com um modelo de pesos aleatórios (o modelo real não pôde ser baixado); medições do ADR 0005 com vetores aleatórios no volume do domínio (que levaram a trocar o índice HNSW pela busca exata). **Não verificado:** build das imagens Docker, execução com o modelo real e com os dados reais, qualidade dos candidatos
+- **Quem revisou:** [pendente]
+
 ### AAAA-MM-DD — [o que estava sendo feito]
 
 - **Ferramenta:**

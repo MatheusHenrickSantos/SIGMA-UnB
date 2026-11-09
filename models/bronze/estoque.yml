@@ -1,0 +1,50 @@
+# modelos/bronze/estoque.yml
+version: 2
+
+models:
+  - name: estoque_bronze
+    description: >
+      Dados de estoque dos almoxarifados da UnB, extraídos dos arquivos
+      disponibilizados no portal de dados abertos e organizados em
+      formato tabular.
+
+    columns:
+      - name: material
+        description: Descrição original do material em estoque.
+        data_tests:
+          - not_null
+
+      - name: almoxarifado
+        description: Almoxarifado ao qual o material pertence.
+        data_tests:
+          - not_null
+
+      - name: saldo
+        description: Quantidade disponível do material.
+        data_tests:
+          - not_null
+
+      - name: preco
+        description: Preço unitário do material, em reais.
+        data_tests:
+          - not_null
+
+      - name: valor_total
+        description: Valor total do saldo do material, em reais.
+        data_tests:
+          - not_null
+
+      - name: mes_de_referencia
+        description: Mês de referência do arquivo de estoque.
+        data_tests:
+          - not_null
+
+      - name: ano_de_referencia
+        description: Ano de referência do arquivo de estoque.
+        data_tests:
+          - not_null
+
+      - name: hash_do_arquivo
+        description: Hash SHA-256 do arquivo de origem.
+        data_tests:
+          - not_null
