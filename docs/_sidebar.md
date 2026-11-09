@@ -13,6 +13,7 @@
   - [ADR 1](adr/adr-1.md)
   - [ADR 2 — Ingestão e formato aberto](adr/0002-mecanismo-de-ingestao-e-formato-aberto.md)
   - [ADR 3](adr/0003-validacao-de-volume-na-carga.md)
+  - [ADR 5 — Busca semântica com pgvector](adr/0005-busca-semantica-com-pgvector.md)
 - Modelagem
   - [Diagrama de Arquitetura](modelagem/diagrama-de-arquitetura.md)
   - [Dicionário de Dados](modelagem/dicionario-de-dados.md)
@@ -22,6 +23,7 @@
   - [Caracterização da carga](caracterizacao-da-carga.md)
   - [Pipeline e camadas](arquitetura-em-camadas.md)
   - [Consultas](consultas.md)
+  - [Busca semântica (CATMAT)](semantica.md)
   - [Testes e validação](testes.md)
 - Testes
   - [Teste de Viabilidade](testes/teste-de-viabilidade.md)

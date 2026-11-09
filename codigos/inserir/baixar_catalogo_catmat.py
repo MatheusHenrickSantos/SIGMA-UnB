@@ -169,7 +169,7 @@ def baixar_catalogo(
 
 
 def executar() -> int:
-    raiz_projeto = Path(__file__).resolve().parents[1]
+    raiz_projeto = Path(__file__).resolve().parents[2]
     saida_padrao = raiz_projeto / "dados" / "catmat"
 
     parser = argparse.ArgumentParser(description=__doc__)
