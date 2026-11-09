@@ -13,6 +13,7 @@ models:
               - identificador_almoxarifado
               - ano_de_referencia
               - mes_de_referencia
+              - preco
 
     columns:
       - name: identificador_material

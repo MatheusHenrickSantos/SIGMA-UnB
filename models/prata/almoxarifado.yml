@@ -5,7 +5,7 @@ models:
     description: Cadastro dos almoxarifados identificados nos arquivos de estoque da UnB.
     columns:
       - name: identificador_almoxarifado
-        description: Identificador interno do almoxarifado, composto pelo prefixo "alm" e três algarismos.
+        description: Identificador interno do almoxarifado, composto pelo prefixo "al" e quatro algarismos.
         tests:
           - not_null
           - unique

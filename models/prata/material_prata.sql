@@ -8,25 +8,37 @@
 
 WITH materiais_origem AS (
     SELECT DISTINCT
-        TRIM(material) AS material_original
-    FROM {{ ref('estoque_bronze') }}
-    WHERE material IS NOT NULL
-      AND TRIM(material) <> ''
+        TRIM(normalizacao.descricao_normalizada) AS descricao_normalizada
+
+    FROM {{ ref('estoque_bronze') }} AS estoque
+
+    INNER JOIN {{ ref('materiais_normalizados') }} AS normalizacao
+        ON TRIM(estoque.material) = TRIM(normalizacao.descricao_original)
+
+    WHERE normalizacao.descricao_normalizada IS NOT NULL
+      AND TRIM(normalizacao.descricao_normalizada) <> ''
 ),
 
 novos_materiais AS (
-    SELECT origem.material_original
+    SELECT origem.descricao_normalizada
+
     FROM materiais_origem AS origem
+
     {% if is_incremental() %}
     LEFT JOIN {{ this }} AS existente
-        ON existente.material_original = origem.material_original
+        ON existente.descricao_normalizada = origem.descricao_normalizada
+
     WHERE existente.identificador_material IS NULL
     {% endif %}
 ),
 
 ultimo_identificador AS (
     {% if is_incremental() %}
-    SELECT COALESCE(MAX(SUBSTRING(identificador_material FROM 4)::INTEGER), 0) AS numero
+    SELECT
+        COALESCE(
+            MAX(SUBSTRING(identificador_material FROM 4)::INTEGER),
+            0
+        ) AS numero
     FROM {{ this }}
     {% else %}
     SELECT 0 AS numero
@@ -35,8 +47,11 @@ ultimo_identificador AS (
 
 materiais_numerados AS (
     SELECT
-        material_original,
-        ROW_NUMBER() OVER (ORDER BY material_original) AS numero_linha
+        descricao_normalizada,
+        ROW_NUMBER() OVER (
+            ORDER BY descricao_normalizada
+        ) AS numero_linha
+
     FROM novos_materiais
 )
 
@@ -46,13 +61,26 @@ SELECT
         'ultimo_identificador.numero + materiais_numerados.numero_linha'
     ) }} AS identificador_material,
 
-    SPLIT_PART(material_original, ',', 1)::CHAR(50) AS nome,
+    SPLIT_PART(
+        descricao_normalizada,
+        ',',
+        1
+    )::CHAR(50) AS nome,
 
     COALESCE(
-        NULLIF(TRIM(SUBSTRING(material_original FROM POSITION(',' IN material_original) + 1)), ''),
-        material_original
-    )::CHAR(100) AS descricao,
+        NULLIF(
+            TRIM(
+                SUBSTRING(
+                    descricao_normalizada
+                    FROM POSITION(',' IN descricao_normalizada) + 1
+                )
+            ),
+            ''
+        ),
+        descricao_normalizada
+    )::CHAR(200) AS descricao,
 
-    material_original
+    descricao_normalizada
+
 FROM materiais_numerados
 CROSS JOIN ultimo_identificador
