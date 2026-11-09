@@ -1,6 +1,6 @@
 # Imagem do serviço `semantica` (python -m semantica).
-# Separada da imagem de ingestão porque o PyTorch pesa ~1 GB: quem só
-# carrega dados não precisa dele.
+# Separada das imagens de ingestão e transformação porque o PyTorch pesa ~1 GB:
+# as etapas que só carregam ou transformam dados não precisam dele.
 #
 # Construída com contexto ./codigos (ver docker-compose.yml), mas só copia o
 # pacote semantica, que não depende dos outros scripts.

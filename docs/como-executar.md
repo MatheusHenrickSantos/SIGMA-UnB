@@ -6,7 +6,7 @@ Versão resumida do README para o site da documentação.
 
 - Docker (Docker Desktop no Windows, Docker Engine no Linux) com Compose v2 (`docker compose`)
 - Git
-- Internet (imagens e dados da UnB; ~850 MB na primeira carga)
+- Internet (imagens, dados da UnB e modelo de embeddings)
 
 ## Passo a passo
 
@@ -20,7 +20,7 @@ docker compose up --build
 ## Conferir
 
 ```bash
-docker compose ps -a        # migrate e ingest: Exited (0); db: Up (healthy)
+docker compose ps -a        # migrate, ingest, transformar e semantica: Exited (0); db: Up (healthy)
 docker compose exec db psql -U sigma -d sigma -c "SELECT count(*) FROM estoque_saldo;"
 ```
 
@@ -28,9 +28,8 @@ docker compose exec db psql -U sigma -d sigma -c "SELECT count(*) FROM estoque_s
 
 | Para… | Comando |
 |---|---|
-| Recarregar só o que mudou | `docker compose run --rm ingest` |
+| Reexecutar a carga e etapas seguintes | `docker compose up --build ingest transformar semantica` |
 | Aplicar migrações novas | `docker compose run --rm migrate` |
-| [Rodar a etapa da E2] | `[comando]` |
 | Parar | `docker compose down` |
 | Recomeçar do zero | `docker compose down -v` |
 

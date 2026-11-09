@@ -11,12 +11,12 @@ Medições da carga dos dados abertos da UnB no PostgreSQL. Os números aqui emb
 
 ## Como reproduzir
 
+As medições abaixo são do pipeline legado, que usava o serviço `ingest` e a pasta
+`dados/bruto/`; esse fluxo não existe mais na configuração atual. Para executar
+o pipeline atual:
+
 ```bash
-docker compose down -v                      # começa do zero
-docker compose up --build                   # baixa e carrega
-docker compose run --rm ingest python inspecionar_bruto.py
-docker compose run --rm ingest python medir_adr0001.py
-du -sh dados/bruto/*
+docker compose up --build
 ```
 
 ## 1. Camada bruta (`dados/bruto/`)

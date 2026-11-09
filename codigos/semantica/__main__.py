@@ -9,8 +9,8 @@ Etapas (cada uma pode rodar sozinha e é segura para repetir):
   revisar       registra a decisão humana sobre um par material x item CATMAT
   fila          exporta a fila de revisão (semantica.v_fila_revisao) para CSV
 
-Banco: variáveis padrão do PostgreSQL (PGHOST, PGPORT, PGDATABASE, PGUSER,
-PGPASSWORD), como em codigos/carregar.py. Opções de busca também podem vir de
+Banco: variáveis HOST_DO_BANCO, PORTA_DO_BANCO, NOME_DO_BANCO,
+USUARIO_DO_BANCO e SENHA_DO_BANCO. Opções de busca também podem vir de
 variáveis SEMANTICA_* (ver --help de cada etapa).
 """
 
@@ -194,7 +194,14 @@ def _argumentos(argv: list[str] | None) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = _argumentos(argv)
     try:
-        with psycopg.connect(autocommit=True) as conn:
+        with psycopg.connect(
+            host=os.environ["HOST_DO_BANCO"],
+            port=int(os.environ["PORTA_DO_BANCO"]),
+            dbname=os.environ["NOME_DO_BANCO"],
+            user=os.environ["USUARIO_DO_BANCO"],
+            password=os.environ["SENHA_DO_BANCO"],
+            autocommit=True,
+        ) as conn:
             if args.etapa in ("sincronizar", "tudo"):
                 _sincronizar(conn, args)
             id_modelo = None

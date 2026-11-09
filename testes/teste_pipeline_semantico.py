@@ -56,8 +56,9 @@ def banco_com_prata(banco, monkeypatch):
     with psycopg.connect(banco, autocommit=True) as conn:
         montar_prata(conn)
     partes = psycopg.conninfo.conninfo_to_dict(banco)
-    for chave, variavel in (("host", "PGHOST"), ("port", "PGPORT"), ("dbname", "PGDATABASE"),
-                            ("user", "PGUSER"), ("password", "PGPASSWORD")):
+    for chave, variavel in (("host", "HOST_DO_BANCO"), ("port", "PORTA_DO_BANCO"),
+                            ("dbname", "NOME_DO_BANCO"), ("user", "USUARIO_DO_BANCO"),
+                            ("password", "SENHA_DO_BANCO")):
         if chave in partes:
             monkeypatch.setenv(variavel, str(partes[chave]))
     for variavel in ("SEMANTICA_MODELO", "SEMANTICA_LIMIAR", "SEMANTICA_TOP_K", "SEMANTICA_REVISAO"):
