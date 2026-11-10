@@ -45,3 +45,10 @@ models:
     ouro:
       +materialized: table
       +schema: ouro
+
+vars:
+  # Janela das compras públicas usadas como referência de preço (Prata).
+  # Vem das mesmas variáveis do serviço compras (COMPRAS_INICIO/COMPRAS_FIM),
+  # que passa a janela a codigos/inserir/baixar_compras.py.
+  compras_inicio: "{{ env_var('COMPRAS_INICIO', '2025-07-01') }}"
+  compras_fim: "{{ env_var('COMPRAS_FIM', '2025-12-31') }}"

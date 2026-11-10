@@ -1,0 +1,13 @@
+# Instância do Dagster do SIGMA-UnB (use DAGSTER_HOME=orquestracao/instancia).
+# O histórico de execuções fica nesta pasta, fora do git (ver .gitignore).
+telemetry:
+  enabled: false
+
+concurrency:
+  runs:
+    # Os jobs que rodam o dbt compartilham a pasta do projeto (dbt_packages,
+    # target/): dois `dbt deps` ao mesmo tempo corrompem dbt_packages. Um run
+    # por vez entre os jobs com esta tag (ver orquestracao/definicoes.py).
+    tag_concurrency_limits:
+      - key: "sigma/projeto-dbt"
+        limit: 1
