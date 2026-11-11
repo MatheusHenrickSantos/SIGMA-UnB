@@ -79,6 +79,17 @@ o hábito de rodar um comando por vez e salvar saídas em arquivo (> medicao.txt
 - **Como foi verificado:** pelo agente, no ambiente dele: 143 testes automatizados (PostgreSQL 16 + pgvector 0.8.7 compilado localmente), incluindo a normalização sobre as 2.327 descrições reais de `seeds/materiais_normalizados.csv` (que revelou e levou a corrigir um erro com entidades HTML em maiúsculas); fluxo raw → dbt build → `python -m semantica` sobre a amostra escrita à mão; teste da biblioteca sentence-transformers real com um modelo de pesos aleatórios (o modelo real não pôde ser baixado); medições do ADR 0005 com vetores aleatórios no volume do domínio (que levaram a trocar o índice HNSW pela busca exata). **Não verificado:** build das imagens Docker, execução com o modelo real e com os dados reais, qualidade dos candidatos
 - **Quem revisou:** [pendente]
 
+### 2026-11-10 — busca híbrida, decisões por agentes de IA e compras públicas
+
+- **Ferramenta:** Claude Code (claude-opus-5-5), em modo agente na máquina de magnluiz; nas decisões de correspondência, subagentes Claude Sonnet (rodada de 08/11/2026)
+- **Onde:** `db/migrations/V4__semantica_busca_hibrida.sql` e `V5__semantica_revisao_por_material.sql`, `codigos/semantica/` (`reordenacao.py`, `decisoes.py`, `medir_referencia.py`, `decisoes/`, `referencia/`, ajustes em `correspondencia.py`, `fontes.py` e `__main__.py`), `codigos/inserir/baixar_compras.py`, `codigos/inserir/baixar_catalogo_catmat.py` (novas tentativas), `codigos/banco_de_dados/inserir_dados_na_camada_raw.py`, `models/` (compras), `dbt_project.yml`, `docker-compose.yml`, `testes/`, ADR 0006 e documentação
+- **O que foi pedido:** levar para a estrutura da `main` (depois do PR #11) o trabalho da branch local `feature/banco-vetorial-pgvector`: reordenação híbrida com rapidfuzz, as decisões de correspondência e a ingestão das compras públicas nas camadas raw, bronze e prata
+- **Decisões de correspondência:** os 2.394 materiais da carga anterior foram decididos por agentes Claude Sonnet em lotes de ~100, com os candidatos da busca híbrida; cada lote tinha ~6 materiais do conjunto de referência (150 materiais rotulados pelo Claude Opus, com 7 rótulos corrigidos após inspeção) escondidos como controle. Concordância de 80% (119/149). As decisões foram convertidas para a chave da Prata nova (`descricao_normalizada`), resultando em 2.306 materiais; materiais que a normalização uniu tiveram os códigos somados
+- **O que foi aproveitado:** [a preencher pela Squad depois da revisão do PR]
+- **Como foi verificado:** 174 testes automatizados com PostgreSQL + pgvector (os 143 anteriores, 3 ajustados para fixar o método por cosseno, e 31 novos); cadeia completa do `docker compose` num banco vazio com dados reais (CATMAT completo, modelo real): dbt 79/79 e 14/14, busca híbrida em 2.306 materiais, importação das 2.306 decisões sem recusa, 41.514 compras na Prata; medição no conjunto de referência (`python -m semantica.medir_referencia`).
+- **Quem revisou:** Magno Luiz
+
+
 ### AAAA-MM-DD — [o que estava sendo feito]
 
 - **Ferramenta:**

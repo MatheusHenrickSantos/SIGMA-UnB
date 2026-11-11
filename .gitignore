@@ -8,3 +8,6 @@ target/
 dbt_packages/
 logs/
 .user.yml
+# Dagster: histórico local de execuções (DAGSTER_HOME=orquestracao/instancia)
+orquestracao/instancia/*
+!orquestracao/instancia/dagster.yaml

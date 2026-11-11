@@ -7,8 +7,12 @@
 #   1. db          — PostgreSQL com pgvector (imagem construída em db/Dockerfile)
 #   2. migrate     — Flyway aplica db/migrations/V*.sql em ordem, a partir do banco vazio
 #   3. ingest      — baixa estoque e CATMAT e grava no schema raw
-#   4. transformar — dbt: raw -> bronze -> prata, com os testes de dados (dbt build)
-#   5. semantica   — embeddings e candidatos CATMAT para cada material (python -m semantica)
+#   4. transformar — dbt: raw -> bronze -> prata, com os testes de dados (dbt build;
+#                    snapshot e camada ouro ficam para o passo 7)
+#   5. semantica   — embeddings e candidatos CATMAT para cada material (busca híbrida)
+#                    e importação das decisões sugeridas por agentes de IA
+#   6. compras     — compras públicas dos itens CATMAT aprovados -> raw.compras
+#   7. transformar_ouro — dbt: compras (bronze, prata), snapshot SCD 2 e camada ouro
 #
 # Só o db fica rodando; os outros terminam (Exited 0) e o seguinte começa.
 # O semantica baixa o modelo de linguagem (~0,5 GB) na primeira vez e guarda
@@ -104,7 +108,7 @@ services:
     environment: *conexao-banco
     volumes:
       - .:/projeto
-    command: ["sh", "-c", "dbt deps && dbt build --profiles-dir . --project-dir ."]
+    command: ["sh", "-c", "dbt deps && dbt build --profiles-dir . --project-dir . --exclude path:snapshots path:models/ouro"]
 
   # Busca semântica: embeddings (pgvector) e candidatos CATMAT para revisão.
   semantica:
@@ -121,10 +125,77 @@ services:
       SEMANTICA_TOP_K: ${SEMANTICA_TOP_K:-10}
       SEMANTICA_LIMIAR: ${SEMANTICA_LIMIAR:-}
       SEMANTICA_BUSCA_EXATA: ${SEMANTICA_BUSCA_EXATA:-}
+      SEMANTICA_METODO: ${SEMANTICA_METODO:-hibrido}
+      SEMANTICA_K_VETOR: ${SEMANTICA_K_VETOR:-50}
+      SEMANTICA_K_TRIGRAMA: ${SEMANTICA_K_TRIGRAMA:-20}
     volumes:
       - modelos:/modelos
       # a etapa `fila` grava o CSV de revisão em dados/semantica
       - ./dados:/app/codigos/dados
+    # Depois da busca, carrega as decisões sugeridas por agentes de IA
+    # (tipo_revisor = agente). Decisões de pessoas registradas antes não são
+    # sobrescritas; ver codigos/semantica/decisoes.py.
+    command:
+      - sh
+      - -c
+      - >-
+        python -m semantica tudo
+        && python -m semantica importar --arquivo semantica/decisoes/decisoes_agentes.csv
+        --revisor agente --tipo-revisor agente
+
+  # Compras públicas dos itens CATMAT aprovados (semantica.v_item_aprovado).
+  # As páginas da API ficam em dados/compras_cache: outra execução só baixa o que falta.
+  # A janela (COMPRAS_INICIO/COMPRAS_FIM) também é lida pelo dbt (dbt_project.yml).
+  compras:
+    build:
+      context: ./codigos
+    depends_on:
+      semantica:
+        condition: service_completed_successfully
+    working_dir: /app
+    environment:
+      <<: *conexao-banco
+      PYTHONUNBUFFERED: "1"
+      COMPRAS_INICIO: ${COMPRAS_INICIO:-2025-07-01}
+      COMPRAS_FIM: ${COMPRAS_FIM:-2025-12-31}
+    volumes:
+      - ./dados:/app/dados
+    command:
+      - sh
+      - -c
+      - >-
+        python codigos/inserir/baixar_compras.py --inicio "$$COMPRAS_INICIO" --fim "$$COMPRAS_FIM"
+        && python -m codigos.banco_de_dados.inserir_dados_na_camada_raw compras
+
+  # Compras (bronze, prata), snapshot da correspondência (SCD tipo 2) e camada
+  # ouro. Roda depois de semantica e compras porque depende das decisões e dos preços.
+  transformar_ouro:
+    build:
+      context: ./codigos
+    depends_on:
+      compras:
+        condition: service_completed_successfully
+    working_dir: /projeto
+    environment:
+      <<: *conexao-banco
+      COMPRAS_INICIO: ${COMPRAS_INICIO:-2025-07-01}
+      COMPRAS_FIM: ${COMPRAS_FIM:-2025-12-31}
+    volumes:
+      - .:/projeto
+    command: ["sh", "-c", "dbt deps && dbt build --profiles-dir . --project-dir . --select compras_bronze+ path:snapshots+ path:models/ouro+"]
+
+  # Painel analítico (Streamlit) sobre a camada ouro: http://localhost:8501
+  # Fica no ar, como o db; lê o que o último transformar_ouro gravou.
+  painel:
+    build:
+      context: ./painel
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: *conexao-banco
+    ports:
+      - "${PORTA_DO_PAINEL:-8501}:8501"
 
 volumes:
   pgdata:

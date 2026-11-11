@@ -7,7 +7,9 @@ de descrição mais parecida, com uma nota de similaridade e uma checagem de
 especificações. **Ela não decide equivalência**: o resultado é uma fila de
 candidatos para revisão humana.
 
-Decisões e alternativas: [ADR 0005](adr/0005-busca-semantica-com-pgvector.md).
+Decisões e alternativas: [ADR 0005](adr/0005-busca-semantica-com-pgvector.md)
+(pgvector, modelo, busca exata) e [ADR 0006](adr/0006-busca-hibrida-e-decisoes-por-agentes.md)
+(busca híbrida, decisões sugeridas por agentes de IA e compras públicas).
 
 ## Onde fica na arquitetura
 
@@ -37,11 +39,12 @@ sozinha e é segura para repetir.
 
 | Etapa | Lê | Grava | O que evita refazer |
 |---|---|---|---|
-| `sincronizar` | `prata.material` (`material_original`), `prata.catmat_item` (ativos) | `semantica.descricao` | Linhas sem mudança não são tocadas |
+| `sincronizar` | `prata.material` (`descricao_normalizada`), `prata.catmat_item` (ativos) | `semantica.descricao` | Linhas sem mudança não são tocadas |
 | `embeddings` | descrições válidas sem vetor atual | `semantica.embedding` | Texto já vetorizado (mesmo hash) não volta ao modelo |
-| `corresponder` | vetores do estoque e do CATMAT | `execucao_correspondencia`, `candidato_catmat` | — (cada execução é uma fotografia completa) |
+| `corresponder` | vetores e textos normalizados do estoque e do CATMAT | `execucao_correspondencia`, `candidato_catmat` | — (cada execução é uma fotografia completa) |
 | `tudo` | as três acima, em ordem | | |
 | `revisar` | um par material × item CATMAT | `revisao_correspondencia` | |
+| `importar` | CSV de decisões (agentes ou planilha da squad) | `revisao_correspondencia`, `revisao_material` | Reimportar substitui, não duplica |
 | `fila` | `v_fila_revisao` | CSV em `dados/semantica/` | |
 
 Proveniência: cada linha de `descricao` guarda a origem (`estoque`/`catmat`),
@@ -134,7 +137,8 @@ ou distância euclidiana — o cosseno só deixa a nota legível.
 | `embedding` | (`id_descricao`, `id_modelo`) | `vector(384)` e o hash do texto que o gerou |
 | `execucao_correspondencia` | `id_execucao` | modelo, top-K, limiar, exata/HNSW, `ef_search`, versões, totais |
 | `candidato_catmat` | (`id_execucao`, material, posição) | similaridade, situação das especificações e detalhes (JSONB) |
-| `revisao_correspondencia` | (hash do texto original do material, `codigo_item`) | decisão, revisor, observação |
+| `revisao_correspondencia` | (hash do texto original do material, `codigo_item`) | decisão, revisor, `tipo_revisor` (pessoa ou agente), observação |
+| `revisao_material` | hash do texto original do material | decisão sobre o material todo: `sem_correspondente`, confiança, justificativa, revisor e `tipo_revisor` |
 
 Um vetor só existe enquanto é atual: quando o texto ou a regra mudam, quando
 a descrição fica inválida ou some da Prata, o vetor é apagado na
@@ -224,12 +228,88 @@ SELECT texto_material, codigo_item, revisor, revisada_em
 FROM semantica.revisao_correspondencia WHERE decisao = 'equivalente';
 ```
 
+## 7. Busca híbrida (padrão desde a V4)
+
+A busca só por cosseno **recupera bem e ordena mal**: o item correto costuma
+estar entre os vizinhos, mas não em primeiro. Por isso a etapa `corresponder`
+usa, por padrão, o método `hibrido` (`codigos/semantica/reordenacao.py`):
+
+1. **cosseno**: os `k_vetor` (50) itens CATMAT de vetor mais próximo, como antes;
+2. **trigramas**: os `k_trigrama` (20) itens de texto normalizado mais
+   parecido pelo `pg_trgm` (operador `<->`, índice GiST criado na V4). Acha
+   itens com as mesmas palavras e números que o modelo deixou passar;
+3. **reordenação** da união com uma pontuação de 0 a 100:
+
+   `pontuacao = 0,40·cosseno·100 + 0,20·token_set + 0,15·token_sort + 0,25·cobertura`
+
+   `token_set` e `token_sort` são medidas do rapidfuzz sobre os textos em
+   maiúsculas, sem acento e sem pontuação; `cobertura` é a % dos termos do
+   material (sem palavras genéricas como MATERIAL, TIPO, COR) presentes no item;
+4. candidatos com **conflito de especificação vão para o fim** da lista, mesmo
+   com pontuação maior; os `top_k` primeiros são gravados.
+
+`candidato_catmat` ganha `pontuacao`, `medidas` (as quatro medidas acima) e
+`recuperado_por` (`{vetor}`, `{trigrama}` ou os dois); `execucao_correspondencia`
+guarda o método, `k_vetor`, `k_trigrama`, os pesos e `versao_reordenacao`.
+O método antigo continua disponível com `--metodo cosseno`.
+
+Qualidade medida no conjunto de referência (`codigos/semantica/referencia/`,
+150 materiais reais rotulados; reproduzir com
+`docker compose run --rm semantica python -m semantica.medir_referencia`):
+
+| Medida (103 materiais com item equivalente) | Só cosseno, top-10 (ADR 0005) | Híbrida (padrão) |
+|---|---|---|
+| Item correto entre os candidatos recuperados | 69,9% (10 vizinhos) | 88,3% (união de 50 por cosseno + 20 por trigramas) |
+| Item correto entre os 10 gravados | 69,9% | **81,6%** |
+| Item correto em 1º lugar | 40,8% | **59,2%** |
+
+Só por trigramas, 65,0% dos itens corretos estão entre os 20 vizinhos; só por
+cosseno, 86,4% estão entre os 50. As duas buscas se completam. Custo: a
+etapa `corresponder` passa de ~6 para ~13 min nos 2.306 materiais.
+
+Mesmo com a reordenação, o primeiro colocado erra em boa parte dos casos:
+**nenhum candidato é aprovado automaticamente**. A decisão vem da revisão
+(seção 8).
+
+## 8. Decisões em lote: agentes de IA e planilhas
+
+`python -m semantica importar --arquivo ARQUIVO.csv --revisor NOME --tipo-revisor pessoa|agente`
+carrega decisões de um CSV (separador `;`), uma linha por material:
+
+| Coluna | Conteúdo |
+|---|---|
+| `material` | texto do material exatamente como em `prata.material.descricao_normalizada` |
+| `codigos_equivalentes` | códigos CATMAT equivalentes separados por `\|` (vazio se não houver) |
+| `sem_correspondente` | `sim` quando não existe item CATMAT ativo equivalente; senão `nao` |
+| `confianca` | `alta`, `media` ou `baixa` (baixa = prioridade de revisão) |
+| `justificativa` | texto livre |
+| `revisor` (opcional) | quem decidiu; sem a coluna vale `--revisor` |
+
+- Os itens equivalentes vão para `revisao_correspondencia` (decisão
+  `equivalente`) e a decisão sobre o material, inclusive "sem correspondente",
+  para `revisao_material` (V5).
+- `tipo_revisor` separa decisões de **pessoas** das sugeridas por **agentes
+  de IA**. Agente nunca sobrescreve pessoa; pessoa sobrescreve agente.
+- A visão `semantica.v_item_aprovado` lista os itens equivalentes (de pessoa
+  ou de agente) dos materiais ativos: é a entrada da busca de compras.
+- A `v_fila_revisao` só tira da fila o material resolvido **por pessoa**. Os
+  resolvidos por agente continuam nela, com a sugestão visível nas colunas
+  `decisao`, `revisor`, `sugestao_sem_correspondente` e `confianca_sugestao`.
+
+O serviço `semantica` do Docker importa, depois da busca,
+`codigos/semantica/decisoes/decisoes_agentes.csv`: as decisões dos 2.306
+materiais da Prata sugeridas por agentes de IA, com a confiança e a
+justificativa de cada uma. Como foram produzidas e qual a concordância medida:
+[ADR 0006](adr/0006-busca-hibrida-e-decisoes-por-agentes.md) e
+[Uso de IA](gestao/ai-usage.md). **Ainda não foram conferidas pela squad**;
+comece pelas de confiança `baixa` e pelos materiais de maior valor em estoque.
+
 ## Como executar
 
 Com Docker (sobe a cadeia inteira; ver o [README](https://github.com/MatheusHenrickSantos/SIGMA-UnB#readme)):
 
 ```bash
-docker compose up --build                 # db, migrate, ingest, raw, transformar, semantica
+docker compose up --build                 # a cadeia inteira, até as compras
 docker compose run --rm semantica         # só a busca semântica, incremental
 ```
 
@@ -243,6 +323,9 @@ Parâmetros (opção da linha de comando ou variável no `.env`):
 | `--revisao` | `SEMANTICA_REVISAO` | mais recente | fixa o commit do modelo |
 | `--top-k` | `SEMANTICA_TOP_K` | 10 | candidatos por material (1 a 100) |
 | `--limiar-similaridade` | `SEMANTICA_LIMIAR` | sem filtro | descarta candidatos abaixo do valor, depois do top-K |
+| `--metodo` | `SEMANTICA_METODO` | `hibrido` | `hibrido` (seção 7) ou `cosseno` |
+| `--k-vetor` | `SEMANTICA_K_VETOR` | 50 | híbrido: vizinhos por cosseno antes de reordenar |
+| `--k-trigrama` | `SEMANTICA_K_TRIGRAMA` | 20 | híbrido: vizinhos por trigramas (0 desliga) |
 | `--busca-exata` | `SEMANTICA_BUSCA_EXATA=1` | não | proíbe índice HNSW (hoje não há: a busca já é exata) |
 | `--ef-search` | `SEMANTICA_EF_SEARCH` | max(40, top-K) | só com índice HNSW: precisão × velocidade |
 | `--incluir-catmat-inativo` | — | não | sincroniza também itens inativos |
@@ -286,30 +369,45 @@ baixam o modelo: usam um codificador falso determinístico
 | `teste_normalizacao.py` | regras, idempotência, preservação de números e códigos, recusas |
 | `teste_embeddings.py` | prefixos, sincronização incremental, falhas, dimensão |
 | `teste_especificacoes.py` | conflitos de especificação conhecidos |
-| `teste_correspondencia.py` | ordem e valores, limiar, plano sem índice, exata × HNSW recriado, atomicidade, revisão |
+| `teste_correspondencia.py` | ordem e valores, limiar, plano sem índice, exata × HNSW recriado, atomicidade, revisão, busca híbrida (reordenação, recuperação por trigramas, conflito por último) |
+| `teste_reordenacao.py` | pontuação da busca híbrida, sem banco |
+| `teste_decisoes.py` | importação em lote, pessoa × agente, fila e `v_item_aprovado` (V5) |
 | `teste_pipeline_semantico.py` | Prata → linha de comando → candidatos → fila |
 
 ## Limitações conhecidas
 
-- **Nada foi medido com o modelo real nem com dados reais** neste trabalho
-  (o ambiente de desenvolvimento não acessava o Hugging Face nem as APIs).
-  Antes de usar os candidatos, rode o pipeline, a medição `real` do ADR 0005
-  e revise uma amostra.
+- As medições de qualidade usam um conjunto de referência rotulado por IA,
+  não por especialistas, e as decisões em `decisoes_agentes.csv` ainda não
+  foram conferidas pela squad (ver seção 8).
 - Similaridade não é equivalência; a checagem de especificações só reconhece
   as categorias implementadas e não vê unidade de fornecimento (o estoque não
   a informa).
 - A busca exata relê todo o CATMAT a cada execução (~7,5 min medidos); ver o
-  gatilho para criar um índice no ADR 0005.
+  gatilho para criar um índice no ADR 0005. A busca por trigramas usa o
+  índice GiST da V4.
 - `prata.material` é a fonte da chave do material: se os identificadores da
   Prata mudarem entre execuções, as descrições são tratadas como novas (as
   revisões continuam valendo, porque usam o hash do texto).
 - Itens CATMAT que somem da Prata têm o vetor apagado; se voltarem, o vetor é
   recalculado.
 
-## Compras públicas (próxima fonte)
+## Compras públicas
 
-O desenho já comporta uma terceira origem. Para as descrições de compras:
-uma consulta em `codigos/semantica/fontes.py` que devolva (chave, texto), o
-papel dela na busca e uma migração que acrescente o valor ao `CHECK` de
-`semantica.descricao.origem`. Normalização, vetores, incremental e a busca
-por cosseno são reaproveitados sem mudança.
+Os itens de `semantica.v_item_aprovado` são a entrada da busca de preços:
+
+| Serviço | Faz |
+|---|---|
+| `compras` | `codigos/inserir/baixar_compras.py` consulta a API de pesquisa de preços do Compras.gov.br (`modulo-pesquisa-preco/1_consultarMaterial`) para cada código aprovado, na janela `COMPRAS_INICIO`–`COMPRAS_FIM` (padrão 01/07/2025 a 31/12/2025), grava um JSON por código em `dados/compras/` e carrega em `raw.compras` |
+| `transformar_ouro` | `dbt build --select compras_bronze+ path:snapshots+ path:models/ouro+`: `bronze.compras` (um registro da API por linha, deduplicado por `id_item_compra`) e `prata.compra_publica` (janela e preço > 0) |
+
+As páginas da API ficam em `dados/compras_cache/<janela>/<código>/`: outra
+execução só pede à API o que falta. A API filtra por data no servidor, não
+ordena por data e usa `idItemCompra` como chave real (detalhes no cabeçalho
+de `baixar_compras.py`).
+
+Resultado com os dados reais (janela 01/07/2025 a 31/12/2025, decisões dos
+agentes): 3.528 códigos CATMAT aprovados para 1.620 materiais; 2.458 códigos
+(70%) têm compra na janela, somando 41.514 registros em `prata.compra_publica`.
+Isso dá preço público a 1.255 materiais, que somam **50,9% do valor do
+estoque de 12/2025** (83,1% do valor está em materiais com item equivalente;
+a diferença são itens sem compra no semestre).

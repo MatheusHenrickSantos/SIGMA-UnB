@@ -1,0 +1,39 @@
+# modelos/prata/compra_publica.yml
+version: 2
+
+models:
+  - name: compra_publica_prata
+    description: >
+      Compras públicas dos itens CATMAT aprovados, na janela de análise
+      (vars compras_inicio e compras_fim) e com preço unitário positivo
+      (Tabela 15 do dicionário de dados).
+
+    columns:
+      - name: identificador_item_compra
+        description: Identificador único do registro de compra (idItemCompra).
+        data_tests:
+          - not_null
+          - unique
+
+      - name: identificador_compra
+        description: Identificador da compra; repete quando a compra tem vários itens.
+        data_tests:
+          - not_null
+
+      - name: codigo_item
+        description: Código do item CATMAT comprado.
+        data_tests:
+          - not_null
+
+      - name: preco_unitario
+        description: Preço unitário em reais (sempre > 0).
+        data_tests:
+          - not_null
+
+      - name: unidade_fornecimento
+        description: Sigla da unidade de fornecimento (UN, CX, PCT...).
+
+      - name: data_compra
+        description: Data da compra, dentro da janela de análise.
+        data_tests:
+          - not_null

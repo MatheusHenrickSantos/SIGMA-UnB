@@ -4,5 +4,36 @@ sources:
   - name: raw
     schema: raw
     tables:
+      # Freshness (dbt source freshness): o estoque do mês M deve chegar até
+      # 45 dias depois do fim de M (aviso) e nunca passar de 75 dias (erro).
+      # raw.estoque não tem data de inserção: o "carregado em" é o fim do mês
+      # de referência mais recente que chegou.
       - name: estoque
+        config:
+          loaded_at_query: >
+            SELECT MAX(MAKE_DATE(ano_de_referencia, mes_de_referencia, 1)
+                       + INTERVAL '1 month' - INTERVAL '1 day')::TIMESTAMP
+            FROM raw.estoque
+          freshness:
+            warn_after: {count: 45, period: day}
+            error_after: {count: 75, period: day}
       - name: catmat
+        config:
+          loaded_at_field: data_da_insercao
+          freshness:
+            warn_after: {count: 35, period: day}
+            error_after: {count: 60, period: day}
+      - name: compras
+        config:
+          loaded_at_field: data_da_insercao
+          freshness:
+            warn_after: {count: 35, period: day}
+            error_after: {count: 60, period: day}
+
+  # Escrito pelo pipeline Python (codigos/semantica), não pelo dbt.
+  - name: semantica
+    schema: semantica
+    tables:
+      - name: descricao
+      - name: revisao_correspondencia
+      - name: revisao_material
