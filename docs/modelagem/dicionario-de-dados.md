@@ -2128,6 +2128,643 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 
 ---
 
+### Camada ouro
+
+  A camada ouro organiza os dados em um **modelo estrela** que responde à pergunta de gestão: para quais materiais do estoque existe preço de compras públicas comparável e quais têm as maiores diferenças, por almoxarifado e período. A decisão e as alternativas estão na [ADR 7](adr/0007-modelo-estrela-para-comparacao-de-precos.md), e o funcionamento do modelo em [Camada ouro: modelo analítico](dados-e-pipeline/camada-ouro.md). Todas as tabelas são geradas pelo dbt (`models/ouro/` e `snapshots/`) no esquema `ouro`.
+
+  A **Tabela 26** descreve o fato `fato_comparacao_preco`, cujo grão é **uma linha por material, por almoxarifado, por mês de referência publicado**. As **Tabelas 27 a 30** descrevem as dimensões: `dim_material`, que guarda a correspondência material × CATMAT como dimensão de variação lenta do tipo 2 (uma linha por versão), `dim_almoxarifado`, `dim_tempo` e `dim_item_catmat`. A **Tabela 31** descreve `monitor_atualizacao`, que mede o atraso (freshness) das tabelas de consumo diante do SLA declarado.
+
+  Nesta camada, os tipos são os que o PostgreSQL atribui às colunas geradas pelo dbt. Os identificadores de material e almoxarifado seguem o tipo ID das camadas anteriores; na `dim_material` o identificador vem do esquema `semantica` e por isso é armazenado como _TEXT_, com o mesmo formato. Atributos numéricos sem tamanho são _NUMERIC_ sem precisão fixa; os que passam por arredondamento indicam o número de casas decimais.
+
+<details>
+  <summary>Tabela 26 – Dicionário de dados da tabela fato_comparacao_preco
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 26 – Dicionário de dados da tabela fato_comparacao_preco</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>mes_referencia</code></td>
+          <td>Primeiro dia do mês de referência do estoque publicado no portal da UnB.</td>
+          <td>DATE</td>
+          <td>-</td>
+          <td>Dia 1 de um mês presente em <code>dim_tempo</code></td>
+          <td>PK, FK</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>identificador_material</code></td>
+          <td>Identificador do material no estoque (<code>prata.material</code>).</td>
+          <td>ID</td>
+          <td>6</td>
+          <td>Padrão do tipo ID (prefixo <code>ma</code>)</td>
+          <td>PK</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>identificador_almoxarifado</code></td>
+          <td>Identificador do almoxarifado que guarda o material.</td>
+          <td>ID</td>
+          <td>6</td>
+          <td>Padrão do tipo ID (prefixo <code>al</code>)</td>
+          <td>PK, FK</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>sk_material</code></td>
+          <td>Chave da versão da correspondência em <code>dim_material</code> vigente quando a linha foi carregada.</td>
+          <td>TEXT</td>
+          <td>32</td>
+          <td>Hash MD5 em hexadecimal</td>
+          <td>FK</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>tipo_revisor_correspondencia</code></td>
+          <td>Quem decidiu a correspondência material × CATMAT usada no cálculo.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>pessoa, agente, sem_decisao</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>quantidade</code></td>
+          <td>Saldo do material no almoxarifado no mês (soma das linhas de origem). É saldo: soma entre almoxarifados no mesmo mês, nunca entre meses.</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>preco_estoque</code></td>
+          <td>Preço unitário registrado no estoque: média ponderada pela quantidade das linhas do mês (média simples quando a quantidade é zero).</td>
+          <td>NUMERIC</td>
+          <td>4 casas decimais</td>
+          <td>Maior que 0</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>valor_estoque</code></td>
+          <td>Valor do saldo em estoque (soma de quantidade × preço).</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>linhas_origem</code></td>
+          <td>Quantidade de linhas de <code>prata.estoque</code> agregadas na linha do fato.</td>
+          <td>BIGINT</td>
+          <td>-</td>
+          <td>≥ 1</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>preco_publico_mediano</code></td>
+          <td>Mediana do preço unitário das compras públicas dos itens CATMAT equivalentes ao material, na janela <code>compras_inicio</code>..<code>compras_fim</code>.</td>
+          <td>NUMERIC</td>
+          <td>4 casas decimais</td>
+          <td>Maior que 0</td>
+          <td>-</td>
+          <td>NULL quando não há compra comparável</td>
+        </tr>
+        <tr>
+          <td><code>compras_publicas</code></td>
+          <td>Número de compras públicas usadas no cálculo da mediana.</td>
+          <td>BIGINT</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>itens_catmat_com_compra</code></td>
+          <td>Número de itens CATMAT equivalentes que tiveram ao menos uma compra na janela.</td>
+          <td>BIGINT</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>unidade_fornecimento_predominante</code></td>
+          <td>Unidade de fornecimento mais frequente nas compras usadas (moda). Serve para conferir se a unidade é a mesma do estoque.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>NULL quando não há compra comparável</td>
+        </tr>
+        <tr>
+          <td><code>tem_preco_publico</code></td>
+          <td>Indica se existe preço público comparável para o material.</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>diferenca_absoluta</code></td>
+          <td><code>preco_estoque - preco_publico_mediano</code>.</td>
+          <td>NUMERIC</td>
+          <td>4 casas decimais</td>
+          <td>-</td>
+          <td>-</td>
+          <td>NULL quando não há preço público</td>
+        </tr>
+        <tr>
+          <td><code>diferenca_pct</code></td>
+          <td><code>(preco_estoque / preco_publico_mediano - 1) × 100</code>. Sinal para investigar, não prova de sobrepreço.</td>
+          <td>NUMERIC</td>
+          <td>2 casas decimais</td>
+          <td>-</td>
+          <td>-</td>
+          <td>NULL quando não há preço público</td>
+        </tr>
+        <tr>
+          <td><code>carregado_em</code></td>
+          <td>Data e hora em que a linha foi carregada no fato.</td>
+          <td>TIMESTAMPTZ</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/magnluiz">magnluiz</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 27 – Dicionário de dados da tabela dim_material
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 27 – Dicionário de dados da tabela dim_material</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>sk_material</code></td>
+          <td>Chave substituta da versão: MD5 de <code>identificador_material</code> + <code>valido_de</code>.</td>
+          <td>TEXT</td>
+          <td>32</td>
+          <td>Hash MD5 em hexadecimal</td>
+          <td>PK</td>
+          <td>Unique / Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>identificador_material</code></td>
+          <td>Identificador do material (<code>prata.material</code>). Repete entre versões.</td>
+          <td>TEXT</td>
+          <td>6</td>
+          <td>Padrão do tipo ID (prefixo <code>ma</code>)</td>
+          <td>-</td>
+          <td>Not NULL / Unique com <code>valido_de</code></td>
+        </tr>
+        <tr>
+          <td><code>nome</code></td>
+          <td>Nome do material (primeiro trecho da descrição normalizada).</td>
+          <td>TEXT</td>
+          <td>≤ 50</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>descricao</code></td>
+          <td>Descrição original do material, como veio do estoque.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>codigos_equivalentes</code></td>
+          <td>Códigos dos itens CATMAT decididos como equivalentes, separados por <code>|</code> e ordenados.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>Códigos CATMAT separados por <code>|</code>, ou vazio</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>quantidade_itens_catmat</code></td>
+          <td>Quantidade de itens em <code>codigos_equivalentes</code>.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>sem_correspondente</code></td>
+          <td>Indica que a revisão concluiu que o material não tem item CATMAT correspondente.</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>tipo_revisor</code></td>
+          <td>Quem decidiu a correspondência nesta versão.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>pessoa, agente, sem_decisao</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>confianca</code></td>
+          <td>Confiança declarada na decisão sobre o material.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>alta, media, baixa</td>
+          <td>-</td>
+          <td>NULL quando não há decisão por material</td>
+        </tr>
+        <tr>
+          <td><code>valido_de</code></td>
+          <td>Início da vigência da versão.</td>
+          <td>TIMESTAMP</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>valido_ate</code></td>
+          <td>Fim da vigência da versão; <code>9999-12-31</code> para a versão vigente.</td>
+          <td>TIMESTAMP</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>atual</code></td>
+          <td>Indica se esta é a versão vigente da correspondência.</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>Not NULL / uma versão atual por material</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/magnluiz">magnluiz</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 28 – Dicionário de dados da tabela dim_almoxarifado
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 28 – Dicionário de dados da tabela dim_almoxarifado</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>identificador_almoxarifado</code></td>
+          <td>Identificador único do almoxarifado.</td>
+          <td>ID</td>
+          <td>6</td>
+          <td>Padrão do tipo ID (prefixo <code>al</code>)</td>
+          <td>PK</td>
+          <td>Unique / Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>nome</code></td>
+          <td>Nome do almoxarifado, sem espaços nas pontas.</td>
+          <td>TEXT</td>
+          <td>≤ 20</td>
+          <td>CENTRAL, PRC</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/magnluiz">magnluiz</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 29 – Dicionário de dados da tabela dim_tempo
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 29 – Dicionário de dados da tabela dim_tempo</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>mes_referencia</code></td>
+          <td>Primeiro dia do mês. Vai do primeiro ao último mês com estoque, sem lacunas.</td>
+          <td>DATE</td>
+          <td>-</td>
+          <td>Dia 1 do mês</td>
+          <td>PK</td>
+          <td>Unique / Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>ano</code></td>
+          <td>Ano do mês de referência.</td>
+          <td>SMALLINT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>mes</code></td>
+          <td>Número do mês.</td>
+          <td>SMALLINT</td>
+          <td>-</td>
+          <td>1 a 12</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>ano_mes</code></td>
+          <td>Mês no formato <code>AAAA-MM</code>, para rótulos.</td>
+          <td>TEXT</td>
+          <td>7</td>
+          <td>AAAA-MM</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>publicado</code></td>
+          <td>Indica se o portal publicou o arquivo de estoque daquele mês (há meses sem arquivo).</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>na_janela_compras</code></td>
+          <td>Indica se o mês está dentro da janela de compras públicas consultada (<code>compras_inicio</code>..<code>compras_fim</code>).</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/magnluiz">magnluiz</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 30 – Dicionário de dados da tabela dim_item_catmat
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 30 – Dicionário de dados da tabela dim_item_catmat</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>codigo_item</code></td>
+          <td>Código único do item CATMAT.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>0-9</td>
+          <td>PK</td>
+          <td>Unique / Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>descricao_item</code></td>
+          <td>Descrição do item CATMAT.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>status_item</code></td>
+          <td>Situação do item no catálogo (ativo ou inativo).</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>codigo_pdm</code></td>
+          <td>Código do Padrão Descritivo de Materiais (PDM) do item.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>0-9</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>nome_pdm</code></td>
+          <td>Nome do PDM.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>codigo_classe</code></td>
+          <td>Código da classe CATMAT do PDM.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>0-9</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>nome_classe</code></td>
+          <td>Nome da classe CATMAT.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>codigo_grupo</code></td>
+          <td>Código do grupo CATMAT da classe.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>0-9</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>nome_grupo</code></td>
+          <td>Nome do grupo CATMAT.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/magnluiz">magnluiz</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 31 – Dicionário de dados da tabela monitor_atualizacao
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 31 – Dicionário de dados da tabela monitor_atualizacao</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>tabela</code></td>
+          <td>Tabela de consumo monitorada.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>ouro.fato_comparacao_preco, prata.compra_publica</td>
+          <td>PK</td>
+          <td>Unique / Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>ultimo_dado</code></td>
+          <td>Fim do período do dado mais recente (último dia do último mês no fato; data da última compra nas compras).</td>
+          <td>DATE</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>ultima_carga</code></td>
+          <td>Data e hora da última carga do fato.</td>
+          <td>TIMESTAMPTZ</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>NULL para <code>prata.compra_publica</code></td>
+        </tr>
+        <tr>
+          <td><code>atraso_dias</code></td>
+          <td>Dias entre <code>ultimo_dado</code> e a data da medição.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>sla_dias</code></td>
+          <td>Atraso máximo aceito pelo SLA declarado.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>45 (fato), 60 (compras)</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>situacao_sla</code></td>
+          <td>Situação da tabela diante do SLA.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>dentro do SLA, fora do SLA</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>medido_em</code></td>
+          <td>Data e hora da medição.</td>
+          <td>TIMESTAMPTZ</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/magnluiz">magnluiz</a>.</p>
+  </div>
+</details>
+
+---
+
 ## 📚 Bibliografia
 
 > DATE, C. J. **Introdução a Sistemas de Bancos de Dados**. 8. ed. Rio de Janeiro: Campus, 2004.
@@ -2147,3 +2784,4 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 | `1.2` | Adiciona ao dicionário as entidades e os atributos bronze e prata do diagrama de arquitetura versão 2.0. | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 04/11/2026 | [Israel Thalles](https://github.com/IsraelThalles) | 05/11/2026 |
 | `1.3` | Adiciona ao dicionário as entidades da camada _raw_. | [Israel Thalles](https://github.com/IsraelThalles) | 05/11/2026 | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 05/11/2026 |
 | `1.4` | Adiciona ao dicionário as tabelas e as visões da camada semântica (schema _semantica_, migrações V2 a V5). | [Samara Letícia](https://github.com/samarawwleticia) | 16/11/2026 | - | - |
+| `1.5` | Adiciona ao dicionário as tabelas da camada ouro (fato, dimensões e monitor de atualização). | [magnluiz](https://github.com/magnluiz) | 15/11/2026 | - | - |

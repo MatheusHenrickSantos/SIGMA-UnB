@@ -71,6 +71,8 @@ ponderada, e da linha com preço zero, excluída.
 1. Camada ouro em estrela: `fato_comparacao_preco` com **grão de uma linha por
    material, por almoxarifado, por mês de referência publicado**, e as
    dimensões `dim_material`, `dim_almoxarifado`, `dim_tempo` e `dim_item_catmat`.
+   Colunas, tipos e restrições de cada tabela estão no
+   [Dicionário de dados](../modelagem/dicionario-de-dados.md#camada-ouro).
 2. `dim_material` é **SCD tipo 2** sobre a correspondência com o CATMAT
    (dbt snapshot). O fato é incremental por mês e guarda a versão usada.
 3. Transformações em dbt; testes de volume, distribuição e domínio em `tests/`,
