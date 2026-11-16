@@ -15,6 +15,8 @@
   - [ADR 3](adr/0003-validacao-de-volume-na-carga_1.md)
   - [ADR 4 — Mudança do tema](adr/0004-adotar-dados-de-estoque-e-precos-publicos.md)
   - [ADR 5 — Busca semântica com pgvector](adr/0005-busca-semantica-com-pgvector.md)
+  - [ADR 6 — Busca híbrida, decisões por agentes e compras](adr/0006-busca-hibrida-e-decisoes-por-agentes.md)
+  - [ADR 7 — Modelo estrela, grão e orquestração](adr/0007-modelo-estrela-para-comparacao-de-precos.md)
 - Modelagem
   - [Diagrama de Arquitetura](modelagem/diagrama-de-arquitetura.md)
   - [Dicionário de Dados](modelagem/dicionario-de-dados.md)
@@ -25,6 +27,8 @@
   - [Pipeline e camadas](dados-e-pipeline/arquitetura-em-camadas.md)
   - [Consultas](dados-e-pipeline/consultas.md)
   - [Busca semântica (CATMAT)](dados-e-pipeline/semantica.md)
+  - [Camada ouro: modelo analítico](dados-e-pipeline/camada-ouro.md)
+  - [Orquestração (Dagster)](dados-e-pipeline/orquestracao.md)
   - [Testes e validação](dados-e-pipeline/testes.md)
 - Testes
   - [Teste de Viabilidade](testes/teste-de-viabilidade.md)

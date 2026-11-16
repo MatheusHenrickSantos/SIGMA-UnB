@@ -42,9 +42,14 @@ Um único comando sobe estes serviços, nesta ordem:
 | `migrate` | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio. | Sim |
 | `ingest` | Python: baixa o estoque e o catálogo CATMAT e grava no schema `raw`. | Sim |
 | `transformar` | dbt: `raw` → `bronze` → `prata`, com os testes de dados (`dbt build`). | Sim |
-| `semantica` | Python: embeddings das descrições e candidatos CATMAT para cada material ([detalhes](docs/dados-e-pipeline/semantica.md)). | Sim |
+| `semantica` | Python: embeddings das descrições, candidatos CATMAT para cada material (busca híbrida: cosseno + trigramas + rapidfuzz) e importação das decisões sugeridas por agentes de IA ([detalhes](docs/dados-e-pipeline/semantica.md)). | Sim |
+| `compras` | Python: baixa as compras públicas (Compras.gov.br) dos itens CATMAT aprovados e grava em `raw.compras`. | Sim |
+| `transformar_ouro` | dbt: compras (`bronze.compras`, `prata.compra_publica`), snapshot da correspondência (SCD tipo 2) e camada ouro (fato e dimensões). | Sim |
+| `painel` | Streamlit em http://localhost:8501: maiores diferenças entre o preço do estoque e o das compras públicas, por almoxarifado e mês ([camada ouro](docs/dados-e-pipeline/camada-ouro.md)). | Não, fica rodando |
 
-`migrate` só começa quando o banco está pronto; `ingest` só começa se as migrações tiverem sido aplicadas; `transformar` espera o `ingest` e `semantica` espera o `transformar` terminarem com sucesso.
+Cada serviço só começa quando o anterior termina com sucesso: `db` → `migrate` → `ingest` → `transformar` → `semantica` → `compras` → `transformar_ouro`. O `painel` lê a camada ouro e fica no ar.
+
+Para rodar agendado, com retry por etapa e backfill por mês, use a orquestração com Dagster ([orquestração](docs/dados-e-pipeline/orquestracao.md)): `DAGSTER_HOME=$PWD/orquestracao/instancia dagster dev -f orquestracao/definicoes.py`.
 
 O catálogo CATMAT tem centenas de páginas e o `semantica` baixa um modelo de linguagem (~0,5 GB) e calcula os vetores na CPU. Para um teste rápido, use `CATMAT_MAX_PAGINAS=5` no `.env`.
 
@@ -190,11 +195,14 @@ SELECT version, description, success
 | Subir tudo (reconstruindo o que mudou)          | `docker compose up --build` |
 | Subir em segundo plano                          | `docker compose up --build -d` |
 | Ver logs de um serviço                          | `docker compose logs -f ingest` |
-| Reexecutar a carga e etapas seguintes           | `docker compose up --build ingest transformar semantica` |
+| Reexecutar a carga e etapas seguintes           | `docker compose up --build ingest transformar semantica compras transformar_ouro` |
 | Aplicar migrações novas                         | `docker compose run --rm migrate` |
 | Recalcular só a busca semântica (incremental)   | `docker compose run --rm semantica` |
 | Exportar a fila de revisão de candidatos CATMAT | `docker compose run --rm semantica python -m semantica fila` (gera `dados/semantica/fila_revisao.csv`) |
 | Registrar a revisão de um candidato             | `docker compose run --rm semantica python -m semantica revisar --material ma0001 --codigo 123456 --decisao equivalente --revisor "Nome"` |
+| Importar decisões revisadas numa planilha (CSV) | `docker compose run --rm semantica python -m semantica importar --arquivo ARQUIVO.csv --revisor "Nome"` (formato em [semantica.md](docs/dados-e-pipeline/semantica.md#8-decisões-em-lote-agentes-de-ia-e-planilhas)) |
+| Medir a busca no conjunto de referência         | `docker compose run --rm semantica python -m semantica.medir_referencia` |
+| Rebaixar e recarregar só as compras             | `docker compose up --build compras transformar_ouro` |
 | Medições do ADR 0005 (exata x HNSW, vetores reais) | `docker compose run --rm semantica python medir_adr0005.py real` |
 | Parar (mantém os dados do banco)                | `docker compose down` |
 | **Apagar o banco e recomeçar do zero**          | `docker compose down -v` |
@@ -233,7 +241,7 @@ O `.env` está no `.gitignore` e não deve ser versionado.
 
 ```
 SIGMA-UnB/
-├── docker-compose.yml          # sobe db, migrate, ingest, transformar e semantica
+├── docker-compose.yml          # sobe db, migrate, ingest, transformar, semantica, compras e transformar_ouro
 ├── .env.example                # modelo de configuração
 ├── codigos/
 │   ├── Dockerfile              # imagem Python usada pelas etapas ingest e dbt
@@ -241,8 +249,8 @@ SIGMA-UnB/
 │   ├── normalizar.py           # funções de limpeza de texto e números
 │   ├── medir_adr0001.py        # medições do ADR 0001
 │   ├── medir_adr0005.py        # medições do ADR 0005 (busca exata x HNSW)
-│   ├── semantica/              # busca semântica: normalização, embeddings, pgvector, candidatos
-│   ├── inserir/                # download do estoque e do CATMAT
+│   ├── semantica/              # busca semântica: normalização, embeddings, pgvector, busca híbrida, decisões
+│   ├── inserir/                # download do estoque, do CATMAT e das compras públicas
 │   ├── banco_de_dados/         # carga dos arquivos na camada raw
 │   └── validacao_e_cobertura_precos.py # exploração da API de preços públicos
 ├── db/
@@ -302,10 +310,15 @@ Rode com `--build` para reconstruir a imagem: `docker compose up --build`.
 | Item | Situação |
 |---|---|
 | Banco PostgreSQL em Docker | ✅ |
-| Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql`, `V2__semantica_pgvector.sql`, `V3__semantica_sem_indice_hnsw.sql` |
+| Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql`, `V2__semantica_pgvector.sql`, `V3__semantica_sem_indice_hnsw.sql`, `V4__semantica_busca_hibrida.sql`, `V5__semantica_revisao_por_material.sql` |
 | Ingestão idempotente por hash em `raw.estoque` e `raw.catmat`, seguida da transformação dbt | ✅ |
 | Download do estoque e do CATMAT, transformação dbt e candidatos semânticos | ✅ Integrados ao Compose |
-| Consulta exploratória de preços públicos (API Compras.gov.br) | 🚧 Script separado; não integrada ao Compose |
+| Camada ouro: fato com grão declarado, dimensões e SCD tipo 2 da correspondência (dbt snapshot) | ✅ [Camada ouro](docs/dados-e-pipeline/camada-ouro.md), [ADR 0007](docs/adr/0007-modelo-estrela-para-comparacao-de-precos.md) |
+| Testes de volume, distribuição e domínio; freshness e SLA | ✅ `tests/`, `seeds/excecoes_qualidade.csv`, `dbt source freshness`, `ouro.monitor_atualizacao` |
+| Consulta otimizada pelo plano de execução | ✅ [EXPLAIN (ANALYZE, BUFFERS) antes e depois](docs/dados-e-pipeline/consultas.md) |
+| Orquestração agendada, retry e backfill | ✅ Dagster ([orquestração](docs/dados-e-pipeline/orquestracao.md)) |
+| Painel analítico | ✅ Serviço `painel` (Streamlit, http://localhost:8501) |
+| Compras públicas dos itens CATMAT aprovados (API Compras.gov.br) | ✅ Serviços `compras` e `transformar_ouro`: `raw.compras` → `bronze.compras` → `prata.compra_publica` |
 | ADR da E1 ([`docs/adr/adr-1.md`](docs/adr/adr-1.md)) | ✅ |
 | Diário ([`docs/gestao/diario/`](docs/gestao/diario/)) | ✅ |
 | Registro de uso de IA ([`docs/gestao/ai-usage.md`](docs/gestao/ai-usage.md)) | ✅ |

@@ -1,0 +1,137 @@
+# modelos/ouro/ouro.yml
+version: 2
+
+models:
+  - name: fato_comparacao_preco
+    description: >
+      GRÃO: uma linha por material, por almoxarifado, por mês de referência
+      publicado. Preço registrado no estoque comparado com a mediana do preço
+      das compras públicas dos itens CATMAT equivalentes (versão da
+      correspondência vigente quando a linha foi carregada). Responde à
+      pergunta de gestão da E1.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - identificador_material
+              - identificador_almoxarifado
+              - mes_referencia
+    columns:
+      - name: mes_referencia
+        description: Primeiro dia do mês de referência do estoque.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_tempo')
+                field: mes_referencia
+      - name: identificador_material
+        description: Material (prata.material).
+        data_tests:
+          - not_null
+      - name: identificador_almoxarifado
+        description: Almoxarifado.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_almoxarifado')
+                field: identificador_almoxarifado
+      - name: sk_material
+        description: Versão da dim_material (SCD 2) usada no cálculo da linha.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_material')
+                field: sk_material
+      - name: preco_estoque
+        description: Preço unitário no estoque, média ponderada pela quantidade.
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                inclusive: false
+      - name: quantidade
+        description: Saldo do material no almoxarifado no mês.
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: preco_publico_mediano
+        description: Mediana do preço unitário das compras públicas dos itens equivalentes.
+      - name: diferenca_pct
+        description: (preco_estoque / preco_publico_mediano - 1) * 100. Sinal para investigar, não prova de sobrepreço.
+      - name: tipo_revisor_correspondencia
+        description: Quem decidiu a correspondência usada (pessoa, agente ou sem_decisao).
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['pessoa', 'agente', 'sem_decisao']
+
+  - name: dim_material
+    description: >
+      Material com a correspondência ao CATMAT em SCD tipo 2: uma linha por
+      versão (snap_correspondencia_material). Uma versão nova nasce quando
+      mudam os itens equivalentes, a decisão "sem correspondente" ou quem
+      decidiu.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - identificador_material
+              - valido_de
+    columns:
+      - name: sk_material
+        description: Chave da versão (identificador_material + valido_de).
+        data_tests:
+          - not_null
+          - unique
+      - name: identificador_material
+        description: Material (prata.material).
+        data_tests:
+          - not_null
+      - name: tipo_revisor
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['pessoa', 'agente', 'sem_decisao']
+
+  - name: dim_almoxarifado
+    columns:
+      - name: identificador_almoxarifado
+        data_tests:
+          - not_null
+          - unique
+
+  - name: dim_tempo
+    description: Um mês por linha, do primeiro ao último mês com estoque.
+    columns:
+      - name: mes_referencia
+        data_tests:
+          - not_null
+          - unique
+
+  - name: dim_item_catmat
+    description: Item CATMAT com PDM, classe e grupo.
+    columns:
+      - name: codigo_item
+        data_tests:
+          - not_null
+          - unique
+
+  - name: monitor_atualizacao
+    description: >
+      Métrica de freshness e SLA das tabelas de consumo. Uma linha por tabela:
+      último dado disponível, atraso em dias e situação diante do SLA declarado.
+    columns:
+      - name: tabela
+        data_tests:
+          - not_null
+          - unique
+      - name: situacao_sla
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['dentro do SLA', 'fora do SLA']

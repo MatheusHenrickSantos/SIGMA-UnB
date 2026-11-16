@@ -1,0 +1,151 @@
+material;codigos_equivalentes;sem_correspondente;confianca;justificativa;revisor
+ACETATO, ETILA, 1 L;382139|633781;nao;media;"Acetato de etila (estoque inverte a ordem); 382139 é o grau 99,5%; 633781 é padrão analítico. 470871 é bromoacetato, excluído.";agente:ia
+ACUCAREIRO, ACO INOXIDAVEL, 330 GR;218748|260873;nao;alta;Açucareiro aço inox 330 g.;agente:ia
+ADOCANTE, ESTEVIA, MESA, LIQUIDO, 65 ML;236197|295546;nao;alta;Adoçante líquido de estévia.;agente:ia
+ALMOFADA, CARIMBO, PRETA;382455|427259|379724|427257|427255;nao;alta;"Almofada para carimbo preta; tamanho não especificado no estoque.";agente:ia
+APAGADOR, QUADRO, MAGNETICO;240962|332610|323622|343997|411057;nao;alta;Apagador para quadro magnético.;agente:ia
+APONTADOR, LAPIS, PORTATIL, METAL;202495|202489;nao;media;"Apontador de metal portátil ≈ tipo escolar; os de mesa foram excluídos.";agente:ia
+AVENTAL, HOSPITALAR, CAPOTE, CIRURGICO, TAM, UNICO, MANGA, LONGA;422231|481363|481513|604923|642179;nao;media;"Avental/capote descartável manga longa; CATMAT não tem 'capote cirúrgico' com esses atributos.; corrigido após calibração: avental cirúrgico (capote) incluído";agente:ia
+"ACO, INOXIDAVEL, 1"".1/2";;sim;baixa;"Descrição insuficiente: 'aço inoxidável 1 1/2' sem forma (barra, tubo, chapa); preço de R$ 0,02 sugere unidade de medida atípica.";agente:ia
+"ACO, REDONDO, 2"".1/2";252718|370856|370846|370909|371452|370877;nao;media;"Barra de aço redonda 2 1/2 pol; liga não especificada no estoque.";agente:ia
+ACUCAR, CRISTAL, 5 KG;463988|603269|463989|395794;nao;alta;"Açúcar cristal; o orgânico (463990) foi excluído.";agente:ia
+BANDEJA, ACO, INOXIDAVEL, REDONDA, 35 CM;241371;nao;alta;Bandeja redonda aço inox 35 cm.;agente:ia
+BARBANTE, ALGODAO, BRANCO, 8 FIOS;435053|254473|206995;nao;alta;Barbante algodão 8 fios branco (206995 sem cor, aceito).;agente:ia
+BATERIA, NOBREAK, 12X18AH;483857|457719|425944;nao;media;"Bateria chumbo-ácido 12 V 18 Ah; 457719/425944 não explicitam 12 V.";agente:ia
+BLOCO, RECADO, AUTOADESIVO, AMARELO, 38 MM X 50 MM, C/4 BLOCOS;229171|284665|355194|263616|285472;nao;alta;Bloco de recado autoadesivo amarelo 38x50 mm.;agente:ia
+BORRACHA, PERFIL, REDONDO, 3 MM;327108|359326;nao;media;Perfil de borracha redondo 3 mm = cordão de vedação circular 3 mm.;agente:ia
+"BRONZE, OCO, 2"".1/2X1""";;sim;baixa;'Bronze oco 2 1/2 x 1' (bucha/tubo de bronze) sem item equivalente claro no CATMAT ativo.;agente:ia
+CABO, VGA, 20M;430441|415189;nao;media;"Cabo extensor VGA (HD15) 20 m; 415189 é DVI/VGA 20 m.";agente:ia
+CAFE, TORRADO, MOIDO, 500 GR;217366|232173|463576|606523|606524|463583;nao;alta;"Café torrado e moído; embalagem não discrimina item.";agente:ia
+CAIXA, ARQUIVO, PAPELAO;231880|231563|229507|71404|239822|239823|244778;nao;alta;Caixa arquivo de papelão.;agente:ia
+CANECA/FERVEDOR, 2,0 L;619802|443891;nao;alta;Caneca fervedor 2 L.;agente:ia
+CANECA/FERVEDOR, 6,0 L;270252|352304;nao;alta;Caneco fervedor 6 L.;agente:ia
+CANETA, ESFEROGRAFICA, AZUL;331053|358291|417060|365512;nao;alta;"Caneta esferográfica azul comum; a de bambu/touch (promocional) foi excluída.";agente:ia
+CAPA, ENCARDENADORA, A4, AZUL;336523|316201|342983;nao;alta;Capa para encadernação A4 azul (estoque escreve 'encardenadora').;agente:ia
+CAPACITOR, FASE, 50+5MF;;sim;media;"Capacitor duplo 50+5 µF não encontrado; os itens de fase existentes são de valor único (5, 35, 40 µF).";agente:ia
+CARTOLINA, DESENHO, VERDE;259728|277320|245267|258460|254659|398741|288909;nao;media;"Cartolina verde; gramatura e tamanho não especificados no estoque.";agente:ia
+CHAVE, TOUCH, PUSH, BOTON;465301;nao;baixa;"Chave táctil push-button; 465301 (módulo push-button micro chave) é o mais próximo.";agente:ia
+CHAVETA, PC-954;;sim;baixa;"Chaveta PC-954 é peça específica; 70327 é chaveta de vela (outra coisa).";agente:ia
+CHAVETA, PC954;;sim;baixa;"Chaveta PC954 é peça específica; 70327 é chaveta de vela (outra coisa).";agente:ia
+CIRCUITO INTEGRADO, LM340;260774|401092;nao;alta;"CI LM340T.; corrigido após calibração: 401092 também é LM340";agente:ia
+CIRCUITO, INTEGRADO, LM19AB;;sim;media;LM19 (sensor de temperatura) não encontrado no CATMAT ativo.;agente:ia
+CLIPE, METAL, NUMERO 8;419492;nao;alta;"Clipe metal tamanho 8; os 8/0 são outro tamanho.";agente:ia
+CLOROFORMIO, PA, 99%;442112|381269|348805|380869|348804|445473;nao;media;"Clorofórmio CHCl3 grau ≥ 99%; deuterado e padrão em solução excluídos.";agente:ia
+COADOR, CAFE, TECIDO;68446|334664|309534;nao;media;"Coador de café de pano; os industriais (30 L) foram excluídos pelo preço de R$ 7.";agente:ia
+COLA, INSTANTANEA, 5 GR;281641;nao;baixa;"Cola instantânea (cianoacrilato); não há item com 5 g explícito.";agente:ia
+COMPACT, DISK, DVD, GRAVAVEL, 240 MIN;378592;nao;media;"DVD gravável 240 min (DVD+R dual layer); os regraváveis foram excluídos.";agente:ia
+COMPRESSOR, LUNITE, CAJ9510, 220 V, R22/502;;sim;media;"Compressor modelo CAJ9510 (R22/502) não encontrado; os Tecumseh RG não são o mesmo modelo.";agente:ia
+CONTROLADOR, MICROPROCESSADO, TEHCD901;;sim;baixa;"Controlador microprocessado TEHCD901 (modelo específico) não encontrado; 111686 é genérico demais.";agente:ia
+CONTROLE, ELETRICO, MAQUINA, LAVAR, 220 V, 60 HZ;;sim;baixa;"Controle elétrico de máquina de lavar sem modelo; as placas existentes são de modelos específicos.";agente:ia
+CONTROLE, UNIVERSAL, AR, CONDICIONADO;390407;nao;alta;Controle remoto universal para ar-condicionado.;agente:ia
+COPO, DESCARTAVEL, BIODEGRADAVEL, 200 ML;435019|421447;nao;alta;Copo descartável biodegradável 200 ml.;agente:ia
+CORDOALHA, COBRE, NU, 25 MM;392268;nao;baixa;"Cordoalha de cobre nu 25 mm²; 392268 é cabo nu de cobre tipo cordoalha para aterramento.";agente:ia
+CORRETIVO, FITA, 8M;301921|331359|266819;nao;alta;"Fita corretiva 8 m; as de 8,5 m foram excluídas.";agente:ia
+"CURVA, COBRE, 90°, 5/16""";;sim;media;"Curva 90° de cobre 5/16 pol não encontrada; existem 1/4 e 5/8 pol.";agente:ia
+DESATIVADO - LUBRIFICANTE, MULTIUSO, AEROSOL, QUEROSENE, SILICONE;450807|262376;nao;baixa;"Lubrificante multiuso aerossol (tipo desengripante); item marcado como DESATIVADO no estoque.";agente:ia
+DESINFETANTE, LIQUIDO, AROMATIZADO, 5 LITROS;420084|435127|381409;nao;media;"Desinfetante líquido com aroma; galão de 5 L não discrimina item.";agente:ia
+DETERGENTE, LIQUIDO, 500 ML;389458|389472|432428|618314;nao;media;"Detergente líquido neutro (uso de copa); estoque não diz 'neutro', mas o preço de R$ 1,33 por 500 ml indica lava-louças.";agente:ia
+DICLOROMETANO, PA, 1 L;382543|346521|436095|346522|401024;nao;media;"Diclorometano P.A.; deuterado e 98% excluídos.";agente:ia
+DIODO, 1N750A;;sim;media;Diodo zener 1N750A (4,7 V) não encontrado.;agente:ia
+DIODO, B10100;;sim;media;Diodo Schottky B10100 não encontrado.;agente:ia
+DISJUNTOR, TERMOMAGNETICO, UNIPOLAR, 50 A, NEMA;375013|336821|482688;nao;media;"Disjuntor termomagnético 1 polo 50 A (padrão NEMA não explícito nos itens).; corrigido após calibração: 482688 é 50 A padrão NEMA";agente:ia
+EBULIDOR, ELETRICO, MERGULHAO, ACO, INOX, 2000 W, 220 V;395808|283663;nao;alta;Ebulidor/mergulhão 220 V 2000 W.;agente:ia
+EBULIDOR/MERGULHAO, ELETRICO, ACO, INOX, 2000 W, 220 V;395808|283663;nao;alta;Ebulidor/mergulhão 220 V 2000 W.;agente:ia
+EIXO, ROSCA, MAQUINA, GELO;;sim;baixa;"Eixo com rosca de máquina de gelo, sem modelo; não há item equivalente.";agente:ia
+ELEMENTO, FILTRANTE, IBBL, FR600;432796;nao;alta;Refil do purificador IBBL FR600.;agente:ia
+ELASTICO, ESCRITORIO, DINHEIRO;;sim;baixa;"Elástico de látex para escritório (para dinheiro) não encontrado; os itens de látex são de vestuário, ortodônticos ou de processo.";agente:ia
+ENVELOPE, CORRESPONDENCIA, BRANCO, TIMBRE, 114X230 MM;306760|242425|306772;nao;media;"Envelope branco 114x230 mm; 306760 é com timbre.";agente:ia
+ESPIRAL, ENCADERNACAO, PLASTICO, 09 MM;343557|286607|346026|242227|202755;nao;alta;Espiral de encadernação plástica 9 mm.;agente:ia
+ESPIRAL, ENCADERNACAO, PLASTICO, 29 MM;330447|242304|336190|380834;nao;alta;Espiral de encadernação plástica 29 mm.;agente:ia
+ESPONJA, DUPLA, FACE, LIMPEZA;481020|620662|309847;nao;alta;Esponja de limpeza dupla face.;agente:ia
+ESPONJOSO, 5/8;400195;nao;media;Tubo esponjoso 5/8 pol para ar-condicionado.;agente:ia
+ESTILETE, ESCRITORIO, 18 MM;238683|248060;nao;alta;Estilete de escritório 18 mm.;agente:ia
+EXTRATOR, GRAMPO, ESPATULA;278811|405486|286103|307812|278812|278813;nao;alta;Extrator de grampo tipo espátula.;agente:ia
+FILTRO, SILICA, 1/4;343565;nao;baixa;"Filtro secador 1/4 pol (molecular); 'sílica' não aparece no CATMAT.";agente:ia
+FITA, ADESIVA, CREPE, 48MMX50M;455088|626828|601347|391988;nao;media;"Fita crepe 48 mm x 50 m; cor não especificada no estoque.";agente:ia
+FONTE, 150MA, 33VA, MICROSCOPIO;;sim;baixa;"Fonte de microscópio 150 mA 33 VA sem modelo; os itens existentes são fontes de microscópio eletrônico.";agente:ia
+FORMULARIO, PLANO, REMESSA;319166;nao;media;Formulário guia de remessa de documentos.;agente:ia
+FUSIVEL, MINI, 0,4 A;;sim;media;Fusível mini 0,4 A não encontrado.;agente:ia
+FUSOR, XEROX, WORKCENTRE, 109R00752;387691;nao;alta;Fusor Xerox 109R00752 (código exato).;agente:ia
+FUSIVEL, VIDRO, 31 MM, GRANDE, 20A, RETARDO;;sim;media;Fusível de vidro 31 mm 20 A retardado não encontrado (o de 20 A existente é de 20 mm).;agente:ia
+GARRAFA, TERMICA, PRESSAO, AMPOLA VIDRO, 1 LITRO;376175|385400;nao;alta;Garrafa térmica 1 L com pressão e ampola de vidro.;agente:ia
+GIZ, BRANCO, ESCOLAR (QUADRO VERDE/NEGRO);202617;nao;media;Giz branco em palito.;agente:ia
+GRAFITE, LAPISEIRA, 0,5;324277|230652|364046|384006;nao;alta;"Grafite 0,5 mm para lapiseira.; corrigido após calibração: dureza não especificada no estoque";agente:ia
+GRAMPEADOR, GRANDE, 23/13;285629|310233|410442|422424|310235;nao;media;Grampeador de mesa grande que aceita grampo 23/13.;agente:ia
+GRAMPO, PLASTICO, PROCESSO, 50 MM;;sim;baixa;Grampo plástico para processo de 50 mm não encontrado (os trilhos existentes têm 80 a 90 mm).;agente:ia
+HEXANO, PA, ACS, 1 L;354576|416199|362991|354580;nao;media;"Hexano P.A.; grau ACS não discriminado nos itens.";agente:ia
+INDUZIDO, ASPIRADOR, PO;;sim;media;Induzido (rotor) de aspirador de pó não encontrado.;agente:ia
+JARRA, VIDRO, 1,5 LITRO;356505|240390;nao;alta;Jarra de vidro 1,5 L.;agente:ia
+LAMPADA, 15 V, 150 W, EFR, MICROSCOPIO;340546|266675|294508;nao;media;Lâmpada halógena/dicroica (EFR) 15 V 150 W para microscópio.;agente:ia
+LAMPADA, 6 V, 10 W, MICROSCOPIO;384739|272308|379472|272264;nao;media;Lâmpada 6 V 10 W para microscópio.;agente:ia
+LATAO, QUADRADO, 3/8;;sim;media;Tarugo de latão quadrado 3/8 pol não encontrado.;agente:ia
+"LATAO, REDONDO, 4""";479491|371427;nao;media;Tarugo/barra de latão redondo 4 pol.;agente:ia
+LED, AMARELA, 3 MM;411195|452869;nao;alta;LED amarelo 3 mm.;agente:ia
+LIVRO, ATA;200690|200691|200689|200687|294966|200688|200686|200692;nao;media;"Livro ata; número de folhas não especificado.";agente:ia
+LIVRO, PROTOCOLO;150058;nao;media;Livro protocolo (o CATMAT só tem o item genérico).;agente:ia
+LUVA, RASPA, CANO, CURTO;421064|440934;nao;alta;Luva de raspa de couro cano curto.;agente:ia
+LAPIS, ESCRITA, PRETO, NUMERO 2;337519|284328|382152|333316|405822|409001|280065;nao;alta;"Lápis preto nº 2 HB.; corrigido após calibração: 280065 é lápis preto dureza 2";agente:ia
+LAMINA, ESTILETE, 18 MM;427106;nao;alta;Lâmina de estilete 18 mm.;agente:ia
+LAMPADA, HALOGEN, 230 V, 300 W;229571|288083;nao;media;Lâmpada halógena 220/230 V 300 W.;agente:ia
+LAMPADA, PROJETOR, SANYO, XU25/LMP55;;sim;media;"Lâmpada Sanyo POA-LMP55 (XU25) não encontrada; as Sanyo existentes têm outro código.";agente:ia
+MANTA, FILTRANTE;399926;nao;baixa;"Manta filtrante sintética; o estoque não especifica dimensão.";agente:ia
+MICROMOTOR, 1/25;;sim;media;Micromotor 1/25 CV não encontrado (existem 1/20 e 1/40 CV).;agente:ia
+MICROMOTOR, 1/40;278290;nao;alta;Micromotor 1/40 CV.;agente:ia
+MICROVENTILADOR, EXAUSTOR;150721;nao;baixa;"Microventilador/exaustor sem especificação; só o item genérico de exaustor serve.";agente:ia
+MINI, CONTACTORA, CW07, 220 V;318927;nao;media;"Minicontator 220 V 7 A (família CW07); 360412 é para estufa de secagem.";agente:ia
+MOLHADOR, DEDO, PASTA;229520|201847|245461|249588|402876|386807|351131;nao;media;"Molha-dedos em pasta/creme; tipo de carga não especificado.";agente:ia
+MOUSE, OPTICO, COM FIO, USB, SCROLL;451822|440836|274302|309107;nao;media;"Mouse óptico com fio USB; os sem fio, laser e vertical foram excluídos.";agente:ia
+MASCARA, DESCARTAVEL;385112|461350|483888|372359;nao;media;Máscara descartável de uso geral.;agente:ia
+PAPEL, CONTACT, TRANSPARENTE;300701|284683|296651|278461|284782|324104|278462|314481;nao;media;"Papel contact transparente (incolor); largura não especificada.";agente:ia
+"PARABOLT, 3/8""X2""";446592|480158|392049|376092|325416;nao;media;"Chumbador parabolt 3/8 pol x 2 pol (confirmar comprimento de 2 pol).; corrigido após calibração: 325416 é parabolt 3/8";agente:ia
+PASTA, CARTAO DUPLEX, SIMPLES, VERDE, SEM GRAMPO;382151|355350;nao;media;Pasta de cartão duplo verde sem grampo.;agente:ia
+PERFURADOR, PAPEL, FERRO, 2 FUROS;292274|413723|326432|231771|239456;nao;media;Perfurador de papel em ferro fundido (2 furos é o padrão).;agente:ia
+PILHA, ALCALINA, AAA;231788|320155|309967;nao;alta;Pilha alcalina AAA.;agente:ia
+PINCEL, MARCADOR, PERMANENTE, CD, DVD;229815|229816|315046|229817|314192;nao;alta;"Marcador permanente para CD/DVD; cor não especificada.";agente:ia
+PLACA, RESISTOR, FORNO, ALTA, QUIMIS;;sim;media;Placa resistora para forno Quimis não encontrada.;agente:ia
+PORCA, 1/4, LATAO;263112;nao;alta;Porca de latão 1/4 pol.;agente:ia
+PORTA, OBJETO, ESCRITORIO;234401|277291;nao;media;Porta-objeto conjugado de escritório.;agente:ia
+POTENCIOMETRO, LOG, 10K;;sim;media;Potenciômetro logarítmico 10K não encontrado (só lineares).;agente:ia
+POTENCIOMETRO, LINEAR, 100K;607411|393883;nao;media;Potenciômetro linear 100K.;agente:ia
+POTENCIOMETRO, LINEAR, 2,2M;;sim;media;Potenciômetro linear 2,2M não encontrado.;agente:ia
+PRANCHETA, ANOTACAO, A4;;sim;baixa;"Prancheta portátil A4 para anotação não encontrada; 65102 é prancheta para desenho.";agente:ia
+PRESSOSTATO, COMPRESSOR, 125/175;473205;nao;baixa;"Pressostato de compressor 125/175 psi; 473205 é pressostato de compressor de outro fabricante.";agente:ia
+PROTETOR, TERMICO, 2HP;;sim;baixa;Protetor térmico 2 HP não encontrado.;agente:ia
+RELE, RW271D3, 32A;;sim;media;"Relé térmico WEG RW27-1D3 32 A; só existem RW27D de outras faixas ou sem faixa.";agente:ia
+RESISTOR, 1,2K, 1/4 W;393558|344790;nao;alta;"Resistor 1K2 1/4 W.; corrigido após calibração: 344790 é 1,2 kΩ 1/4 W filme metálico";agente:ia
+RESISTOR, 39R, 1/8 W;600572;nao;baixa;"Resistor de 39 Ω; o CATMAT só tem 1/4 W (o estoque pede 1/8 W).";agente:ia
+RESISTENCIA, ELETRICA, 110 V, 600 W, ELBAC, 412;;sim;media;Resistência Elbac 412 110 V 600 W não encontrada.;agente:ia
+RETENTOR, 00994, 20X40X7MM;;sim;media;Retentor 20x40x7 mm não encontrado.;agente:ia
+RETENTOR, 17X40X8,5MM;;sim;media;Retentor 17x40x8,5 mm não encontrado.;agente:ia
+ROLAMENTO, R8, ZZ;;sim;media;Rolamento R8 ZZ não encontrado.;agente:ia
+REGUA, 30 CM;406522|345747|233586|229521|270870|243189|305103|236473;nao;alta;Régua comum de 30 cm.;agente:ia
+SABAO, PO, 1 KG;420639|226795|332971|600612;nao;media;"Sabão em pó; peso da embalagem não discrimina item.";agente:ia
+SABAO, PO, 800 G;420639|226795|332971|600612;nao;media;"Sabão em pó; peso da embalagem não discrimina item.";agente:ia
+SACO, PLASTICO, P/DOCUMENTO, A4, DOIS, FUROS;;sim;media;Saco plástico A4 com 2 furos não encontrado (todos os itens têm 4 furos ou nenhum).;agente:ia
+SAPATILHA, DESCARTAVEL, POLIPROPILENO, PRO, PE;436856|436857|436858|436854|436855|436859;nao;media;Sapatilha descartável de polipropileno (não tecido) com elástico.;agente:ia
+"SELO, MECANICO, 1.1/8""";;sim;baixa;"Selo mecânico 1 1/8 pol não encontrado; os itens não informam a bitola.";agente:ia
+"SELO, MECANICO, 1/2""";;sim;baixa;"Selo mecânico 1/2 pol: os itens de selo mecânico não informam a bitola; 328832 é selo de vedação (outra peça).";agente:ia
+"TARUGO, ALUMINIO, 1"".1/4";;sim;media;Tarugo de alumínio 1 1/4 pol não encontrado.;agente:ia
+"TARUGO, ALUMINIO, 1"".3/4";;sim;media;Tarugo de alumínio 1 3/4 pol não encontrado.;agente:ia
+TECLADO, MICROCOMPUTADOR, ABNT2, USB;290866|326771;nao;alta;Teclado ABNT2 USB.;agente:ia
+TEMPORIZADOR, 60S, 220 V;331034;nao;media;Temporizador 1 a 60 s 220 V.;agente:ia
+TEMPORIZADOR, 6MIM, 220 V;;sim;baixa;Temporizador 6 min 220 V: os itens não informam a escala.;agente:ia
+TERMOSTATO, RC122124;;sim;media;Termostato RC122124 não encontrado.;agente:ia
+TERMOSTATO, UNIVERSAL;26220;nao;baixa;Termostato universal: só o item genérico.;agente:ia
+TESOURA, 21 CM;303228|283560|477123;nao;alta;"Tesoura 21 cm de uso geral; a de costura foi excluída.";agente:ia
+TINTA, CARIMBO, PRETA;282552|282553;nao;alta;Tinta para carimbo preta.;agente:ia
+TIRISTOR, SEMICONDUTOR, 2N5064;;sim;media;Tiristor 2N5064 não encontrado.;agente:ia
+TONER, HP, CIANO, C9721A;323032|255129|293890;nao;alta;Toner HP C9721A (ciano).;agente:ia
+TORNEIRA, TIPO, BOCA;255942;nao;media;Torneira tipo jato para boca (bebedouro).;agente:ia
+TRANSISTOR, 2N3638;;sim;media;Transistor 2N3638 não encontrado.;agente:ia
+TRANSISTOR, IRFZ, 46, MOSFET;;sim;media;MOSFET IRFZ46 não encontrado (existem IRFZ44N e IRFZ48N).;agente:ia
+TRANSISTOR, 3039;;sim;baixa;'Trasistor 3039': referência ambígua, não encontrada.;agente:ia
+VALVULA, ENTRADA, AGUA, BEBEDOURO;;sim;baixa;"Válvula de entrada de água de bebedouro (solenoide) não encontrada; 601597 é reguladora de pressão.";agente:ia
+VARISTOR, 10D391K;;sim;media;Varistor 10D391K (390 V) não encontrado.;agente:ia
+VARISTOR, 10K, 175 V;;sim;media;Varistor 10K 175 V não encontrado (existem 130 e 150 V).;agente:ia
+VALVULA, EXPANSAO, R22, MOD, AAE, 8HW100;;sim;media;Válvula de expansão R22 AAE 8HW100 não encontrada.;agente:ia
+XICARA, CHA, PORCELANA, 180 ML;356516|258007;nao;alta;Xícara de chá de porcelana 180 ml.;agente:ia
+ACIDO, CLORIDRICO, PA, ACS;361785|427771|441630|355813|347337|347336;nao;media;"Ácido clorídrico P.A. (concentrado); as soluções diluídas foram excluídas.";agente:ia
+AGUA, SANITARIA, 1 LITRO;310507|624677|299605|292730|226699|226700|226701;nao;alta;Água sanitária.;agente:ia
+ALCOOL, ETILICO, HIDRATADO, 70%, GEL, GALAO, 5 L, ME/EPP;269943;nao;alta;Álcool etílico hidratado 70% em gel.;agente:ia
+OCULOS, PROTECAO, POLICARBONATO, LENTE, INCOLOR, AMPLA, VISAO, PROTECAO, LATERAL;634184|286716;nao;media;Óculos de proteção ampla visão, policarbonato, lente incolor.;agente:ia

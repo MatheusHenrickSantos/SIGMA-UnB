@@ -21,6 +21,10 @@ import requests
 
 URL_API = "https://dadosabertos.compras.gov.br/modulo-material/4_consultarItemMaterial"
 TAMANHO_PADRAO_PAGINA = 500
+# Depois de ~100 páginas na mesma conexão (keep-alive), a API passa a
+# devolver 400 para qualquer página, enquanto uma conexão nova recebe 200.
+# Por isso cada falha fecha as conexões da sessão antes de tentar de novo.
+TENTATIVAS = 8
 
 
 def solicitar_pagina(
@@ -30,7 +34,7 @@ def solicitar_pagina(
     pausa: float,
 ) -> dict[str, Any]:
     ultimo_erro: Exception | None = None
-    for tentativa in range(5):
+    for tentativa in range(TENTATIVAS):
         try:
             if pausa and tentativa == 0:
                 time.sleep(pausa)
@@ -50,11 +54,12 @@ def solicitar_pagina(
         except Exception as exc:
             ultimo_erro = exc
             print(
-                f"Página {pagina}: tentativa {tentativa + 1}/5 falhou: {exc}",
+                f"Página {pagina}: tentativa {tentativa + 1}/{TENTATIVAS} falhou: {exc}",
                 file=sys.stderr,
             )
-            if tentativa < 4:
-                time.sleep(min(2**tentativa, 20))
+            sessao.close()  # a próxima tentativa abre uma conexão nova
+            if tentativa < TENTATIVAS - 1:
+                time.sleep(min(5 * 2**tentativa, 120))
     raise RuntimeError(
         f"Não foi possível obter a página {pagina}: {ultimo_erro}"
     )

@@ -1,0 +1,21 @@
+version: 2
+
+seeds:
+  - name: excecoes_qualidade
+    description: >
+      Anomalias de dados já investigadas, que os testes singulares de
+      qualidade (tests/) deixam passar. Cada linha diz qual teste, a chave da
+      ocorrência e o motivo. Acrescente aqui só depois de conferir na origem.
+    columns:
+      - name: teste
+        description: Nome do teste singular (arquivo em tests/, sem .sql).
+        data_tests:
+          - not_null
+      - name: chave
+        description: Identificação da ocorrência no formato que o teste usa.
+        data_tests:
+          - not_null
+      - name: motivo
+        description: O que foi conferido e por que a ocorrência é aceita.
+        data_tests:
+          - not_null

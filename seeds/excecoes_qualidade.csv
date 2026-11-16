@@ -1,0 +1,4 @@
+teste,chave,motivo,registrado_em
+volume_estoque_mensal,PRC 2022-11,"Queda de 1.660 para 695 linhas entre 07/2022 e 11/2022 (meses 08 a 10/2022 não publicados). Está no arquivo de origem do portal; motivo a confirmar com a fonte.",2026-11-10
+distribuicao_salto_preco_estoque,ma1234 al0001 2021-08,"Máscara respiradora com válvula: 18,00 (06/2021) para 2,60 (08/2021) no Central. Valores presentes no arquivo de origem; provável preço de pandemia ou troca de unidade, a confirmar.",2026-11-10
+distribuicao_salto_preco_estoque,ma1303 al0001 2023-04,"Papel almaço pautado A4: 7,15 (03/2023) para 63,56 (04/2023) no Central. Valores presentes no arquivo de origem; provável troca de unidade (pacote x resma), a confirmar.",2026-11-10

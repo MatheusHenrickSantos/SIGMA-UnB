@@ -1,0 +1,48 @@
+# modelos/bronze/compras.yml
+version: 2
+
+models:
+  - name: compras_bronze
+    description: >
+      Compras públicas dos itens CATMAT aprovados na busca semântica, uma
+      linha por registro da API de pesquisa de preços do Compras.gov.br,
+      deduplicadas por id_item_compra. Mantém todas as datas baixadas.
+
+    columns:
+      - name: id_item_compra
+        description: Identificador do registro na API (idItemCompra), chave única.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: id_compra
+        description: >
+          Identificador da compra (idCompra). Repete quando a compra tem vários
+          itens ou fornecedores.
+        data_tests:
+          - not_null
+
+      - name: codigo_item_catalogo
+        description: Código do item CATMAT comprado.
+        data_tests:
+          - not_null
+
+      - name: data_compra
+        description: Data em que a compra foi realizada.
+
+      - name: preco_unitario
+        description: Preço unitário do item, em reais.
+
+      - name: sigla_unidade_fornecimento
+        description: >
+          Unidade em que o item foi fornecido (UN, CX, PCT...). Necessária para
+          comparar preços: o mesmo código pode ser comprado por unidade ou por caixa.
+
+      - name: hash_do_arquivo
+        description: Hash do arquivo da camada raw de onde o registro veio.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: source('raw', 'compras')
+                field: hash_do_arquivo

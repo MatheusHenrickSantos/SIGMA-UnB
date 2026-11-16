@@ -304,3 +304,36 @@ Os índices da `V1__esquema_inicial.sql` já atendem a estas consultas:
 | `ix_estoque_material_data (id_material, data_referencia DESC)` | Junção com a referência por material (Q3, Q4) |
 
 Se o `EXPLAIN ANALYZE` mostrar lentidão com o volume real, registre o novo índice em uma migração `V<n>__indices_consultas.sql` e anote aqui.
+
+---
+
+## Consulta otimizada pelo plano de execução: vizinhos por trigramas
+
+A busca híbrida (`codigos/semantica/correspondencia.py`, `_HIBRIDA_TRIGRAMA`)
+procura, para cada material, os 20 itens CATMAT de texto mais parecido pelo
+operador de distância de trigramas do `pg_trgm` (`ORDER BY texto <-> consulta
+LIMIT 20`), sobre os 250.587 itens ativos.
+
+Script: [`planos/trigrama_knn.sql`](dados-e-pipeline/planos/trigrama_knn.sql)
+(25 materiais, cada variante dentro de uma transação desfeita no fim).
+Saída completa: [`planos/trigrama_knn_saida.txt`](dados-e-pipeline/planos/trigrama_knn_saida.txt).
+Medido em 10/11/2026 no banco do compose com os dados reais.
+
+| Variante | Plano do lado CATMAT | Tempo (25 materiais) | Por material |
+|---|---|---|---|
+| Antes: sem índice de trigramas | `Seq Scan` das 250.587 linhas + `top-N heapsort`, 25 vezes | 102,1 s | ~4,1 s |
+| Tentativa: índice GIN (`gin_trgm_ops`) | Igual ao anterior: GIN não atende `ORDER BY <->`, o planejador nem o considera | 103,3 s | ~4,1 s |
+| **Depois: índice GiST (`gist_trgm_ops`, V4)** | `Index Scan using ix_descricao_catmat_trgm`, 20 linhas por material (busca KNN no índice) | **4,5 s** | **~180 ms** |
+
+**Leitura do plano.** Antes, o nó interno do `LATERAL` é um `Seq Scan` que lê
+a tabela inteira para cada material (`loops=25`, ~4 s cada) e ordena para
+ficar com 20. O GIN serve para filtros (`%`, `LIKE`), não para ordenar por
+distância, por isso o plano não muda. O GiST guarda os trigramas de forma que
+o índice devolve os vizinhos já em ordem de distância: o `Index Scan` para
+depois de 20 linhas. Resultado: **~22 vezes mais rápido**, o que leva a busca
+por trigramas dos 2.306 materiais de ~2,6 h (estimado pelo plano) para ~7 min.
+
+**O que ainda pesa.** Os `Buffers` mostram ~400 mil páginas lidas fora do cache
+mesmo na repetição: o índice e a tabela não cabem no `shared_buffers` padrão
+(128 MB) do container. Aumentar o `shared_buffers` é o próximo passo se a etapa
+`corresponder` ficar lenta.

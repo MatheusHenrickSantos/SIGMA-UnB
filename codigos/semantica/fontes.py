@@ -24,14 +24,16 @@ class ErroFonte(RuntimeError):
 def consulta(origem: str, incluir_catmat_inativo: bool = False) -> str:
     """SQL que devolve (chave, texto original) na ordem da chave.
 
-    Estoque: material_original é a descrição integral; as colunas nome e
-    descricao da Prata são truncadas (CHAR(50)/CHAR(100)) e não servem aqui.
+    Estoque: descricao_normalizada é a descrição integral do material (a
+    Prata agrupa as variações de escrita do estoque pelo seed
+    materiais_normalizados); as colunas nome e descricao são truncadas
+    (CHAR(50)/CHAR(200)) e não servem aqui.
     CATMAT: por padrão só itens ativos (status_item não falso), porque
     códigos inativos não servem para novas compras.
     """
     if origem == "estoque":
         return (
-            "SELECT identificador_material, material_original "
+            "SELECT identificador_material, descricao_normalizada "
             "FROM prata.material ORDER BY identificador_material"
         )
     if origem == "catmat":

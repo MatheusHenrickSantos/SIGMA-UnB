@@ -25,8 +25,10 @@ class InserirDadosNaCamadaRaw:
     Responsável por inserir arquivos JSON nas tabelas da camada Raw.
     """
 
-    def __init__(self, pasta_dados: Path) -> None:
+    def __init__(self, pasta_dados: Path, padrao: str = "*.json") -> None:
         self.pasta_dados = pasta_dados
+        # padrão de nome dos arquivos (glob); ex.: "*-12-2025.json" carrega um mês
+        self.padrao = padrao
 
 
 
@@ -38,7 +40,7 @@ class InserirDadosNaCamadaRaw:
                 f"Pasta não encontrada: {self.pasta_dados}"
             )
 
-        return sorted(self.pasta_dados.glob("*.json"))
+        return sorted(self.pasta_dados.glob(self.padrao))
 
 
 
@@ -154,8 +156,8 @@ class InserirDadosNaCamadaRaw:
 
 
 
-    def _inserir_arquivos(self, tabela: TipoDaTabela) -> None:
-        """Coordena a ingestão dos arquivos de uma tabela."""
+    def _inserir_arquivos(self, tabela: TipoDaTabela) -> int:
+        """Coordena a ingestão dos arquivos de uma tabela. Devolve o número de falhas."""
 
         arquivos = self._listar_arquivos()
 
@@ -180,35 +182,58 @@ class InserirDadosNaCamadaRaw:
             f"{duplicados} duplicado(s), "
             f"{falhas} falha(s)."
         )
+        return falhas
 
 
 
-    def inserir_estoque(self) -> None:
+    def inserir_estoque(self) -> int:
         """Insere arquivos de estoque na camada Raw."""
 
-        self._inserir_arquivos("estoque")
+        return self._inserir_arquivos("estoque")
 
 
 
-    def inserir_compras(self) -> None:
+    def inserir_compras(self) -> int:
         """Insere arquivos de compras na camada Raw."""
 
-        self._inserir_arquivos("compras")
+        return self._inserir_arquivos("compras")
 
 
 
-    def inserir_catmat(self) -> None:
+    def inserir_catmat(self) -> int:
         """Insere arquivos do CATMAT na camada Raw."""
 
-        self._inserir_arquivos("catmat")
+        return self._inserir_arquivos("catmat")
 
 
 
 if __name__ == "__main__":
-    pasta_dados = PASTA_CODIGOS.parent / "dados"
+    import argparse
 
-    estoque = InserirDadosNaCamadaRaw(pasta_dados / "estoque")
-    estoque.inserir_estoque()
-    
-    catmat = InserirDadosNaCamadaRaw(pasta_dados / "catmat")
-    catmat.inserir_catmat()
+    analisador = argparse.ArgumentParser(description="Carrega os JSON de dados/ na camada raw.")
+    analisador.add_argument(
+        "tabelas",
+        nargs="*",
+        help="estoque, catmat e/ou compras (padrão: estoque catmat; compras roda "
+             "depois da busca semântica, ver docker-compose.yml)",
+    )
+    analisador.add_argument(
+        "--mes",
+        help="só o estoque deste mês, no formato MM-AAAA (backfill de uma partição mensal)",
+    )
+    argumentos = analisador.parse_args()
+    tabelas = argumentos.tabelas or ["estoque", "catmat"]
+    invalidas = set(tabelas) - {"estoque", "catmat", "compras"}
+    if invalidas:
+        analisador.error(f"tabela(s) desconhecida(s): {', '.join(sorted(invalidas))}")
+    pasta_dados = PASTA_CODIGOS.parent / "dados"
+    falhas = 0
+
+    for tabela in tabelas:
+        padrao = f"*-{argumentos.mes}.json" if argumentos.mes and tabela == "estoque" else "*.json"
+        carga = InserirDadosNaCamadaRaw(pasta_dados / tabela, padrao)
+        falhas += getattr(carga, f"inserir_{tabela}")()
+
+    # Falha em qualquer arquivo = código de saída 1, para o compose e o
+    # orquestrador não seguirem como se a carga tivesse dado certo.
+    sys.exit(1 if falhas else 0)

@@ -24,7 +24,7 @@ docker compose up --build
 ## Conferir
 
 ```bash
-docker compose ps -a        # migrate, ingest, transformar e semantica: Exited (0); db: Up (healthy)
+docker compose ps -a        # migrate, ingest, transformar, semantica, compras e transformar_ouro: Exited (0); db: Up (healthy)
 docker compose exec db psql -U sigma -d sigma -c "SELECT count(*) FROM semantica.candidato_catmat;"
 ```
 
@@ -32,7 +32,7 @@ docker compose exec db psql -U sigma -d sigma -c "SELECT count(*) FROM semantica
 
 | Para… | Comando |
 |---|---|
-| Reexecutar a carga e etapas seguintes | `docker compose up --build ingest transformar semantica` |
+| Reexecutar a carga e etapas seguintes | `docker compose up --build ingest transformar semantica compras transformar_ouro` |
 | Aplicar migrações novas | `docker compose run --rm migrate` |
 | Parar | `docker compose down` |
 | Recomeçar do zero | `docker compose down -v` |

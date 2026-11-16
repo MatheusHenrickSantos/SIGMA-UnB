@@ -1,0 +1,91 @@
+=== ANTES: sem índice de trigramas (só o índice da PK) ===
+BEGIN
+DROP INDEX
+                                                                                                                               QUERY PLAN                                                                                                                               
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=29086.52..29201.31 rows=20 width=12) (actual time=4246.312..102140.737 rows=500 loops=1)
+   Buffers: shared hit=870 read=449261
+   ->  Index Scan using uq_descricao_origem on descricao m  (cost=0.42..114.76 rows=1 width=176) (actual time=0.068..1.745 rows=25 loops=1)
+         Index Cond: ((origem = 'estoque'::text) AND (chave_origem = ANY ('{ma0100,ma0200,ma0300,ma0400,ma0500,ma0600,ma0700,ma0800,ma0900,ma1000,ma1100,ma1200,ma1300,ma1400,ma1500,ma1600,ma1700,ma1800,ma1900,ma2000,ma2100,ma2200,ma2250,ma2280,ma2300}'::text[])))
+         Buffers: shared hit=68 read=35
+   ->  Limit  (cost=29086.10..29086.15 rows=20 width=10) (actual time=4085.551..4085.554 rows=20 loops=25)
+         Buffers: shared hit=802 read=449226
+         ->  Sort  (cost=29086.10..29712.33 rows=250491 width=10) (actual time=4085.532..4085.533 rows=20 loops=25)
+               Sort Key: ((k.texto_normalizado <-> m.texto_normalizado))
+               Sort Method: top-N heapsort  Memory: 26kB
+               Buffers: shared hit=802 read=449226
+               ->  Seq Scan on descricao k  (cost=0.00..22420.62 rows=250491 width=10) (actual time=0.432..4056.835 rows=250587 loops=25)
+                     Filter: (ativa AND (origem = 'catmat'::text) AND (situacao = 'valida'::text))
+                     Rows Removed by Filter: 2306
+                     Buffers: shared hit=799 read=449226
+ Planning:
+   Buffers: shared hit=230 read=33
+ Planning Time: 6.113 ms
+ Execution Time: 102140.874 ms
+(19 rows)
+
+ROLLBACK
+=== TENTATIVA: índice GIN (gin_trgm_ops), que não atende ORDER BY <-> ===
+BEGIN
+DROP INDEX
+CREATE INDEX
+                                                                                                                               QUERY PLAN                                                                                                                               
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=29086.52..29201.31 rows=20 width=12) (actual time=4001.093..103283.153 rows=500 loops=1)
+   Buffers: shared hit=2775 read=447350
+   ->  Index Scan using uq_descricao_origem on descricao m  (cost=0.42..114.76 rows=1 width=176) (actual time=0.018..0.399 rows=25 loops=1)
+         Index Cond: ((origem = 'estoque'::text) AND (chave_origem = ANY ('{ma0100,ma0200,ma0300,ma0400,ma0500,ma0600,ma0700,ma0800,ma0900,ma1000,ma1100,ma1200,ma1300,ma1400,ma1500,ma1600,ma1700,ma1800,ma1900,ma2000,ma2100,ma2200,ma2250,ma2280,ma2300}'::text[])))
+         Buffers: shared hit=100
+   ->  Limit  (cost=29086.10..29086.15 rows=20 width=10) (actual time=4131.302..4131.305 rows=20 loops=25)
+         Buffers: shared hit=2675 read=447350
+         ->  Sort  (cost=29086.10..29712.33 rows=250491 width=10) (actual time=4131.297..4131.297 rows=20 loops=25)
+               Sort Key: ((k.texto_normalizado <-> m.texto_normalizado))
+               Sort Method: top-N heapsort  Memory: 26kB
+               Buffers: shared hit=2675 read=447350
+               ->  Seq Scan on descricao k  (cost=0.00..22420.62 rows=250491 width=10) (actual time=0.416..4102.220 rows=250587 loops=25)
+                     Filter: (ativa AND (origem = 'catmat'::text) AND (situacao = 'valida'::text))
+                     Rows Removed by Filter: 2306
+                     Buffers: shared hit=2675 read=447350
+ Planning:
+   Buffers: shared hit=15
+ Planning Time: 0.301 ms
+ Execution Time: 103283.241 ms
+(19 rows)
+
+ROLLBACK
+=== DEPOIS: índice GiST (gist_trgm_ops) da V4, busca KNN pelo índice ===
+                                                                                                                               QUERY PLAN                                                                                                                               
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.83..129.32 rows=20 width=12) (actual time=321.692..4568.259 rows=500 loops=1)
+   Buffers: shared hit=183110 read=412833 written=5
+   ->  Index Scan using uq_descricao_origem on descricao m  (cost=0.42..114.76 rows=1 width=176) (actual time=0.018..0.550 rows=25 loops=1)
+         Index Cond: ((origem = 'estoque'::text) AND (chave_origem = ANY ('{ma0100,ma0200,ma0300,ma0400,ma0500,ma0600,ma0700,ma0800,ma0900,ma1000,ma1100,ma1200,ma1300,ma1400,ma1500,ma1600,ma1700,ma1800,ma1900,ma2000,ma2100,ma2200,ma2250,ma2280,ma2300}'::text[])))
+         Buffers: shared hit=14 read=86
+   ->  Limit  (cost=0.41..14.16 rows=20 width=10) (actual time=182.472..182.702 rows=20 loops=25)
+         Buffers: shared hit=183096 read=412747 written=5
+         ->  Index Scan using ix_descricao_catmat_trgm on descricao k  (cost=0.41..172274.23 rows=250491 width=10) (actual time=181.620..181.849 rows=20 loops=25)
+               Order By: (texto_normalizado <-> m.texto_normalizado)
+               Buffers: shared hit=183096 read=412747 written=5
+ Planning:
+   Buffers: shared hit=28 read=1
+ Planning Time: 0.401 ms
+ Execution Time: 4570.400 ms
+(14 rows)
+
+=== DEPOIS, repetição (páginas já em cache) ===
+                                                                                                                               QUERY PLAN                                                                                                                               
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=0.83..129.32 rows=20 width=12) (actual time=161.740..4450.018 rows=500 loops=1)
+   Buffers: shared hit=186253 read=409666
+   ->  Index Scan using uq_descricao_origem on descricao m  (cost=0.42..114.76 rows=1 width=176) (actual time=0.028..0.522 rows=25 loops=1)
+         Index Cond: ((origem = 'estoque'::text) AND (chave_origem = ANY ('{ma0100,ma0200,ma0300,ma0400,ma0500,ma0600,ma0700,ma0800,ma0900,ma1000,ma1100,ma1200,ma1300,ma1400,ma1500,ma1600,ma1700,ma1800,ma1900,ma2000,ma2100,ma2200,ma2250,ma2280,ma2300}'::text[])))
+         Buffers: shared read=100
+   ->  Limit  (cost=0.41..14.16 rows=20 width=10) (actual time=177.736..177.974 rows=20 loops=25)
+         Buffers: shared hit=186253 read=409566
+         ->  Index Scan using ix_descricao_catmat_trgm on descricao k  (cost=0.41..172274.23 rows=250491 width=10) (actual time=176.852..177.089 rows=20 loops=25)
+               Order By: (texto_normalizado <-> m.texto_normalizado)
+               Buffers: shared hit=186253 read=409566
+ Planning Time: 0.142 ms
+ Execution Time: 4452.289 ms
+(12 rows)
+

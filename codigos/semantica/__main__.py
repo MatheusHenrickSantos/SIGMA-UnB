@@ -7,6 +7,7 @@ Etapas (cada uma pode rodar sozinha e é segura para repetir):
   corresponder  busca os top-K itens CATMAT de cada material e grava uma execução
   tudo          as três acima, em ordem (padrão)
   revisar       registra a decisão humana sobre um par material x item CATMAT
+  importar      carrega decisões em lote de um CSV (ver semantica/decisoes.py)
   fila          exporta a fila de revisão (semantica.v_fila_revisao) para CSV
 
 Banco: variáveis HOST_DO_BANCO, PORTA_DO_BANCO, NOME_DO_BANCO,
@@ -24,7 +25,7 @@ from pathlib import Path
 
 import psycopg
 
-from . import correspondencia, fontes, processamento
+from . import correspondencia, decisoes, fontes, processamento
 from .correspondencia import ParametrosBusca
 from .embeddings import MODELO_PADRAO, ErroEmbedding
 from .repositorio import ErroOrigem
@@ -101,10 +102,13 @@ def _corresponder(conn, args, id_modelo: int) -> None:
         limiar_similaridade=args.limiar_similaridade,
         busca_exata=args.busca_exata,
         ef_search=args.ef_search,
+        metodo=args.metodo,
+        k_vetor=args.k_vetor,
+        k_trigrama=args.k_trigrama,
     )
     resumo = correspondencia.executar_correspondencia(conn, id_modelo, parametros)
     print(
-        f"[corresponder] execução {resumo.id_execucao}: {resumo.materiais} materiais, "
+        f"[corresponder] execução {resumo.id_execucao} ({parametros.metodo}): {resumo.materiais} materiais, "
         f"{resumo.candidatos} candidatos ({resumo.candidatos_com_conflito} com conflito de especificação), "
         f"{resumo.materiais_sem_candidato} sem candidato"
     )
@@ -139,16 +143,36 @@ def _fila(conn, args) -> None:
 
 def _revisar(conn, args) -> None:
     correspondencia.registrar_revisao(
-        conn, args.material, args.codigo, args.decisao, args.revisor, args.observacao
+        conn, args.material, args.codigo, args.decisao, args.revisor, args.observacao,
+        args.tipo_revisor,
     )
     print(f"[revisar] {args.material} x {args.codigo}: {args.decisao} ({args.revisor})")
+
+
+def _importar(conn, args) -> int:
+    registros = [linha for arquivo in args.arquivo for linha in decisoes.ler_arquivo(arquivo)]
+    resumo = decisoes.importar(conn, registros, args.revisor, args.tipo_revisor)
+    print(
+        f"[importar] {resumo.materiais} materiais ({resumo.sem_correspondente} sem correspondente), "
+        f"{resumo.pares_equivalentes} pares equivalentes gravados ({args.tipo_revisor})"
+    )
+    if resumo.preservadas_de_pessoa:
+        print(f"  {resumo.preservadas_de_pessoa} material(is) já decidido(s) por pessoa foram mantidos")
+    if resumo.recusadas:
+        print(f"  AVISO: {len(resumo.recusadas)} linha(s) recusada(s):")
+        for motivo in resumo.recusadas:
+            print(f"    - {motivo}")
+        if args.estrito:
+            return 1
+    return 0
 
 
 def _argumentos(argv: list[str] | None) -> argparse.Namespace:
     analisador = argparse.ArgumentParser(prog="python -m semantica", description=__doc__,
                                          formatter_class=argparse.RawDescriptionHelpFormatter)
     analisador.add_argument("etapa", nargs="?", default="tudo",
-                            choices=["sincronizar", "embeddings", "corresponder", "tudo", "revisar", "fila"])
+                            choices=["sincronizar", "embeddings", "corresponder", "tudo", "revisar", "importar",
+                                     "fila"])
 
     modelo = analisador.add_argument_group("modelo")
     modelo.add_argument("--modelo", default=_ambiente("SEMANTICA_MODELO", MODELO_PADRAO),
@@ -162,6 +186,14 @@ def _argumentos(argv: list[str] | None) -> argparse.Namespace:
                         help="descrições gravadas por transação (SEMANTICA_TAMANHO_LOTE)")
 
     busca = analisador.add_argument_group("busca")
+    busca.add_argument("--metodo", choices=correspondencia.METODOS,
+                       default=_ambiente("SEMANTICA_METODO", "hibrido"),
+                       help="hibrido = cosseno + trigramas reordenados com rapidfuzz; "
+                            "cosseno = só similaridade (SEMANTICA_METODO, padrão hibrido)")
+    busca.add_argument("--k-vetor", type=int, default=int(_ambiente("SEMANTICA_K_VETOR", "50")),
+                       help="híbrido: vizinhos por cosseno antes de reordenar (SEMANTICA_K_VETOR, padrão 50)")
+    busca.add_argument("--k-trigrama", type=int, default=int(_ambiente("SEMANTICA_K_TRIGRAMA", "20")),
+                       help="híbrido: vizinhos por trigramas; 0 desliga (SEMANTICA_K_TRIGRAMA, padrão 20)")
     busca.add_argument("--top-k", type=int, default=int(_ambiente("SEMANTICA_TOP_K", "10")),
                        help="candidatos por material (SEMANTICA_TOP_K, padrão 10)")
     busca.add_argument("--limiar-similaridade", type=float,
@@ -182,12 +214,22 @@ def _argumentos(argv: list[str] | None) -> argparse.Namespace:
     revisao.add_argument("--decisao", choices=correspondencia.DECISOES)
     revisao.add_argument("--revisor", help="nome de quem revisou")
     revisao.add_argument("--observacao")
+    revisao.add_argument("--tipo-revisor", choices=decisoes.TIPOS_REVISOR, default="pessoa",
+                         help="pessoa (padrão) ou agente de IA")
+
+    importacao = analisador.add_argument_group("importar")
+    importacao.add_argument("--arquivo", action="append", default=[],
+                            help="CSV de decisões; pode repetir (o último arquivo prevalece)")
+    importacao.add_argument("--estrito", action="store_true",
+                            help="sai com erro se alguma linha for recusada")
 
     analisador.add_argument("--saida", default="dados/semantica/fila_revisao.csv",
                             help="arquivo CSV da etapa fila")
     args = analisador.parse_args(argv)
     if args.etapa == "revisar" and not all((args.material, args.codigo, args.decisao, args.revisor)):
         analisador.error("revisar exige --material, --codigo, --decisao e --revisor")
+    if args.etapa == "importar" and not (args.arquivo and args.revisor):
+        analisador.error("importar exige --arquivo e --revisor")
     return args
 
 
@@ -211,6 +253,8 @@ def main(argv: list[str] | None = None) -> int:
                 _corresponder(conn, args, id_modelo or _id_modelo_registrado(conn, args))
             if args.etapa == "revisar":
                 _revisar(conn, args)
+            if args.etapa == "importar":
+                return _importar(conn, args)
             if args.etapa == "fila":
                 _fila(conn, args)
     except (ErroOrigem, ErroEmbedding, fontes.ErroFonte,

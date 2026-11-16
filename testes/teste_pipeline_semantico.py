@@ -34,7 +34,7 @@ def montar_prata(conn: psycopg.Connection) -> None:
     conn.execute("CREATE SCHEMA prata")
     conn.execute(
         "CREATE TABLE prata.material (identificador_material CHAR(6), nome CHAR(50), "
-        "descricao CHAR(100), material_original TEXT)"
+        "descricao CHAR(200), descricao_normalizada TEXT)"
     )
     conn.execute(
         "CREATE TABLE prata.catmat_item (codigo_item INTEGER, codigo_pdm INTEGER, "
@@ -91,10 +91,10 @@ def teste_fonte_inexistente_tem_mensagem_clara(banco):
 
 
 def teste_fluxo_completo_pela_linha_de_comando(banco_com_prata, codificador, tmp_path, capsys):
-    assert cli.main(["tudo", "--top-k", "3"]) == 0
+    assert cli.main(["tudo", "--top-k", "3", "--metodo", "cosseno"]) == 0
     enviados_na_primeira = len(codificador.textos_enviados)
 
-    assert cli.main(["tudo", "--top-k", "3"]) == 0
+    assert cli.main(["tudo", "--top-k", "3", "--metodo", "cosseno"]) == 0
     saida = capsys.readouterr().out
 
     with psycopg.connect(banco_com_prata, autocommit=True) as conn:

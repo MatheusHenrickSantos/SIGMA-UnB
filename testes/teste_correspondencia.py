@@ -56,7 +56,7 @@ CATMAT = {"c10": angulo(10), "c30": angulo(30), "c60": angulo(60), "c90": angulo
 def teste_top_k_em_ordem_de_similaridade(banco):
     with conectar(banco) as conn:
         id_modelo = preparar(conn, {"m1": angulo(0)}, CATMAT)
-        resumo = correspondencia.executar_correspondencia(conn, id_modelo, ParametrosBusca(top_k=3))
+        resumo = correspondencia.executar_correspondencia(conn, id_modelo, ParametrosBusca(top_k=3, metodo="cosseno"))
         linhas = candidatos(conn, resumo.id_execucao)
 
     assert [codigo for _, _, codigo, _, _ in linhas] == ["c10", "c30", "c60"]
@@ -206,7 +206,7 @@ def teste_conflito_de_especificacao_e_marcado(banco):
         id_modelo = processamento.preparar_modelo(conn, codificador)
         processamento.atualizar_embeddings(conn, codificador, id_modelo, "estoque", "consulta")
         processamento.atualizar_embeddings(conn, codificador, id_modelo, "catmat", "documento")
-        resumo = correspondencia.executar_correspondencia(conn, id_modelo, ParametrosBusca(top_k=2))
+        resumo = correspondencia.executar_correspondencia(conn, id_modelo, ParametrosBusca(top_k=2, metodo="cosseno"))
         linhas = dict(conn.execute(
             "SELECT codigo_item, situacao_especificacao FROM semantica.v_candidato_catmat "
             "WHERE id_execucao = %s", (resumo.id_execucao,)
@@ -281,3 +281,127 @@ def teste_revisao_recusa_dados_invalidos(banco, material, codigo, decisao, revis
         preparar(conn, {"m1": angulo(0)}, CATMAT)
         with pytest.raises(erro):
             correspondencia.registrar_revisao(conn, material, codigo, decisao, revisor)
+
+
+# ---------------------------------------------------------------------------
+# Busca híbrida (cosseno + trigramas, reordenada)
+# ---------------------------------------------------------------------------
+
+def preparar_com_textos(conn, estoque: dict[str, tuple[str, list[float]]],
+                        catmat: dict[str, tuple[str, list[float]]]) -> int:
+    """Como preparar(), mas com o texto de cada descrição escolhido pelo teste."""
+    processamento.sincronizar_origem(conn, "estoque", [(c, t) for c, (t, _) in estoque.items()])
+    processamento.sincronizar_origem(conn, "catmat", [(c, t) for c, (t, _) in catmat.items()])
+    id_modelo = processamento.preparar_modelo(conn, CodificadorDeTeste())
+    for origem, dados in (("estoque", estoque), ("catmat", catmat)):
+        ids = dict(conn.execute(
+            "SELECT chave_origem, id_descricao FROM semantica.descricao WHERE origem = %s", (origem,)
+        ).fetchall())
+        repositorio.gravar_vetores(
+            conn, id_modelo, origem, [(ids[c], "x" * 64, v) for c, (_, v) in dados.items()]
+        )
+    return id_modelo
+
+
+def hibridos(conn, id_execucao: int) -> list[tuple]:
+    return conn.execute(
+        "SELECT posicao, codigo_item, pontuacao, recuperado_por, situacao_especificacao, medidas "
+        "FROM semantica.v_candidato_catmat WHERE id_execucao = %s ORDER BY posicao",
+        (id_execucao,),
+    ).fetchall()
+
+
+def teste_hibrido_poe_na_frente_o_texto_parecido(banco):
+    with conectar(banco) as conn:
+        id_modelo = preparar_com_textos(
+            conn,
+            {"m1": ("RESISTOR 1,2 KOHM 1/4 W", angulo(0))},
+            {"c_errado": ("CAPACITOR CERAMICO 1,2 NF 50 V", angulo(25)),
+             "c_certo": ("RESISTOR, RESISTENCIA: 1,2 KOHM, POTENCIA: 1/4 W", angulo(30)),
+             "c_longe": ("SACO PLASTICO PARA LIXO 100 L", angulo(80))},
+        )
+        resumo = correspondencia.executar_correspondencia(conn, id_modelo, ParametrosBusca(top_k=3))
+        linhas = hibridos(conn, resumo.id_execucao)
+        execucao = conn.execute(
+            "SELECT metodo, k_vetor, k_trigrama, versao_reordenacao, pesos "
+            "FROM semantica.execucao_correspondencia WHERE id_execucao = %s",
+            (resumo.id_execucao,),
+        ).fetchone()
+
+    assert [codigo for _, codigo, *_ in linhas] == ["c_certo", "c_errado", "c_longe"]
+    pontuacoes = [p for _, _, p, *_ in linhas]
+    assert pontuacoes == sorted(pontuacoes, reverse=True)
+    assert set(linhas[0][5]) == {"cosseno", "token_set", "token_sort", "cobertura"}
+    assert execucao[:4] == ("hibrido", 50, 20, "1")
+    assert execucao[4]["cosseno"] == pytest.approx(0.40)
+
+
+def teste_hibrido_recupera_por_trigrama_o_que_o_vetor_deixou_de_fora(banco):
+    with conectar(banco) as conn:
+        id_modelo = preparar_com_textos(
+            conn,
+            {"m1": ("LUVA LATEX PROCEDIMENTO TAMANHO M", angulo(0))},
+            {"c_vetor": ("CAIXA ORGANIZADORA PLASTICA", angulo(5)),
+             "c_texto": ("LUVA PROCEDIMENTO, MATERIAL: LATEX, TAMANHO: M", angulo(70))},
+        )
+        resumo = correspondencia.executar_correspondencia(
+            conn, id_modelo, ParametrosBusca(top_k=2, k_vetor=2, k_trigrama=1)
+        )
+        so_vetor = correspondencia.executar_correspondencia(
+            conn, id_modelo, ParametrosBusca(top_k=1, k_vetor=1, k_trigrama=0)
+        )
+        linhas = hibridos(conn, resumo.id_execucao)
+        linhas_so_vetor = hibridos(conn, so_vetor.id_execucao)
+
+    por_codigo = {codigo: recuperado for _, codigo, _, recuperado, *_ in linhas}
+    assert por_codigo["c_texto"] == ["vetor", "trigrama"]
+    assert por_codigo["c_vetor"] == ["vetor"]
+    assert linhas[0][1] == "c_texto"
+    # sem trigramas e com um vizinho só, o item certo nem aparece
+    assert [codigo for _, codigo, *_ in linhas_so_vetor] == ["c_vetor"]
+
+
+def teste_hibrido_poe_conflito_de_especificacao_por_ultimo(banco):
+    with conectar(banco) as conn:
+        id_modelo = preparar_com_textos(
+            conn,
+            {"m1": ("PILHA ALCALINA AAA 1,5V", angulo(0))},
+            {"990010": ("PILHA ALCALINA AA 1,5V", angulo(5)),
+             "990011": ("PILHA, TIPO: ALCALINA, TAMANHO: AAA, TENSÃO NOMINAL: 1,5 V", angulo(20))},
+        )
+        resumo = correspondencia.executar_correspondencia(conn, id_modelo, ParametrosBusca(top_k=2))
+        linhas = hibridos(conn, resumo.id_execucao)
+
+    assert [(codigo, situacao) for _, codigo, _, _, situacao, _ in linhas][0][0] == "990011"
+    assert linhas[1][1] == "990010"
+    assert linhas[1][4] == "conflito_tecnico"
+    # a pontuação do item em conflito é maior: a ordem vem do conflito, não dela
+    assert linhas[1][2] > linhas[0][2]
+    assert resumo.candidatos_com_conflito == 1
+
+
+def teste_cosseno_nao_grava_pontuacao(banco):
+    with conectar(banco) as conn:
+        id_modelo = preparar(conn, {"m1": angulo(0)}, CATMAT)
+        resumo = correspondencia.executar_correspondencia(
+            conn, id_modelo, ParametrosBusca(top_k=2, metodo="cosseno")
+        )
+        linhas = hibridos(conn, resumo.id_execucao)
+        metodo = conn.execute(
+            "SELECT metodo, k_vetor, pesos FROM semantica.execucao_correspondencia "
+            "WHERE id_execucao = %s", (resumo.id_execucao,)
+        ).fetchone()
+
+    assert all(pontuacao is None for _, _, pontuacao, *_ in linhas)
+    assert metodo == ("cosseno", None, None)
+
+
+@pytest.mark.parametrize("parametros", [
+    ParametrosBusca(metodo="outro"),
+    ParametrosBusca(top_k=10, k_vetor=5),
+    ParametrosBusca(k_trigrama=-1),
+    ParametrosBusca(k_vetor=50, ef_search=40),
+])
+def teste_parametros_hibridos_invalidos(parametros):
+    with pytest.raises(ValueError):
+        parametros.validar()
