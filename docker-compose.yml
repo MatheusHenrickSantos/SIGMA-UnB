@@ -6,12 +6,12 @@
 # Ordem de execução (garantida pelos depends_on):
 #   1. db          — PostgreSQL com pgvector (imagem construída em db/Dockerfile)
 #   2. migrate     — Flyway aplica db/migrations/V*.sql em ordem, a partir do banco vazio
-#   3. ingest      — baixa estoque e CATMAT e grava no schema raw
+#   3. ingest      — baixa estoque e CATMAT diretamente no schema raw
 #   4. transformar — dbt: raw -> bronze -> prata, com os testes de dados (dbt build;
 #                    snapshot e camada ouro ficam para o passo 7)
 #   5. semantica   — embeddings e candidatos CATMAT para cada material (busca híbrida)
 #                    e importação das decisões sugeridas por agentes de IA
-#   6. compras     — compras públicas dos itens CATMAT aprovados -> raw.compras
+#   6. compras     — baixa compras aprovadas diretamente para raw.compras
 #   7. transformar_ouro — dbt: compras (bronze, prata), snapshot SCD 2 e camada ouro
 #
 # Só o db fica rodando; os outros terminam (Exited 0) e o seguinte começa.
@@ -70,7 +70,7 @@ services:
       - -connectRetries=10
       - migrate
 
-  # Ingestão de estoque e CATMAT na camada raw.
+  # Baixa estoque e CATMAT e grava diretamente na camada raw.
   ingest:
     build:
       context: ./codigos
@@ -84,17 +84,15 @@ services:
       # vazio = catálogo inteiro; um número limita as páginas, para testes rápidos
       CATMAT_MAX_PAGINAS: ${CATMAT_MAX_PAGINAS:-}
     volumes:
-      - ./dados:/app/dados
       # inicializar_esquema lê db/migrations/ddl.sql
       - ./db/migrations:/app/db/migrations:ro
     command:
       - sh
       - -c
       - >-
-        python codigos/inserir/buscar-dados-de-almoxarifado.py
+        python -m codigos.banco_de_dados.inicializar_esquema
+        && python codigos/inserir/buscar-dados-de-almoxarifado.py
         && python codigos/inserir/baixar_catalogo_catmat.py $${CATMAT_MAX_PAGINAS:+--max-paginas $$CATMAT_MAX_PAGINAS}
-        && python -m codigos.banco_de_dados.inicializar_esquema
-        && python -m codigos.banco_de_dados.inserir_dados_na_camada_raw
 
   # Bronze e Prata (dbt). Monta o repositório porque o projeto dbt fica na raiz;
   # target/, logs/ e dbt_packages/ são criados no host (ignorados pelo git).
@@ -144,7 +142,7 @@ services:
         --revisor agente --tipo-revisor agente
 
   # Compras públicas dos itens CATMAT aprovados (prata.v_item_aprovado).
-  # As páginas da API ficam em dados/compras_cache: outra execução só baixa o que falta.
+  # Checkpoints em raw.compras_coleta permitem retomar sem arquivos locais.
   # A janela (COMPRAS_INICIO/COMPRAS_FIM) também é lida pelo dbt (dbt_project.yml).
   compras:
     build:
@@ -158,14 +156,11 @@ services:
       PYTHONUNBUFFERED: "1"
       COMPRAS_INICIO: ${COMPRAS_INICIO:-2025-07-01}
       COMPRAS_FIM: ${COMPRAS_FIM:-2025-12-31}
-    volumes:
-      - ./dados:/app/dados
     command:
       - sh
       - -c
       - >-
         python codigos/inserir/baixar_compras.py --inicio "$$COMPRAS_INICIO" --fim "$$COMPRAS_FIM"
-        && python -m codigos.banco_de_dados.inserir_dados_na_camada_raw compras
 
   # Compras (bronze, prata), snapshot da correspondência (SCD tipo 2) e camada
   # ouro. Roda depois de semantica e compras porque depende das decisões e dos preços.

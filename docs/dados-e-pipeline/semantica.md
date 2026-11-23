@@ -397,13 +397,15 @@ Os itens de `prata.v_item_aprovado` são a entrada da busca de preços:
 
 | Serviço | Faz |
 |---|---|
-| `compras` | `codigos/inserir/baixar_compras.py` consulta a API de pesquisa de preços do Compras.gov.br (`modulo-pesquisa-preco/1_consultarMaterial`) para cada código aprovado, na janela `COMPRAS_INICIO`–`COMPRAS_FIM` (padrão 01/07/2025 a 31/12/2025), grava um JSON por código em `dados/compras/` e carrega em `raw.compras` |
+| `compras` | `codigos/inserir/baixar_compras.py` consulta a API de pesquisa de preços do Compras.gov.br (`modulo-pesquisa-preco/1_consultarMaterial`) para cada código aprovado, na janela `COMPRAS_INICIO`–`COMPRAS_FIM` (padrão 01/07/2025 a 31/12/2025), e grava diretamente em `raw.compras` |
 | `transformar_ouro` | `dbt build --select compras_bronze+ path:snapshots+ path:models/ouro+`: `bronze.compras` (um registro da API por linha, deduplicado por `id_item_compra`) e `prata.compra_publica` (janela e preço > 0) |
 
-As páginas da API ficam em `dados/compras_cache/<janela>/<código>/`: outra
-execução só pede à API o que falta. A API filtra por data no servidor, não
-ordena por data e usa `idItemCompra` como chave real (detalhes no cabeçalho
-de `baixar_compras.py`).
+O checkpoint `raw.compras_coleta` registra cada código concluído na janela,
+inclusive códigos sem resultado; uma execução interrompida retoma pelos
+códigos ainda pendentes. A resposta de cada código é mantida em memória até
+terminar a paginação e então é gravada em `raw.compras`. A API filtra por data
+no servidor, não ordena por data e usa `idItemCompra` como chave real
+(detalhes no cabeçalho de `baixar_compras.py`).
 
 Resultado com os dados reais (janela 01/07/2025 a 31/12/2025, decisões dos
 agentes): 3.528 códigos CATMAT aprovados para 1.620 materiais; 2.458 códigos

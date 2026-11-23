@@ -1,12 +1,11 @@
-import json
 import re
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 import requests
 
-RAIZ_PROJETO = Path(__file__).resolve().parents[2]
-PASTA_DESTINO = RAIZ_PROJETO / "dados" / "estoque"
+from codigos.banco_de_dados.gravar_fontes_raw import salvar_estoque
+
 URL_API = "https://dados.unb.br/api/3/action/package_show"
 DATASET_ID = "estoque-do-almoxarifado"
 TIMEOUT_SEGUNDOS = 60
@@ -43,9 +42,8 @@ def selecionar_recursos_json(recursos: list[dict]) -> dict[str, dict]:
     return selecionados
 
 
-def baixar_dados(pasta_destino: Path = PASTA_DESTINO) -> int:
-    pasta_destino.mkdir(parents=True, exist_ok=True)
-
+def baixar_dados() -> int:
+    """Baixa os recursos mensais e persiste cada resposta direto na raw."""
     resposta = requests.get(
         URL_API,
         params={"id": DATASET_ID},
@@ -72,17 +70,16 @@ def baixar_dados(pasta_destino: Path = PASTA_DESTINO) -> int:
         )
         resposta_arquivo.raise_for_status()
         conteudo = resposta_arquivo.content.decode("utf-8-sig")
-        json.loads(conteudo)
-
-        destino = pasta_destino / nome_arquivo
-        temporario = destino.with_suffix(destino.suffix + ".tmp")
-        temporario.write_text(conteudo, encoding="utf-8")
-        temporario.replace(destino)
-        print(f"Salvo em: {destino}")
+        dado = resposta_arquivo.json()
+        if not isinstance(dado, list):
+            raise ValueError(f"Resposta inesperada para {nome_arquivo}: esperado um array JSON")
+        inserido = salvar_estoque(nome_arquivo, conteudo, dado)
+        situacao = "gravado" if inserido else "já estava no banco"
+        print(f"{nome_arquivo}: {situacao} ({len(dado)} registros)")
 
     print(
-        f"Concluído: {len(selecionados)} arquivo(s) JSON salvo(s) "
-        f"em '{pasta_destino}'."
+        f"Concluído: {len(selecionados)} recurso(s) processado(s) e salvo(s) "
+        "diretamente em raw.estoque."
     )
     return len(selecionados)
 

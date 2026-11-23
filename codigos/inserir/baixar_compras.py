@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Baixa as compras públicas dos itens CATMAT aprovados e salva um JSON por código.
+"""Baixa compras públicas aprovadas e grava as respostas diretamente em raw.
 
 Fonte: API de pesquisa de preços do Compras.gov.br
 (modulo-pesquisa-preco/1_consultarMaterial?tipo=codigoItemCatalogo&codigo=...).
@@ -8,10 +8,9 @@ Códigos consultados: os itens CATMAT aprovados como equivalentes a algum
 material do estoque (prata.v_item_aprovado, decisões de pessoas ou de
 agentes), ou a lista passada em --codigos.
 
-Saída: dados/compras/compras-<codigo>-<inicio>_<fim>.json, com a lista de
-registros da API (todas as páginas, sem alteração). A camada raw carrega
-esses arquivos com InserirDadosNaCamadaRaw.inserir_compras. Código sem
-compra na janela não gera arquivo.
+Cada código concluído é gravado diretamente em raw.compras. A tabela
+raw.compras_coleta guarda checkpoints, inclusive para códigos sem resultados,
+para que uma execução interrompida possa continuar sem repetir essas consultas.
 
 O que se sabe da API (verificado na API real e no swagger /v3/api-docs):
 
@@ -25,9 +24,6 @@ O que se sabe da API (verificado na API real e no swagger /v3/api-docs):
   diferentes no mesmo item;
 - item sem compras devolve {"resultado": [], "totalRegistros": 0, ...}.
 
-Cada página é guardada em dados/compras_cache/<inicio>_<fim>/<codigo>/: uma
-nova execução reaproveita o que já foi baixado e continua de onde parou.
-
 Uso (a partir da raiz do repositório):
     python codigos/inserir/baixar_compras.py
     python codigos/inserir/baixar_compras.py --codigos 463583,463576 --inicio 2025-01-01
@@ -35,7 +31,6 @@ Uso (a partir da raiz do repositório):
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 import time
 from datetime import date
@@ -43,6 +38,12 @@ from pathlib import Path
 from typing import Any
 
 import requests
+
+from codigos.banco_de_dados.gravar_fontes_raw import (
+    compras_coletadas,
+    salvar_compras,
+    serializar_json,
+)
 
 RAIZ = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RAIZ))
@@ -101,38 +102,18 @@ def solicitar_pagina(
     raise RuntimeError(f"código {codigo}, página {pagina}: {ultimo_erro}")
 
 
-def pagina_do_cache_ou_api(
-    sessao, codigo: int, pagina: int, pasta_cache: Path, inicio: date, fim: date, pausa: float
-) -> tuple[dict[str, Any], bool]:
-    """Devolve (corpo, veio_da_api)."""
-    caminho = pasta_cache / str(codigo) / f"pagina_{pagina:05d}.json"
-    if caminho.exists():
-        try:
-            corpo = json.loads(caminho.read_text(encoding="utf-8"))
-            if isinstance(corpo, dict) and isinstance(corpo.get("resultado"), list):
-                return corpo, False
-        except ValueError:
-            pass  # cache corrompido: baixa de novo
-    corpo = solicitar_pagina(sessao, codigo, pagina, inicio, fim, pausa)
-    caminho.parent.mkdir(parents=True, exist_ok=True)
-    temporario = caminho.with_suffix(".tmp")
-    temporario.write_text(json.dumps(corpo, ensure_ascii=False), encoding="utf-8")
-    temporario.replace(caminho)
-    return corpo, True
-
-
 def baixar_codigo(
-    sessao, codigo: int, pasta_cache: Path, inicio: date, fim: date, pausa: float, max_paginas: int
+    sessao, codigo: int, inicio: date, fim: date, pausa: float, max_paginas: int
 ) -> tuple[list[dict[str, Any]], int, bool]:
-    """Todos os registros de um código na janela. Devolve (registros, requisições, parcial)."""
+    """Todos os registros de um código na janela, mantidos em memória até concluir."""
     registros: list[dict[str, Any]] = []
     requisicoes = 0
     pagina, total_paginas = 1, 1
     while pagina <= total_paginas:
         if pagina > max_paginas:
             return registros, requisicoes, True
-        corpo, da_api = pagina_do_cache_ou_api(sessao, codigo, pagina, pasta_cache, inicio, fim, pausa)
-        requisicoes += da_api
+        corpo = solicitar_pagina(sessao, codigo, pagina, inicio, fim, pausa)
+        requisicoes += 1
         total_paginas = max(int(corpo.get("totalPaginas") or 1), 1)
         registros.extend(r for r in corpo["resultado"] if isinstance(r, dict))
         pagina += 1
@@ -165,8 +146,6 @@ def executar() -> int:
                             help="pausa antes de cada requisição, em segundos (padrão 0,3)")
     analisador.add_argument("--max-paginas-por-codigo", type=int, default=40,
                             help="limite de páginas por código (padrão 40 = 20 mil registros)")
-    analisador.add_argument("--saida", default=str(RAIZ / "dados" / "compras"),
-                            help="pasta dos JSON (padrão dados/compras)")
     analisador.add_argument("--estrito", action="store_true",
                             help="sai com erro se algum código falhar (padrão: só avisa)")
     args = analisador.parse_args()
@@ -181,40 +160,41 @@ def executar() -> int:
               "(importe ou registre decisões em semantica antes).")
         return 0
 
-    saida = Path(args.saida)
-    saida.mkdir(parents=True, exist_ok=True)
-    pasta_cache = RAIZ / "dados" / "compras_cache" / f"{inicio}_{fim}"
-    print(f"[compras] {len(codigos)} código(s), janela {inicio} a {fim}; cache em {pasta_cache}")
+    concluidos = compras_coletadas(inicio, fim)
+    pendentes = [codigo for codigo in codigos if codigo not in concluidos]
+    print(f"[compras] {len(codigos)} código(s), janela {inicio} a {fim}; "
+          f"{len(concluidos)} já concluídos, {len(pendentes)} pendentes")
 
     sessao = criar_sessao()
     comeco = time.monotonic()
     com_compra = registros_total = requisicoes_total = 0
     erros: list[int] = []
     parciais: list[int] = []
-    for i, codigo in enumerate(codigos, start=1):
+    for i, codigo in enumerate(pendentes, start=1):
         try:
             registros, requisicoes, parcial = baixar_codigo(
-                sessao, codigo, pasta_cache, inicio, fim, args.pausa, args.max_paginas_por_codigo
+                sessao, codigo, inicio, fim, args.pausa, args.max_paginas_por_codigo
             )
         except Exception as exc:  # noqa: BLE001 - um código com problema não para os outros
             erros.append(codigo)
-            print(f"  [{i}/{len(codigos)}] {codigo}: ERRO {exc}", file=sys.stderr)
+            print(f"  [{i}/{len(pendentes)}] {codigo}: ERRO {exc}", file=sys.stderr)
             continue
         requisicoes_total += requisicoes
         if parcial:
             parciais.append(codigo)
-        if registros:
+        else:
+            conteudo = serializar_json(registros)
+            salvar_compras(codigo, inicio, fim, registros, conteudo)
+        if registros and not parcial:
             com_compra += 1
             registros_total += len(registros)
-            destino = saida / f"compras-{codigo}-{inicio}_{fim}.json"
-            destino.write_text(json.dumps(registros, ensure_ascii=False), encoding="utf-8")
-        if i % 100 == 0 or i == len(codigos):
+        if i % 100 == 0 or i == len(pendentes):
             decorrido = time.monotonic() - comeco
-            print(f"  [{i}/{len(codigos)}] {com_compra} com compra, {registros_total} registros, "
+            print(f"  [{i}/{len(pendentes)}] {com_compra} com compra, {registros_total} registros, "
                   f"{requisicoes_total} requisições; {formatar_tempo(decorrido)} "
-                  f"(faltam ~{formatar_tempo(decorrido / i * (len(codigos) - i))})")
+                  f"(faltam ~{formatar_tempo(decorrido / i * (len(pendentes) - i))})")
 
-    print(f"[compras] {com_compra} de {len(codigos)} código(s) com compra na janela; "
+    print(f"[compras] {com_compra} de {len(pendentes)} código(s) pendente(s) com compra na janela; "
           f"{registros_total} registros; {requisicoes_total} requisições à API; "
           f"{formatar_tempo(time.monotonic() - comeco)}")
     if parciais:

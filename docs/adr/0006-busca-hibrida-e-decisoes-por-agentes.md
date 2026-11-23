@@ -1,5 +1,7 @@
 # 0006 — Ordenar candidatos CATMAT com busca híbrida, decidir a correspondência com agentes de IA sob revisão humana e buscar as compras públicas dos itens aprovados
 
+> A estratégia de persistência da coleta de compras foi atualizada pelo [ADR 0009](0009-ingestao-direta-na-raw.md): as respostas agora vão diretamente para a raw e os checkpoints ficam no banco.
+
 - **Status:** proposto (falta a revisão da Squad; as decisões dos agentes ainda não foram conferidas por pessoas)
 - **Data:** 2026-11-10
 - **Decisores:** [a definir pela Squad] — proposta preparada com assistente de IA (ver [Uso de IA](../gestao/ai-usage.md))
