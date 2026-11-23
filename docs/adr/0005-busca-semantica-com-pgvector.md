@@ -1,5 +1,10 @@
 # 0005 — Sugerir candidatos CATMAT por similaridade de embeddings no PostgreSQL (pgvector), com busca exata
 
+> **Atualização:** a migração V6 substituiu o schema técnico `semantica` por
+> `busca` e moveu candidatos e decisões para a Prata. A decisão original abaixo
+> descreve o desenho vigente quando este ADR foi escrito; a camada semântica
+> analítica continua reservada para depois da Ouro.
+
 - **Status:** proposto (falta a revisão da Squad e a medição com vetores reais; ver *Gatilho de revisão*)
 - **Data:** 2026-11-08
 - **Decisores:** [a definir pela Squad] — proposta preparada com assistente de IA (ver [Uso de IA](../ai-usage.md))

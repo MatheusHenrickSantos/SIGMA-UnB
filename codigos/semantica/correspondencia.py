@@ -44,7 +44,7 @@ EF_SEARCH_PADRAO = 40
 # Usado pela medição (medir_adr0005.py) e pelos testes; para voltar a usá-lo,
 # crie-o numa migração nova com este mesmo comando.
 SQL_INDICE_HNSW = (
-    "CREATE INDEX {nome} ON semantica.embedding "
+    "CREATE INDEX {nome} ON busca.embedding "
     "USING hnsw (vetor vector_cosine_ops) WHERE origem = 'catmat'"
 )
 
@@ -62,7 +62,7 @@ class ParametrosBusca:
     top_k: int = 10
     # descarta candidatos abaixo deste valor (None = guarda os top_k).
     # Não há padrão calibrado: o valor depende do modelo e precisa ser
-    # escolhido olhando pares revisados (ver docs/semantica.md).
+    # escolhido olhando pares revisados (ver docs/dados-e-pipeline/semantica.md).
     limiar_similaridade: float | None = None
     # True = proíbe índice mesmo que exista. Sem índice HNSW (situação desde a
     # V3), a busca já é exata nos dois casos.
@@ -116,19 +116,19 @@ SELECT m.id_descricao,
        k.id_descricao,
        k.texto_original,
        1 - vizinho.distancia AS similaridade
-FROM semantica.descricao AS m
-JOIN semantica.embedding AS em
+FROM busca.descricao AS m
+JOIN busca.embedding AS em
   ON em.id_descricao = m.id_descricao AND em.id_modelo = %(modelo)s
 CROSS JOIN LATERAL (
     -- só ORDER BY distância + LIMIT aqui dentro, para um índice HNSW, se
     -- existir, poder ser usado; sem índice é uma varredura exata
     SELECT c.id_descricao, c.vetor <=> em.vetor AS distancia
-    FROM semantica.embedding AS c
+    FROM busca.embedding AS c
     WHERE c.origem = 'catmat' AND c.id_modelo = %(modelo)s
     ORDER BY c.vetor <=> em.vetor
     LIMIT %(top_k)s
 ) AS vizinho
-JOIN semantica.descricao AS k ON k.id_descricao = vizinho.id_descricao
+JOIN busca.descricao AS k ON k.id_descricao = vizinho.id_descricao
 WHERE m.origem = 'estoque' AND m.ativa AND m.situacao = 'valida'
   AND (%(limiar)s::float8 IS NULL OR 1 - vizinho.distancia >= %(limiar)s::float8)
   AND (%(chaves)s::text[] IS NULL OR m.chave_origem = ANY(%(chaves)s::text[]))
@@ -142,17 +142,17 @@ _HIBRIDA_VETOR = """
 SELECT m.id_descricao, m.texto_original, m.texto_normalizado,
        k.id_descricao, k.chave_origem, k.texto_original, k.texto_normalizado,
        1 - vizinho.distancia AS similaridade
-FROM semantica.descricao AS m
-JOIN semantica.embedding AS em
+FROM busca.descricao AS m
+JOIN busca.embedding AS em
   ON em.id_descricao = m.id_descricao AND em.id_modelo = %(modelo)s
 CROSS JOIN LATERAL (
     SELECT c.id_descricao, c.vetor <=> em.vetor AS distancia
-    FROM semantica.embedding AS c
+    FROM busca.embedding AS c
     WHERE c.origem = 'catmat' AND c.id_modelo = %(modelo)s
     ORDER BY c.vetor <=> em.vetor
     LIMIT %(k)s
 ) AS vizinho
-JOIN semantica.descricao AS k ON k.id_descricao = vizinho.id_descricao
+JOIN busca.descricao AS k ON k.id_descricao = vizinho.id_descricao
 WHERE m.origem = 'estoque' AND m.ativa AND m.situacao = 'valida'
   AND (%(chaves)s::text[] IS NULL OR m.chave_origem = ANY(%(chaves)s::text[]))
 """
@@ -165,17 +165,17 @@ SELECT m.id_descricao, m.texto_original, m.texto_normalizado,
        vizinho.id_descricao, vizinho.chave_origem, vizinho.texto_original,
        vizinho.texto_normalizado,
        1 - (ke.vetor <=> em.vetor) AS similaridade
-FROM semantica.descricao AS m
-JOIN semantica.embedding AS em
+FROM busca.descricao AS m
+JOIN busca.embedding AS em
   ON em.id_descricao = m.id_descricao AND em.id_modelo = %(modelo)s
 CROSS JOIN LATERAL (
     SELECT k.id_descricao, k.chave_origem, k.texto_original, k.texto_normalizado
-    FROM semantica.descricao AS k
+    FROM busca.descricao AS k
     WHERE k.origem = 'catmat' AND k.situacao = 'valida' AND k.ativa
     ORDER BY k.texto_normalizado <-> m.texto_normalizado
     LIMIT %(k)s
 ) AS vizinho
-JOIN semantica.embedding AS ke
+JOIN busca.embedding AS ke
   ON ke.id_descricao = vizinho.id_descricao AND ke.id_modelo = %(modelo)s
 WHERE m.origem = 'estoque' AND m.ativa AND m.situacao = 'valida'
   AND (%(chaves)s::text[] IS NULL OR m.chave_origem = ANY(%(chaves)s::text[]))
@@ -259,7 +259,7 @@ def executar_correspondencia(
 
     with conn.transaction(), conn.cursor() as cur:
         if not cur.execute(
-            "SELECT EXISTS (SELECT 1 FROM semantica.embedding "
+            "SELECT EXISTS (SELECT 1 FROM busca.embedding "
             "WHERE origem = 'catmat' AND id_modelo = %s)",
             (id_modelo,),
         ).fetchone()[0]:
@@ -272,9 +272,9 @@ def executar_correspondencia(
             """
             SELECT count(*),
                    count(*) FILTER (WHERE NOT EXISTS (
-                       SELECT 1 FROM semantica.embedding e
+                       SELECT 1 FROM busca.embedding e
                        WHERE e.id_descricao = d.id_descricao AND e.id_modelo = %(modelo)s))
-            FROM semantica.descricao d
+            FROM busca.descricao d
             WHERE d.origem = 'estoque' AND d.ativa AND d.situacao = 'valida'
               AND (%(chaves)s::text[] IS NULL OR d.chave_origem = ANY(%(chaves)s::text[]))
             """,
@@ -290,7 +290,7 @@ def executar_correspondencia(
         hibrido = parametros.metodo == "hibrido"
         id_execucao = cur.execute(
             """
-            INSERT INTO semantica.execucao_correspondencia
+            INSERT INTO busca.execucao_correspondencia
                 (id_modelo, top_k, limiar_similaridade, busca_exata, ef_search,
                  versao_normalizacao, versao_regras,
                  metodo, k_vetor, k_trigrama, versao_reordenacao, pesos)
@@ -333,7 +333,7 @@ def executar_correspondencia(
                 )
         cur.executemany(
             """
-            INSERT INTO semantica.candidato_catmat
+            INSERT INTO prata.candidato_catmat
                 (id_execucao, id_descricao_material, posicao, id_descricao_catmat,
                  similaridade, situacao_especificacao, especificacoes,
                  pontuacao, medidas, recuperado_por)
@@ -346,7 +346,7 @@ def executar_correspondencia(
         sem_candidato = materiais - com_candidato
         cur.execute(
             """
-            UPDATE semantica.execucao_correspondencia
+            UPDATE busca.execucao_correspondencia
             SET finalizada_em = clock_timestamp(), materiais = %s, materiais_sem_candidato = %s, candidatos = %s
             WHERE id_execucao = %s
             """,
@@ -383,14 +383,14 @@ def registrar_revisao(
 
     with conn.transaction(), conn.cursor() as cur:
         material = cur.execute(
-            "SELECT hash_original, texto_original FROM semantica.descricao "
+            "SELECT hash_original, texto_original FROM busca.descricao "
             "WHERE origem = 'estoque' AND chave_origem = %s",
             (identificador_material,),
         ).fetchone()
         if material is None or material[0] is None:
             raise ErroCorrespondencia(f"material {identificador_material!r} não encontrado")
         if cur.execute(
-            "SELECT 1 FROM semantica.descricao WHERE origem = 'catmat' AND chave_origem = %s",
+            "SELECT 1 FROM busca.descricao WHERE origem = 'catmat' AND chave_origem = %s",
             (codigo_item,),
         ).fetchone() is None:
             raise ErroCorrespondencia(f"item CATMAT {codigo_item!r} não encontrado")
@@ -398,9 +398,9 @@ def registrar_revisao(
         ultima_execucao = cur.execute(
             """
             SELECT max(c.id_execucao)
-            FROM semantica.candidato_catmat c
-            JOIN semantica.descricao m ON m.id_descricao = c.id_descricao_material
-            JOIN semantica.descricao k ON k.id_descricao = c.id_descricao_catmat
+            FROM prata.candidato_catmat c
+            JOIN busca.descricao m ON m.id_descricao = c.id_descricao_material
+            JOIN busca.descricao k ON k.id_descricao = c.id_descricao_catmat
             WHERE m.origem = 'estoque' AND m.chave_origem = %s AND k.chave_origem = %s
             """,
             (identificador_material, codigo_item),
@@ -408,7 +408,7 @@ def registrar_revisao(
 
         cur.execute(
             """
-            INSERT INTO semantica.revisao_correspondencia
+            INSERT INTO prata.revisao_correspondencia
                 (hash_original_material, codigo_item, decisao, revisor, observacao,
                  texto_material, id_execucao, tipo_revisor)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)

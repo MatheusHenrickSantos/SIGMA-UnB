@@ -35,10 +35,10 @@ SELECT
         'sem_decisao'
     ) AS tipo_revisor,
     material_decidido.confianca
-FROM {{ source('semantica', 'descricao') }} AS descricao
-LEFT JOIN {{ source('semantica', 'revisao_correspondencia') }} AS revisao
+FROM {{ source('busca', 'descricao') }} AS descricao
+LEFT JOIN {{ source('prata_operacional', 'revisao_correspondencia') }} AS revisao
     ON revisao.hash_original_material = descricao.hash_original
-LEFT JOIN {{ source('semantica', 'revisao_material') }} AS material_decidido
+LEFT JOIN {{ source('prata_operacional', 'revisao_material') }} AS material_decidido
     ON material_decidido.hash_original_material = descricao.hash_original
 WHERE descricao.origem = 'estoque'
   AND descricao.ativa

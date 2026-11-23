@@ -20,7 +20,7 @@ from collections import defaultdict
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-# Gravada em semantica.execucao_correspondencia. Mude ao alterar uma regra,
+# Gravada em busca.execucao_correspondencia. Mude ao alterar uma regra,
 # para saber com quais regras cada lista de candidatos foi avaliada.
 VERSAO_REGRAS = "1"
 

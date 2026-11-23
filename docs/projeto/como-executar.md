@@ -25,7 +25,7 @@ docker compose up --build
 
 ```bash
 docker compose ps -a        # migrate, ingest, transformar, semantica, compras e transformar_ouro: Exited (0); db: Up (healthy)
-docker compose exec db psql -U sigma -d sigma -c "SELECT count(*) FROM semantica.candidato_catmat;"
+docker compose exec db psql -U sigma -d sigma -c "SELECT count(*) FROM prata.candidato_catmat;"
 ```
 
 ## Comandos úteis

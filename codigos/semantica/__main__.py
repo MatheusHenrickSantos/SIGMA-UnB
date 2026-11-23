@@ -2,13 +2,13 @@
 
 Etapas (cada uma pode rodar sozinha e é segura para repetir):
 
-  sincronizar   lê prata.material e prata.catmat_item e atualiza semantica.descricao
+  sincronizar   lê prata.material e prata.catmat_item e atualiza busca.descricao
   embeddings    gera vetores só das descrições novas ou alteradas
   corresponder  busca os top-K itens CATMAT de cada material e grava uma execução
   tudo          as três acima, em ordem (padrão)
   revisar       registra a decisão humana sobre um par material x item CATMAT
   importar      carrega decisões em lote de um CSV (ver semantica/decisoes.py)
-  fila          exporta a fila de revisão (semantica.v_fila_revisao) para CSV
+  fila          exporta a fila de revisão (prata.v_fila_revisao) para CSV
 
 Banco: variáveis HOST_DO_BANCO, PORTA_DO_BANCO, NOME_DO_BANCO,
 USUARIO_DO_BANCO e SENHA_DO_BANCO. Opções de busca também podem vir de
@@ -86,7 +86,7 @@ def _embeddings(conn, args, codificador) -> int:
 
 def _id_modelo_registrado(conn, args) -> int:
     linha = conn.execute(
-        "SELECT id_modelo FROM semantica.modelo_embedding "
+        "SELECT id_modelo FROM busca.modelo_embedding "
         "WHERE nome = %s AND (%s::text IS NULL OR revisao = %s) "
         "ORDER BY id_modelo DESC LIMIT 1",
         (args.modelo, args.revisao, args.revisao),
@@ -114,7 +114,7 @@ def _corresponder(conn, args, id_modelo: int) -> None:
     )
     if resumo.materiais_sem_vetor:
         print(f"  AVISO: {resumo.materiais_sem_vetor} material(is) sem vetor ficaram de fora")
-    print("  Candidatos são sugestões: confira em semantica.v_fila_revisao antes de usar.")
+    print("  Candidatos são sugestões: confira em prata.v_fila_revisao antes de usar.")
 
 
 def _fila(conn, args) -> None:
@@ -125,7 +125,7 @@ def _fila(conn, args) -> None:
                situacao_especificacao,
                array_to_string(ARRAY(SELECT jsonb_array_elements_text(especificacoes -> 'conflitos')), ' | '),
                decisao
-        FROM semantica.v_fila_revisao
+        FROM prata.v_fila_revisao
         ORDER BY identificador_material, posicao
         """
     ).fetchall()

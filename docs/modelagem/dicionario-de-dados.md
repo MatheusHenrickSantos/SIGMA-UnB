@@ -1059,11 +1059,13 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 
 ---
 
-### Camada semântica
+### Busca vetorial e correspondência material–CATMAT
 
-  As **Tabelas 16 a 22** apresentam o dicionário de dados das tabelas do schema `semantica`, criadas pelas migrações Flyway V2 a V5 (`db/migrations/V2__semantica_pgvector.sql` a `V5__semantica_revisao_por_material.sql`). Diferente das camadas anteriores, quem escreve nesse schema é o pipeline Python `codigos/semantica` (serviço `semantica` do Docker Compose), e não o dbt. A camada guarda as descrições do estoque (`prata.material`) e do CATMAT (`prata.catmat_item`) normalizadas, os vetores de embedding gerados com a extensão pgvector, as execuções da busca de correspondência, os itens CATMAT candidatos para cada material e as decisões de revisão. Tudo pode ser recalculado a partir da Prata, exceto `revisao_correspondencia` e `revisao_material`, que guardam decisões de pessoas e de agentes de IA. As **Tabelas 23 a 25** apresentam as visões de consumo da camada. O processo completo está descrito em [Busca semântica](dados-e-pipeline/semantica.md), e as decisões, nos [ADR 0005](adr/0005-busca-semantica-com-pgvector.md) e [ADR 0006](adr/0006-busca-hibrida-e-decisoes-por-agentes.md).
+  A migração V6 separa o espaço técnico de busca dos dados de correspondência. As **Tabelas 16 a 19** ficam no schema `busca`: registro de modelos, descrições sincronizadas, vetores e execuções. O serviço Python `semantica` escreve nesses artefatos; eles não constituem a camada semântica analítica que poderá ser criada depois da Ouro.
 
-  Na camada ouro, o snapshot `snap_correspondencia_material` lê `descricao`, `revisao_correspondencia` e `revisao_material`, e o serviço `compras` lê a visão `v_item_aprovado`.
+  As **Tabelas 20 a 22** e as **visões 23 a 25** ficam na Prata: candidatos gerados, decisões por par e por material e visões para revisão e consumo. O candidato é uma sugestão; as tabelas de revisão registram decisões de pessoas ou sugestões de agentes. O snapshot `snap_correspondencia_material` lê a descrição de `busca` e as revisões da Prata; o serviço `compras` consome `prata.v_item_aprovado`. O processo está descrito em [Busca semântica](dados-e-pipeline/semantica.md), e as decisões arquiteturais nos [ADR 0005](adr/0005-busca-semantica-com-pgvector.md) e [ADR 0006](adr/0006-busca-hibrida-e-decisoes-por-agentes.md).
+
+#### Busca vetorial — schema `busca`
 
 <details>
   <summary>Tabela 16 – Dicionário de dados da tabela modelo_embedding
@@ -1229,7 +1231,7 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
         </tr>
         <tr>
           <td><code>texto_normalizado</code></td>
-          <td>Texto depois das regras de <code>codigos/semantica/normalizacao.py</code> (minúsculas, sem acento, abreviações expandidas, número separado da unidade). É o texto enviado ao modelo.</td>
+          <td>Texto depois das regras compartilhadas de <code>codigos/normalizar/limpeza.py</code> (minúsculas, sem acento, abreviações expandidas, número separado da unidade). É o texto enviado ao modelo.</td>
           <td>TEXT</td>
           <td>-</td>
           <td>-</td>
@@ -1574,6 +1576,8 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
   </div>
 </details>
 
+#### Correspondências e decisões — camada Prata
+
 <details>
   <summary>Tabela 20 – Dicionário de dados da tabela candidato_catmat
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
@@ -1895,6 +1899,8 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
   </div>
 </details>
 
+#### Visões de consumo — camada Prata
+
 <details>
   <summary>Tabela 23 – Dicionário de dados da visão v_candidato_catmat
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
@@ -2134,7 +2140,7 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 
   A **Tabela 26** descreve o fato `fato_comparacao_preco`, cujo grão é **uma linha por material, por almoxarifado, por mês de referência publicado**. As **Tabelas 27 a 30** descrevem as dimensões: `dim_material`, que guarda a correspondência material × CATMAT como dimensão de variação lenta do tipo 2 (uma linha por versão), `dim_almoxarifado`, `dim_tempo` e `dim_item_catmat`. A **Tabela 31** descreve `monitor_atualizacao`, que mede o atraso (freshness) das tabelas de consumo diante do SLA declarado.
 
-  Nesta camada, os tipos são os que o PostgreSQL atribui às colunas geradas pelo dbt. Os identificadores de material e almoxarifado seguem o tipo ID das camadas anteriores; na `dim_material` o identificador vem do esquema `semantica` e por isso é armazenado como _TEXT_, com o mesmo formato. Atributos numéricos sem tamanho são _NUMERIC_ sem precisão fixa; os que passam por arredondamento indicam o número de casas decimais.
+  Nesta camada, os tipos são os que o PostgreSQL atribui às colunas geradas pelo dbt. Os identificadores de material e almoxarifado seguem o tipo ID das camadas anteriores; na `dim_material` o identificador vem do registro de descrições do schema `busca` e por isso é armazenado como _TEXT_, com o mesmo formato. Atributos numéricos sem tamanho são _NUMERIC_ sem precisão fixa; os que passam por arredondamento indicam o número de casas decimais.
 
 <details>
   <summary>Tabela 26 – Dicionário de dados da tabela fato_comparacao_preco
@@ -2785,3 +2791,4 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 | `1.3` | Adiciona ao dicionário as entidades da camada _raw_. | [Israel Thalles](https://github.com/IsraelThalles) | 05/11/2026 | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 05/11/2026 |
 | `1.4` | Adiciona ao dicionário as tabelas e as visões da camada semântica (schema _semantica_, migrações V2 a V5). | [Samara Letícia](https://github.com/samarawwleticia) | 16/11/2026 | - | - |
 | `1.5` | Adiciona ao dicionário as tabelas da camada ouro (fato, dimensões e monitor de atualização). | [magnluiz](https://github.com/magnluiz) | 15/11/2026 | - | - |
+| `1.6` | Atualiza a localização dos artefatos de busca e das correspondências após a migração V6. | Matheus Henrick | 23/11/2026 | - | - |

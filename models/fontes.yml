@@ -30,10 +30,16 @@ sources:
             warn_after: {count: 35, period: day}
             error_after: {count: 60, period: day}
 
-  # Escrito pelo pipeline Python (codigos/semantica), não pelo dbt.
-  - name: semantica
-    schema: semantica
+  # Artefatos técnicos escritos pelo pipeline de busca; não são a camada semântica de BI.
+  - name: busca
+    schema: busca
     tables:
       - name: descricao
+
+  # Correspondências e decisões mantidas pelo processo de revisão na Prata.
+  - name: prata_operacional
+    schema: prata
+    tables:
+      - name: candidato_catmat
       - name: revisao_correspondencia
       - name: revisao_material

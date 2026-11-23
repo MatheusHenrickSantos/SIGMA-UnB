@@ -5,7 +5,7 @@ Fonte: API de pesquisa de preços do Compras.gov.br
 (modulo-pesquisa-preco/1_consultarMaterial?tipo=codigoItemCatalogo&codigo=...).
 
 Códigos consultados: os itens CATMAT aprovados como equivalentes a algum
-material do estoque (semantica.v_item_aprovado, decisões de pessoas ou de
+material do estoque (prata.v_item_aprovado, decisões de pessoas ou de
 agentes), ou a lista passada em --codigos.
 
 Saída: dados/compras/compras-<codigo>-<inicio>_<fim>.json, com a lista de
@@ -53,7 +53,7 @@ TENTATIVAS = 8
 
 SQL_CODIGOS = """
     SELECT DISTINCT codigo_item::bigint
-    FROM semantica.v_item_aprovado
+    FROM prata.v_item_aprovado
     ORDER BY 1
 """
 
@@ -143,9 +143,9 @@ def codigos_aprovados() -> list[int]:
     from codigos.banco_de_dados.conectar_com_banco_de_dados import conectar
 
     with conectar() as conexao:
-        existe = conexao.execute("SELECT to_regclass('semantica.v_item_aprovado')").fetchone()[0]
+        existe = conexao.execute("SELECT to_regclass('prata.v_item_aprovado')").fetchone()[0]
         if existe is None:
-            raise RuntimeError("semantica.v_item_aprovado não existe: aplique as migrações (V5)")
+            raise RuntimeError("prata.v_item_aprovado não existe: aplique as migrações (V6)")
         return [linha[0] for linha in conexao.execute(SQL_CODIGOS)]
 
 

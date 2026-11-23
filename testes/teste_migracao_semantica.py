@@ -1,4 +1,4 @@
-"""Testes da migração V2 (schema semantica + pgvector) num PostgreSQL real."""
+"""Testes das migrações de busca e correspondência num PostgreSQL real."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ def vetor(*inicio: float) -> str:
 
 def _modelo(cur) -> int:
     cur.execute(
-        "INSERT INTO semantica.modelo_embedding (nome, revisao, dimensao) "
+        "INSERT INTO busca.modelo_embedding (nome, revisao, dimensao) "
         "VALUES ('teste', 'r1', 384) RETURNING id_modelo"
     )
     return cur.fetchone()[0]
@@ -29,7 +29,7 @@ def _modelo(cur) -> int:
 def _descricao(cur, origem: str, chave: str, texto: str = "texto") -> int:
     cur.execute(
         """
-        INSERT INTO semantica.descricao (origem, chave_origem, texto_original, hash_original,
+        INSERT INTO busca.descricao (origem, chave_origem, texto_original, hash_original,
                                          texto_normalizado, hash_normalizado,
                                          versao_normalizacao, situacao)
         VALUES (%s, %s, %s, repeat('a', 64), %s, repeat('b', 64), '1', 'valida')
@@ -42,7 +42,7 @@ def _descricao(cur, origem: str, chave: str, texto: str = "texto") -> int:
 
 def _embedding(cur, id_descricao: int, origem: str, id_modelo: int, literal: str) -> None:
     cur.execute(
-        "INSERT INTO semantica.embedding (id_descricao, origem, id_modelo, hash_normalizado, vetor) "
+        "INSERT INTO busca.embedding (id_descricao, origem, id_modelo, hash_normalizado, vetor) "
         "VALUES (%s, %s, %s, repeat('b', 64), %s::vector)",
         (id_descricao, origem, id_modelo, literal),
     )
@@ -53,25 +53,32 @@ def teste_objetos_criados(banco):
         versao = conn.execute(
             "SELECT extversion FROM pg_extension WHERE extname = 'vector'"
         ).fetchone()[0]
-        tabelas = {
-            linha[0]
-            for linha in conn.execute(
-                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'semantica'"
+        tabelas_busca = {
+            linha[0] for linha in conn.execute(
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'busca'"
+            )
+        }
+        tabelas_prata = {
+            linha[0] for linha in conn.execute(
+                "SELECT table_name FROM information_schema.tables WHERE table_schema = 'prata'"
             )
         }
         indices_hnsw = conn.execute(
-            "SELECT count(*) FROM pg_indexes WHERE schemaname = 'semantica' AND indexdef ILIKE '%%hnsw%%'"
+            "SELECT count(*) FROM pg_indexes WHERE schemaname = 'busca' AND indexdef ILIKE '%%hnsw%%'"
         ).fetchone()[0]
         dimensao = conn.execute(
             "SELECT atttypmod FROM pg_attribute "
-            "WHERE attrelid = 'semantica.embedding'::regclass AND attname = 'vetor'"
+            "WHERE attrelid = 'busca.embedding'::regclass AND attname = 'vetor'"
         ).fetchone()[0]
+        schema_antigo = conn.execute("SELECT to_regnamespace('semantica')").fetchone()[0]
 
     assert tuple(int(p) for p in versao.split(".")[:2]) >= (0, 8)
+    assert {"modelo_embedding", "descricao", "embedding", "execucao_correspondencia"} <= tabelas_busca
     assert {
-        "modelo_embedding", "descricao", "embedding", "execucao_correspondencia",
-        "candidato_catmat", "revisao_correspondencia", "v_candidato_catmat", "v_fila_revisao",
-    } <= tabelas
+        "candidato_catmat", "revisao_correspondencia", "revisao_material",
+        "v_candidato_catmat", "v_fila_revisao", "v_item_aprovado",
+    } <= tabelas_prata
+    assert schema_antigo is None
     # criado na V2 e removido na V3 (ADR 0005): a busca é exata
     assert indices_hnsw == 0
     assert dimensao == DIMENSAO
@@ -92,8 +99,8 @@ def teste_ordem_por_distancia_de_cosseno_e_indice_recriavel(banco):
         consulta = vetor(1.0, 0.0)
         sql = """
             SELECT d.chave_origem, e.vetor <=> %s::vector AS distancia
-            FROM semantica.embedding e
-            JOIN semantica.descricao d USING (id_descricao)
+            FROM busca.embedding e
+            JOIN busca.descricao d USING (id_descricao)
             WHERE e.origem = 'catmat'
             ORDER BY e.vetor <=> %s::vector
             LIMIT 3
@@ -106,7 +113,7 @@ def teste_ordem_por_distancia_de_cosseno_e_indice_recriavel(banco):
         plano = "\n".join(
             linha[0]
             for linha in cur.execute(
-                "EXPLAIN SELECT id_descricao FROM semantica.embedding WHERE origem = 'catmat' "
+                "EXPLAIN SELECT id_descricao FROM busca.embedding WHERE origem = 'catmat' "
                 "ORDER BY vetor <=> %s::vector LIMIT 3",
                 (consulta,),
             )
@@ -147,7 +154,7 @@ def teste_descricao_valida_exige_texto_normalizado(banco):
     with psycopg.connect(banco) as conn, conn.cursor() as cur:
         with pytest.raises(psycopg.errors.CheckViolation):
             cur.execute(
-                "INSERT INTO semantica.descricao (origem, chave_origem, texto_original, hash_original, "
+                "INSERT INTO busca.descricao (origem, chave_origem, texto_original, hash_original, "
                 "versao_normalizacao, situacao) VALUES ('estoque', 'ma1', 'x', repeat('a', 64), '1', 'valida')"
             )
 
@@ -156,7 +163,7 @@ def teste_descricao_invalida_exige_motivo(banco):
     with psycopg.connect(banco) as conn, conn.cursor() as cur:
         with pytest.raises(psycopg.errors.CheckViolation):
             cur.execute(
-                "INSERT INTO semantica.descricao (origem, chave_origem, texto_original, hash_original, "
+                "INSERT INTO busca.descricao (origem, chave_origem, texto_original, hash_original, "
                 "versao_normalizacao, situacao) VALUES ('estoque', 'ma1', '', repeat('a', 64), '1', 'vazia')"
             )
 
@@ -166,5 +173,5 @@ def teste_apagar_descricao_apaga_seus_vetores(banco):
         id_modelo = _modelo(cur)
         id_descricao = _descricao(cur, "catmat", "x")
         _embedding(cur, id_descricao, "catmat", id_modelo, vetor(1.0))
-        cur.execute("DELETE FROM semantica.descricao WHERE id_descricao = %s", (id_descricao,))
-        assert cur.execute("SELECT count(*) FROM semantica.embedding").fetchone()[0] == 0
+        cur.execute("DELETE FROM busca.descricao WHERE id_descricao = %s", (id_descricao,))
+        assert cur.execute("SELECT count(*) FROM busca.embedding").fetchone()[0] == 0

@@ -2,7 +2,7 @@
 
 Para acrescentar uma origem (por exemplo, descrições de compras públicas),
 basta uma consulta aqui que devolva (chave, texto), o papel dela na busca e
-o valor no CHECK de semantica.descricao.origem (nova migração).
+o valor no CHECK de busca.descricao.origem (nova migração).
 """
 
 from __future__ import annotations

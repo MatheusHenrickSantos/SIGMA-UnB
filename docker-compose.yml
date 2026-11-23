@@ -16,7 +16,7 @@
 #
 # Só o db fica rodando; os outros terminam (Exited 0) e o seguinte começa.
 # O semantica baixa o modelo de linguagem (~0,5 GB) na primeira vez e guarda
-# no volume `modelos`; ver docs/semantica.md.
+# no volume `modelos`; ver docs/dados-e-pipeline/semantica.md.
 #
 # Todas as variáveis têm valor padrão, então nenhum .env é obrigatório.
 # Para trocar senha, porta ou parâmetros da busca, copie .env.example para .env.
@@ -143,7 +143,7 @@ services:
         && python -m semantica importar --arquivo semantica/decisoes/decisoes_agentes.csv
         --revisor agente --tipo-revisor agente
 
-  # Compras públicas dos itens CATMAT aprovados (semantica.v_item_aprovado).
+  # Compras públicas dos itens CATMAT aprovados (prata.v_item_aprovado).
   # As páginas da API ficam em dados/compras_cache: outra execução só baixa o que falta.
   # A janela (COMPRAS_INICIO/COMPRAS_FIM) também é lida pelo dbt (dbt_project.yml).
   compras:

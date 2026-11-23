@@ -17,6 +17,7 @@
   - [ADR 5 — Busca semântica com pgvector](adr/0005-busca-semantica-com-pgvector.md)
   - [ADR 6 — Busca híbrida, decisões por agentes e compras](adr/0006-busca-hibrida-e-decisoes-por-agentes.md)
   - [ADR 7 — Modelo estrela, grão e orquestração](adr/0007-modelo-estrela-para-comparacao-de-precos.md)
+  - [ADR 8 — Correspondências na Prata e busca técnica](adr/0008-correspondencia-na-prata-e-busca-tecnica.md)
 - Modelagem
   - [Diagrama de Arquitetura](modelagem/diagrama-de-arquitetura.md)
   - [Dicionário de Dados](modelagem/dicionario-de-dados.md)

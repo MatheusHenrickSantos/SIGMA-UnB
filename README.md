@@ -42,7 +42,7 @@ Um único comando sobe estes serviços, nesta ordem:
 | `migrate` | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio. | Sim |
 | `ingest` | Python: baixa o estoque e o catálogo CATMAT e grava no schema `raw`. | Sim |
 | `transformar` | dbt: `raw` → `bronze` → `prata`, com os testes de dados (`dbt build`). | Sim |
-| `semantica` | Python: embeddings das descrições, candidatos CATMAT para cada material (busca híbrida: cosseno + trigramas + rapidfuzz) e importação das decisões sugeridas por agentes de IA ([detalhes](docs/dados-e-pipeline/semantica.md)). | Sim |
+| `semantica` | Python: calcula embeddings e candidatos; vetores e execuções ficam em `busca`, candidatos e decisões ficam em `prata` ([detalhes](docs/dados-e-pipeline/semantica.md)). | Sim |
 | `compras` | Python: baixa as compras públicas (Compras.gov.br) dos itens CATMAT aprovados e grava em `raw.compras`. | Sim |
 | `transformar_ouro` | dbt: compras (`bronze.compras`, `prata.compra_publica`), snapshot da correspondência (SCD tipo 2) e camada ouro (fato e dimensões). | Sim |
 | `painel` | Streamlit em http://localhost:8501: maiores diferenças entre o preço do estoque e o das compras públicas, por almoxarifado e mês ([camada ouro](docs/dados-e-pipeline/camada-ouro.md)). | Não, fica rodando |
@@ -178,7 +178,7 @@ SELECT count(*) FROM raw.estoque;                        -- documentos JSON de e
 SELECT count(*) FROM raw.catmat;                         -- documentos JSON do catálogo carregados
 SELECT count(*) FROM bronze.estoque;                     -- registros de estoque transformados
 SELECT count(*) FROM prata.material;                      -- materiais normalizados
-SELECT count(*) FROM semantica.candidato_catmat;          -- candidatos gerados para revisão
+SELECT count(*) FROM prata.candidato_catmat;          -- candidatos gerados para revisão
 SELECT version, description, success
   FROM flyway_schema_history ORDER BY installed_rank;    -- migrações aplicadas (existe após a 1ª)
 \q                                                       -- sai
@@ -310,7 +310,7 @@ Rode com `--build` para reconstruir a imagem: `docker compose up --build`.
 | Item | Situação |
 |---|---|
 | Banco PostgreSQL em Docker | ✅ |
-| Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql`, `V2__semantica_pgvector.sql`, `V3__semantica_sem_indice_hnsw.sql`, `V4__semantica_busca_hibrida.sql`, `V5__semantica_revisao_por_material.sql` |
+| Migrações versionadas (Flyway) | ✅ V1–V5 (schema histórico `semantica`) e V6 (artefatos técnicos em `busca`, candidatos e revisões na Prata) |
 | Ingestão idempotente por hash em `raw.estoque` e `raw.catmat`, seguida da transformação dbt | ✅ |
 | Download do estoque e do CATMAT, transformação dbt e candidatos semânticos | ✅ Integrados ao Compose |
 | Camada ouro: fato com grão declarado, dimensões e SCD tipo 2 da correspondência (dbt snapshot) | ✅ [Camada ouro](docs/dados-e-pipeline/camada-ouro.md), [ADR 0007](docs/adr/0007-modelo-estrela-para-comparacao-de-precos.md) |

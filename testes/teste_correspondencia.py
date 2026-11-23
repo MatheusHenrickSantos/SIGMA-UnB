@@ -32,7 +32,7 @@ def preparar(conn, estoque: dict[str, list[float] | None], catmat: dict[str, lis
     id_modelo = processamento.preparar_modelo(conn, CodificadorDeTeste())
     for origem, vetores in (("estoque", estoque), ("catmat", catmat)):
         ids = dict(conn.execute(
-            "SELECT chave_origem, id_descricao FROM semantica.descricao WHERE origem = %s", (origem,)
+            "SELECT chave_origem, id_descricao FROM busca.descricao WHERE origem = %s", (origem,)
         ).fetchall())
         repositorio.gravar_vetores(
             conn, id_modelo, origem,
@@ -44,7 +44,7 @@ def preparar(conn, estoque: dict[str, list[float] | None], catmat: dict[str, lis
 def candidatos(conn, id_execucao: int) -> list[tuple]:
     return conn.execute(
         "SELECT identificador_material, posicao, codigo_item, similaridade, vantagem_sobre_proximo "
-        "FROM semantica.v_candidato_catmat WHERE id_execucao = %s "
+        "FROM prata.v_candidato_catmat WHERE id_execucao = %s "
         "ORDER BY identificador_material, posicao",
         (id_execucao,),
     ).fetchall()
@@ -151,7 +151,7 @@ def teste_sem_vetores_catmat_falha_com_mensagem(banco):
         id_modelo = processamento.preparar_modelo(conn, CodificadorDeTeste())
         with pytest.raises(ErroCorrespondencia, match="embeddings"):
             correspondencia.executar_correspondencia(conn, id_modelo)
-        assert conn.execute("SELECT count(*) FROM semantica.execucao_correspondencia").fetchone()[0] == 0
+        assert conn.execute("SELECT count(*) FROM busca.execucao_correspondencia").fetchone()[0] == 0
 
 
 def teste_material_sem_vetor_e_contado(banco):
@@ -186,8 +186,8 @@ def teste_execucao_e_atomica(banco, monkeypatch):
         monkeypatch.setattr(correspondencia, "avaliar_especificacoes", quebra)
         with pytest.raises(RuntimeError):
             correspondencia.executar_correspondencia(conn, id_modelo)
-        assert conn.execute("SELECT count(*) FROM semantica.execucao_correspondencia").fetchone()[0] == 0
-        assert conn.execute("SELECT count(*) FROM semantica.candidato_catmat").fetchone()[0] == 0
+        assert conn.execute("SELECT count(*) FROM busca.execucao_correspondencia").fetchone()[0] == 0
+        assert conn.execute("SELECT count(*) FROM prata.candidato_catmat").fetchone()[0] == 0
 
 
 # ---------------------------------------------------------------------------
@@ -208,11 +208,11 @@ def teste_conflito_de_especificacao_e_marcado(banco):
         processamento.atualizar_embeddings(conn, codificador, id_modelo, "catmat", "documento")
         resumo = correspondencia.executar_correspondencia(conn, id_modelo, ParametrosBusca(top_k=2, metodo="cosseno"))
         linhas = dict(conn.execute(
-            "SELECT codigo_item, situacao_especificacao FROM semantica.v_candidato_catmat "
+            "SELECT codigo_item, situacao_especificacao FROM prata.v_candidato_catmat "
             "WHERE id_execucao = %s", (resumo.id_execucao,)
         ).fetchall())
         detalhes = conn.execute(
-            "SELECT especificacoes FROM semantica.v_candidato_catmat "
+            "SELECT especificacoes FROM prata.v_candidato_catmat "
             "WHERE id_execucao = %s AND codigo_item = '990010'", (resumo.id_execucao,)
         ).fetchone()[0]
 
@@ -235,15 +235,15 @@ def teste_revisao_sobrevive_a_nova_execucao_e_sai_da_fila(banco):
         nova = correspondencia.executar_correspondencia(conn, id_modelo, ParametrosBusca(top_k=2))
 
         decisao = conn.execute(
-            "SELECT decisao, revisor FROM semantica.v_candidato_catmat "
+            "SELECT decisao, revisor FROM prata.v_candidato_catmat "
             "WHERE id_execucao = %s AND identificador_material = 'm1' AND codigo_item = 'c10'",
             (nova.id_execucao,),
         ).fetchone()
         na_fila = {linha[0] for linha in conn.execute(
-            "SELECT DISTINCT identificador_material FROM semantica.v_fila_revisao"
+            "SELECT DISTINCT identificador_material FROM prata.v_fila_revisao"
         )}
         execucoes_na_fila = {linha[0] for linha in conn.execute(
-            "SELECT DISTINCT id_execucao FROM semantica.v_fila_revisao"
+            "SELECT DISTINCT id_execucao FROM prata.v_fila_revisao"
         )}
 
     assert decisao == ("equivalente", "Revisora")
@@ -258,14 +258,14 @@ def teste_revisao_vale_para_o_texto_revisado(banco):
         # o texto do material muda na origem: a decisão antiga não se aplica mais
         processamento.sincronizar_origem(conn, "estoque", [("m1", "MATERIAL m1 DESCRIÇÃO NOVA")])
         repositorio.gravar_vetores(conn, id_modelo, "estoque", [(
-            conn.execute("SELECT id_descricao FROM semantica.descricao WHERE chave_origem = 'm1'").fetchone()[0],
+            conn.execute("SELECT id_descricao FROM busca.descricao WHERE chave_origem = 'm1'").fetchone()[0],
             "y" * 64, angulo(0),
         )])
         resumo = correspondencia.executar_correspondencia(conn, id_modelo, ParametrosBusca(top_k=1))
         decisao = conn.execute(
-            "SELECT decisao FROM semantica.v_candidato_catmat WHERE id_execucao = %s", (resumo.id_execucao,)
+            "SELECT decisao FROM prata.v_candidato_catmat WHERE id_execucao = %s", (resumo.id_execucao,)
         ).fetchone()[0]
-        guardada = conn.execute("SELECT count(*) FROM semantica.revisao_correspondencia").fetchone()[0]
+        guardada = conn.execute("SELECT count(*) FROM prata.revisao_correspondencia").fetchone()[0]
     assert decisao is None
     assert guardada == 1
 
@@ -295,7 +295,7 @@ def preparar_com_textos(conn, estoque: dict[str, tuple[str, list[float]]],
     id_modelo = processamento.preparar_modelo(conn, CodificadorDeTeste())
     for origem, dados in (("estoque", estoque), ("catmat", catmat)):
         ids = dict(conn.execute(
-            "SELECT chave_origem, id_descricao FROM semantica.descricao WHERE origem = %s", (origem,)
+            "SELECT chave_origem, id_descricao FROM busca.descricao WHERE origem = %s", (origem,)
         ).fetchall())
         repositorio.gravar_vetores(
             conn, id_modelo, origem, [(ids[c], "x" * 64, v) for c, (_, v) in dados.items()]
@@ -306,7 +306,7 @@ def preparar_com_textos(conn, estoque: dict[str, tuple[str, list[float]]],
 def hibridos(conn, id_execucao: int) -> list[tuple]:
     return conn.execute(
         "SELECT posicao, codigo_item, pontuacao, recuperado_por, situacao_especificacao, medidas "
-        "FROM semantica.v_candidato_catmat WHERE id_execucao = %s ORDER BY posicao",
+        "FROM prata.v_candidato_catmat WHERE id_execucao = %s ORDER BY posicao",
         (id_execucao,),
     ).fetchall()
 
@@ -324,7 +324,7 @@ def teste_hibrido_poe_na_frente_o_texto_parecido(banco):
         linhas = hibridos(conn, resumo.id_execucao)
         execucao = conn.execute(
             "SELECT metodo, k_vetor, k_trigrama, versao_reordenacao, pesos "
-            "FROM semantica.execucao_correspondencia WHERE id_execucao = %s",
+            "FROM busca.execucao_correspondencia WHERE id_execucao = %s",
             (resumo.id_execucao,),
         ).fetchone()
 
@@ -388,7 +388,7 @@ def teste_cosseno_nao_grava_pontuacao(banco):
         )
         linhas = hibridos(conn, resumo.id_execucao)
         metodo = conn.execute(
-            "SELECT metodo, k_vetor, pesos FROM semantica.execucao_correspondencia "
+            "SELECT metodo, k_vetor, pesos FROM busca.execucao_correspondencia "
             "WHERE id_execucao = %s", (resumo.id_execucao,)
         ).fetchone()
 
