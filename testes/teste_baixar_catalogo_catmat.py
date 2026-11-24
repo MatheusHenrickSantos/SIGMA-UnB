@@ -103,3 +103,40 @@ def teste_salva_catalogo_diretamente_na_raw(modulo, monkeypatch):
     ]
     assert json.loads(gravados[0][1]) == gravados[0][0]
     assert gravados[0][2] == {"completa": True, "total_paginas": 1}
+
+
+def teste_paginas_em_paralelo_mantem_a_ordem(modulo, monkeypatch):
+    """Com vários trabalhadores o catálogo sai na mesma ordem do modo em sequência."""
+    import time
+
+    def pagina_falsa(sessao, pagina, tamanho, pausa):
+        time.sleep(0.002 * (7 - pagina % 7))  # páginas terminam fora de ordem
+        return {"totalPaginas": 20, "resultado": [{"codigoItem": pagina * 10 + i} for i in range(3)]}
+
+    monkeypatch.setattr(modulo, "solicitar_pagina", pagina_falsa)
+    monkeypatch.setattr(modulo, "criar_sessao", lambda: object())
+    sequencial, total_a, baixadas_a = modulo.baixar_catalogo(500, 0, None, trabalhadores=1)
+    paralelo, total_b, baixadas_b = modulo.baixar_catalogo(500, 0, None, trabalhadores=4)
+    assert paralelo == sequencial
+    assert (total_b, baixadas_b) == (20, 20) == (total_a, baixadas_a)
+    assert len(paralelo) == 60
+
+
+def teste_cache_do_catmat_respeita_a_validade(modulo, monkeypatch):
+    """Cache completo e dentro da validade: não baixa; vencido ou --atualizar: baixa."""
+    chamadas = []
+    monkeypatch.setattr(modulo, "catmat_em_cache", lambda: True)
+    monkeypatch.setattr(modulo, "baixar_catalogo", lambda *a, **k: chamadas.append(a) or ([{"codigoItem": 1}], 1, 1))
+    monkeypatch.setattr(modulo, "salvar_catmat", lambda *a, **k: True)
+
+    monkeypatch.setattr(modulo, "catmat_cache_vencido", lambda dias: False)
+    monkeypatch.setattr("sys.argv", ["baixar_catalogo_catmat.py"])
+    assert modulo.executar() == 0 and chamadas == []
+
+    monkeypatch.setattr(modulo, "catmat_cache_vencido", lambda dias: True)
+    assert modulo.executar() == 0 and len(chamadas) == 1
+
+    chamadas.clear()
+    monkeypatch.setattr(modulo, "catmat_cache_vencido", lambda dias: False)
+    monkeypatch.setattr("sys.argv", ["baixar_catalogo_catmat.py", "--atualizar"])
+    assert modulo.executar() == 0 and len(chamadas) == 1

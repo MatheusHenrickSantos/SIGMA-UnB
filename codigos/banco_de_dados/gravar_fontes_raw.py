@@ -52,6 +52,19 @@ def catmat_em_cache() -> bool:
     return bool(linha and linha[0])
 
 
+def catmat_cache_vencido(validade_dias: int) -> bool:
+    """True se o snapshot do CATMAT em raw tem mais de `validade_dias` dias (0 = nunca vence)."""
+    if validade_dias <= 0:
+        return False
+    with conectar() as conn:
+        linha = conn.execute(
+            "SELECT atualizada_em < now() - make_interval(days => %s) "
+            "FROM raw.catmat_coleta WHERE id_coleta = 1",
+            (validade_dias,),
+        ).fetchone()
+    return bool(linha and linha[0])
+
+
 def salvar_catmat(
     dado: list[dict],
     conteudo: str,

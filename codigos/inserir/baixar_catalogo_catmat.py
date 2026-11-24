@@ -5,11 +5,13 @@ from __future__ import annotations
 import argparse
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 import requests
 
 from codigos.banco_de_dados.gravar_fontes_raw import (
+    catmat_cache_vencido,
     catmat_em_cache,
     salvar_catmat,
     serializar_json,
@@ -61,11 +63,7 @@ def solicitar_pagina(
     )
 
 
-def baixar_catalogo(
-    tamanho_pagina: int,
-    pausa: float,
-    max_paginas: int | None,
-) -> tuple[list[dict[str, Any]], int, int]:
+def criar_sessao() -> requests.Session:
     sessao = requests.Session()
     sessao.headers.update(
         {
@@ -73,6 +71,46 @@ def baixar_catalogo(
             "User-Agent": "pipeline-academico-catmat/1.0",
         }
     )
+    return sessao
+
+
+def baixar_paginas_em_paralelo(
+    paginas: list[int], tamanho_pagina: int, pausa: float, trabalhadores: int
+) -> dict[int, dict[str, Any]]:
+    """Baixa as páginas com `trabalhadores` conexões independentes (uma sessão por página
+    lida em sequência dentro de cada trabalhador, como no modo serial)."""
+    if not paginas:
+        return {}
+    trabalhadores = max(1, min(trabalhadores, len(paginas)))
+    # fatias intercaladas: cada trabalhador usa a sua própria sessão do início ao fim
+    fatias = [paginas[i::trabalhadores] for i in range(trabalhadores)]
+    feitas = 0
+
+    def trabalhar(fatia: list[int]) -> dict[int, dict[str, Any]]:
+        nonlocal feitas
+        sessao = criar_sessao()
+        saida: dict[int, dict[str, Any]] = {}
+        for pagina in fatia:
+            saida[pagina] = solicitar_pagina(sessao, pagina, tamanho_pagina, pausa)
+            feitas += 1
+            if feitas % 50 == 0:
+                print(f"Páginas baixadas: {feitas}/{len(paginas)}")
+        return saida
+
+    resultado: dict[int, dict[str, Any]] = {}
+    with ThreadPoolExecutor(max_workers=trabalhadores) as pool:
+        for parcial in pool.map(trabalhar, fatias):
+            resultado.update(parcial)
+    return resultado
+
+
+def baixar_catalogo(
+    tamanho_pagina: int,
+    pausa: float,
+    max_paginas: int | None,
+    trabalhadores: int = 1,
+) -> tuple[list[dict[str, Any]], int, int]:
+    sessao = criar_sessao()
     primeira = solicitar_pagina(sessao, 1, tamanho_pagina, pausa)
 
     try:
@@ -90,11 +128,11 @@ def baixar_catalogo(
         )
 
     linhas: list[dict[str, Any]] = []
+    restantes = baixar_paginas_em_paralelo(
+        list(range(2, paginas_a_baixar + 1)), tamanho_pagina, pausa, trabalhadores
+    )
     for pagina in range(1, paginas_a_baixar + 1):
-        if pagina == 1:
-            corpo = primeira
-        else:
-            corpo = solicitar_pagina(sessao, pagina, tamanho_pagina, pausa)
+        corpo = primeira if pagina == 1 else restantes[pagina]
 
         linhas_pagina = corpo.get("resultado", [])
         linhas.extend(
@@ -152,8 +190,22 @@ def executar() -> int:
         action="store_true",
         help="Ignorar o snapshot completo em raw e baixar o CATMAT novamente",
     )
+    parser.add_argument(
+        "--paralelismo",
+        type=int,
+        default=4,
+        help="Conexões simultâneas para baixar as páginas (padrão: 4; 1 = em sequência)",
+    )
+    parser.add_argument(
+        "--validade-dias",
+        type=int,
+        default=30,
+        help="Idade máxima do snapshot em raw.catmat antes de baixar de novo (padrão: 30; 0 = nunca vence)",
+    )
     argumentos = parser.parse_args()
 
+    if argumentos.paralelismo < 1:
+        parser.error("--paralelismo deve ser maior que zero.")
     if not 10 <= argumentos.tamanho_pagina <= 500:
         parser.error("--tamanho-pagina deve estar entre 10 e 500.")
     if argumentos.max_paginas is not None and argumentos.max_paginas < 1:
@@ -163,8 +215,12 @@ def executar() -> int:
         catmat_em_cache()
         and not argumentos.atualizar
         and argumentos.max_paginas is None
+        and not catmat_cache_vencido(argumentos.validade_dias)
     ):
-        print("CATMAT completo já está no cache do banco (raw.catmat); download ignorado.")
+        print(
+            "CATMAT completo já está no cache do banco (raw.catmat) e dentro da validade "
+            f"({argumentos.validade_dias} dias); download ignorado. Use --atualizar para forçar."
+        )
         return 0
 
     try:
@@ -172,6 +228,7 @@ def executar() -> int:
             argumentos.tamanho_pagina,
             argumentos.pausa,
             argumentos.max_paginas,
+            argumentos.paralelismo,
         )
     except KeyboardInterrupt:
         print(

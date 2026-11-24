@@ -186,6 +186,21 @@ SELECT version, description, success
 
 ## Comandos do dia a dia
 
+**Atalhos (Linux e macOS):** `make` lista os comandos. Os principais:
+
+| Para…                                         | Comando | Tempo medido |
+|-----------------------------------------------|---------|--------------|
+| Criar o `.env` com senhas aleatórias          | `make setup` | instantâneo |
+| Subir tudo do zero                            | `make carga` | primeira carga: ver abaixo |
+| Reimportar o CSV de decisões e refazer a ouro | `make decisoes` | **15 s** (antes: refazer a busca inteira, mais de 10 min) |
+| Baixar só as compras que faltam               | `make compras` | retoma de onde parou |
+| Rodar os testes Python                        | `make testes` | ~17 s, num Postgres descartável |
+| Ver o estado dos serviços                     | `make status` | — |
+
+No Windows, use os comandos `docker compose` da tabela seguinte.
+
+**De onde vem o tempo da primeira carga** (medido em 24/11/2026, dados reais): CATMAT 18,5 min (694 páginas), embeddings do CATMAT ~36 min (250.915 textos na CPU), compras ~42 min (3.375 códigos), dbt e exportação ~1,5 min. O CATMAT e as compras agora baixam em paralelo (`CATMAT_PARALELISMO`, `COMPRAS_PARALELISMO`, padrão 4): na API real, 4,1× mais rápido no CATMAT e 3,0× nas compras, com conteúdo idêntico ao modo em sequência. O CATMAT em `raw` vale 30 dias (`CATMAT_VALIDADE_DIAS`; `--atualizar` força). Os embeddings são reaproveitados pelo hash: só a primeira carga paga as ~36 min.
+
 | Para…                                           | Comando |
 |-------------------------------------------------|---------|
 | Subir tudo (reconstruindo o que mudou)          | `docker compose up --build` |
@@ -219,6 +234,9 @@ Todas as variáveis têm valor padrão, então **o `.env` é opcional**. Crie-o 
 | `USUARIO_DO_BANCO` | `sigma` | Usuário |
 | `SENHA_DO_BANCO` | `sigma` | Senha |
 | `CATMAT_MAX_PAGINAS` | vazio (todas) | Limita as páginas do CATMAT baixadas pelo `ingest` (500 itens cada) |
+| `CATMAT_PARALELISMO` | `4` | Páginas do CATMAT baixadas ao mesmo tempo (`1` = em sequência) |
+| `CATMAT_VALIDADE_DIAS` | `30` | Idade máxima do CATMAT em `raw` antes de baixar de novo (`0` = nunca vence) |
+| `COMPRAS_PARALELISMO` | `4` | Códigos de compras baixados ao mesmo tempo (`1` = em sequência; a API responde 429 se exagerar e o código recua) |
 | `SEMANTICA_MODELO`  | `intfloat/multilingual-e5-small` | Modelo de embeddings (384 dimensões) |
 | `SEMANTICA_TOP_K`   | `10`    | Candidatos CATMAT guardados por material |
 | `SEMANTICA_LIMIAR`  | vazio   | Similaridade mínima para guardar um candidato (sem valor calibrado ainda) |

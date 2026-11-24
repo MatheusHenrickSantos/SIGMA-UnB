@@ -32,7 +32,9 @@ from __future__ import annotations
 
 import argparse
 import sys
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -144,6 +146,9 @@ def executar() -> int:
     analisador.add_argument("--fim", default="2025-12-31", help="fim da janela (AAAA-MM-DD)")
     analisador.add_argument("--pausa", type=float, default=0.3,
                             help="pausa antes de cada requisição, em segundos (padrão 0,3)")
+    analisador.add_argument("--paralelismo", type=int, default=4,
+                            help="códigos baixados ao mesmo tempo, cada trabalhador com a sua "
+                                 "sessão e a sua pausa (padrão 4; 1 = em sequência)")
     analisador.add_argument("--max-paginas-por-codigo", type=int, default=40,
                             help="limite de páginas por código (padrão 40 = 20 mil registros)")
     analisador.add_argument("--estrito", action="store_true",
@@ -165,34 +170,49 @@ def executar() -> int:
     print(f"[compras] {len(codigos)} código(s), janela {inicio} a {fim}; "
           f"{len(concluidos)} já concluídos, {len(pendentes)} pendentes")
 
-    sessao = criar_sessao()
+    if args.paralelismo < 1:
+        analisador.error("--paralelismo deve ser maior que zero")
+    local = threading.local()
+
+    def coletar(codigo: int):
+        """Roda num trabalhador: uma sessão por thread; nada é gravado aqui."""
+        if not hasattr(local, "sessao"):
+            local.sessao = criar_sessao()
+        return baixar_codigo(local.sessao, codigo, inicio, fim, args.pausa,
+                             args.max_paginas_por_codigo)
+
     comeco = time.monotonic()
     com_compra = registros_total = requisicoes_total = 0
     erros: list[int] = []
     parciais: list[int] = []
-    for i, codigo in enumerate(pendentes, start=1):
-        try:
-            registros, requisicoes, parcial = baixar_codigo(
-                sessao, codigo, inicio, fim, args.pausa, args.max_paginas_por_codigo
-            )
-        except Exception as exc:  # noqa: BLE001 - um código com problema não para os outros
-            erros.append(codigo)
-            print(f"  [{i}/{len(pendentes)}] {codigo}: ERRO {exc}", file=sys.stderr)
-            continue
-        requisicoes_total += requisicoes
-        if parcial:
-            parciais.append(codigo)
-        else:
-            conteudo = serializar_json(registros)
-            salvar_compras(codigo, inicio, fim, registros, conteudo)
-        if registros and not parcial:
-            com_compra += 1
-            registros_total += len(registros)
-        if i % 100 == 0 or i == len(pendentes):
-            decorrido = time.monotonic() - comeco
-            print(f"  [{i}/{len(pendentes)}] {com_compra} com compra, {registros_total} registros, "
-                  f"{requisicoes_total} requisições; {formatar_tempo(decorrido)} "
-                  f"(faltam ~{formatar_tempo(decorrido / i * (len(pendentes) - i))})")
+    pool = ThreadPoolExecutor(max_workers=args.paralelismo)
+    futuros = {pool.submit(coletar, codigo): codigo for codigo in pendentes}
+    # a gravação fica na thread principal: uma transação por vez, como no modo serial
+    try:
+        for i, futuro in enumerate(as_completed(futuros), start=1):
+            codigo = futuros[futuro]
+            try:
+                registros, requisicoes, parcial = futuro.result()
+            except Exception as exc:  # noqa: BLE001 - um código com problema não para os outros
+                erros.append(codigo)
+                print(f"  [{i}/{len(pendentes)}] {codigo}: ERRO {exc}", file=sys.stderr)
+                continue
+            requisicoes_total += requisicoes
+            if parcial:
+                parciais.append(codigo)
+            else:
+                conteudo = serializar_json(registros)
+                salvar_compras(codigo, inicio, fim, registros, conteudo)
+            if registros and not parcial:
+                com_compra += 1
+                registros_total += len(registros)
+            if i % 100 == 0 or i == len(pendentes):
+                decorrido = time.monotonic() - comeco
+                print(f"  [{i}/{len(pendentes)}] {com_compra} com compra, {registros_total} registros, "
+                      f"{requisicoes_total} requisições; {formatar_tempo(decorrido)} "
+                      f"(faltam ~{formatar_tempo(decorrido / i * (len(pendentes) - i))})")
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)  # Ctrl-C não espera a fila toda
 
     print(f"[compras] {com_compra} de {len(pendentes)} código(s) pendente(s) com compra na janela; "
           f"{registros_total} registros; {requisicoes_total} requisições à API; "
