@@ -31,7 +31,6 @@ def montar_prata(conn: psycopg.Connection) -> None:
         if registro["material"].strip()
     })
     itens = json.loads((AMOSTRA / "catmat" / "catalogo_catmat.json").read_text(encoding="utf-8"))
-    conn.execute("CREATE SCHEMA prata")
     conn.execute(
         "CREATE TABLE prata.material (identificador_material CHAR(6), nome CHAR(50), "
         "descricao CHAR(200), descricao_normalizada TEXT)"
@@ -99,17 +98,17 @@ def teste_fluxo_completo_pela_linha_de_comando(banco_com_prata, codificador, tmp
 
     with psycopg.connect(banco_com_prata, autocommit=True) as conn:
         situacoes = dict(conn.execute(
-            "SELECT situacao, count(*) FROM semantica.descricao WHERE origem = 'estoque' GROUP BY 1"
+            "SELECT situacao, count(*) FROM busca.descricao WHERE origem = 'estoque' GROUP BY 1"
         ).fetchall())
         vetores = dict(conn.execute(
-            "SELECT origem, count(*) FROM semantica.embedding GROUP BY 1"
+            "SELECT origem, count(*) FROM busca.embedding GROUP BY 1"
         ).fetchall())
         execucoes = conn.execute(
-            "SELECT count(*), min(materiais), min(candidatos) FROM semantica.execucao_correspondencia"
+            "SELECT count(*), min(materiais), min(candidatos) FROM busca.execucao_correspondencia"
         ).fetchone()
         pilha = conn.execute(
             """
-            SELECT codigo_item, situacao_especificacao FROM semantica.v_candidato_catmat
+            SELECT codigo_item, situacao_especificacao FROM prata.v_candidato_catmat
             WHERE id_execucao = 2 AND material = 'PILHA ALCALINA AAA 1,5V' ORDER BY posicao
             """
         ).fetchall()
@@ -131,7 +130,7 @@ def teste_revisao_e_fila_pela_linha_de_comando(banco_com_prata, codificador, tmp
     assert cli.main(["tudo", "--top-k", "2"]) == 0
     with psycopg.connect(banco_com_prata, autocommit=True) as conn:
         papel = conn.execute(
-            "SELECT chave_origem FROM semantica.descricao WHERE origem = 'estoque' "
+            "SELECT chave_origem FROM busca.descricao WHERE origem = 'estoque' "
             "AND texto_original LIKE 'PAPEL A4%'"
         ).fetchone()[0]
 

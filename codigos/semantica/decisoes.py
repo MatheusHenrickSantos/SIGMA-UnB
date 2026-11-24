@@ -8,7 +8,7 @@ Formato (CSV com cabeçalho, separador ';', UTF-8 com ou sem BOM):
     material ; codigos_equivalentes ; sem_correspondente ; confianca ; justificativa [; revisor]
 
 - material: o texto do material exatamente como está em prata.material
-  (descricao_normalizada), que é o texto_original de semantica.descricao;
+  (descricao_normalizada), que é o texto_original de busca.descricao;
 - codigos_equivalentes: códigos CATMAT separados por '|' (vazio quando
   sem_correspondente = 'sim');
 - sem_correspondente: 'sim' ou 'nao';
@@ -24,7 +24,7 @@ Regras:
 - decisão de agente nunca sobrescreve decisão de pessoa: material já
   decidido por pessoa é ignorado, e par já revisado por pessoa fica como
   está; decisão de pessoa sobrescreve a de agente;
-- material que não está em semantica.descricao (rode `sincronizar` antes) ou
+- material que não está em busca.descricao (rode `sincronizar` antes) ou
   código que não é item CATMAT ativo: a linha é recusada e listada no resumo.
 """
 
@@ -123,19 +123,19 @@ def importar(
         materiais = {
             texto: hash_
             for texto, hash_ in cur.execute(
-                "SELECT texto_original, hash_original FROM semantica.descricao "
+                "SELECT texto_original, hash_original FROM busca.descricao "
                 "WHERE origem = 'estoque' AND ativa AND texto_original IS NOT NULL"
             )
         }
         ativos = {
             chave for (chave,) in cur.execute(
-                "SELECT chave_origem FROM semantica.descricao "
+                "SELECT chave_origem FROM busca.descricao "
                 "WHERE origem = 'catmat' AND ativa AND situacao = 'valida'"
             )
         }
         de_pessoa = {
             hash_ for (hash_,) in cur.execute(
-                "SELECT hash_original_material FROM semantica.revisao_material "
+                "SELECT hash_original_material FROM prata.revisao_material "
                 "WHERE tipo_revisor = 'pessoa'"
             )
         }
@@ -167,7 +167,7 @@ def importar(
             # 'incerto' (revisão par a par) são mantidos.
             cur.execute(
                 """
-                DELETE FROM semantica.revisao_correspondencia
+                DELETE FROM prata.revisao_correspondencia
                 WHERE hash_original_material = %s AND decisao = 'equivalente'
                   AND (tipo_revisor = 'agente' OR %s = 'pessoa')
                   AND NOT (codigo_item = ANY(%s::text[]))
@@ -177,7 +177,7 @@ def importar(
             for codigo in decisao.codigos:
                 cur.execute(
                     f"""
-                    INSERT INTO semantica.revisao_correspondencia AS r
+                    INSERT INTO prata.revisao_correspondencia AS r
                         (hash_original_material, codigo_item, decisao, revisor, observacao,
                          texto_material, tipo_revisor)
                     VALUES (%s, %s, 'equivalente', %s, %s, %s, %s)
@@ -193,7 +193,7 @@ def importar(
 
             cur.execute(
                 """
-                INSERT INTO semantica.revisao_material
+                INSERT INTO prata.revisao_material
                     (hash_original_material, sem_correspondente, confianca, justificativa,
                      revisor, tipo_revisor, texto_material)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)

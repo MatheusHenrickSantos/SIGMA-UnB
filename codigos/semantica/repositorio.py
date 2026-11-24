@@ -1,4 +1,4 @@
-"""Leitura e gravação do schema semantica no PostgreSQL.
+"""Leitura e gravação dos artefatos técnicos do schema busca.
 
 Só SQL: este módulo não normaliza texto nem chama o modelo. As funções que
 gravam abrem a própria transação, por isso esperam uma conexão com
@@ -51,10 +51,10 @@ def literal_vetor(vetor: Sequence[float]) -> str:
 # ---------------------------------------------------------------------------
 
 def dimensao_da_coluna(conn: psycopg.Connection) -> int:
-    """Dimensão declarada em semantica.embedding.vetor (vector(N))."""
+    """Dimensão declarada em busca.embedding.vetor (vector(N))."""
     linha = conn.execute(
         "SELECT atttypmod FROM pg_attribute "
-        "WHERE attrelid = 'semantica.embedding'::regclass AND attname = 'vetor'"
+        "WHERE attrelid = 'busca.embedding'::regclass AND attname = 'vetor'"
     ).fetchone()
     return int(linha[0])
 
@@ -75,7 +75,7 @@ def registrar_modelo(
     with conn.transaction():
         id_modelo, dimensao_gravada = conn.execute(
             """
-            INSERT INTO semantica.modelo_embedding
+            INSERT INTO busca.modelo_embedding
                 (nome, revisao, dimensao, prefixo_consulta, prefixo_documento, metadados)
             VALUES (%s, %s, %s, %s, %s, %s)
             ON CONFLICT ON CONSTRAINT uq_modelo DO UPDATE SET nome = EXCLUDED.nome
@@ -155,7 +155,7 @@ def gravar_descricoes(
             SELECT count(*) FILTER (WHERE d.id_descricao IS NULL),
                    count(*) FILTER (WHERE d.id_descricao IS NOT NULL AND {_CONTEUDO_MUDOU.format('t')})
             FROM tmp_descricao AS t
-            LEFT JOIN semantica.descricao AS d
+            LEFT JOIN busca.descricao AS d
                    ON d.origem = %(origem)s AND d.chave_origem = t.chave_origem
             """,
             parametros,
@@ -163,7 +163,7 @@ def gravar_descricoes(
 
         cur.execute(
             f"""
-            INSERT INTO semantica.descricao AS d
+            INSERT INTO busca.descricao AS d
                 (origem, chave_origem, texto_original, hash_original, texto_normalizado,
                  hash_normalizado, versao_normalizacao, situacao, motivo)
             SELECT %(origem)s, chave_origem, texto_original, hash_original, texto_normalizado,
@@ -191,7 +191,7 @@ def gravar_descricoes(
 
         cur.execute(
             """
-            UPDATE semantica.descricao AS d
+            UPDATE busca.descricao AS d
             SET ativa = false, sincronizada_em = now()
             WHERE d.origem = %(origem)s AND d.ativa
               AND NOT EXISTS (SELECT 1 FROM tmp_descricao t WHERE t.chave_origem = d.chave_origem)
@@ -202,8 +202,8 @@ def gravar_descricoes(
 
         cur.execute(
             """
-            DELETE FROM semantica.embedding AS e
-            USING semantica.descricao AS d
+            DELETE FROM busca.embedding AS e
+            USING busca.descricao AS d
             WHERE e.id_descricao = d.id_descricao
               AND d.origem = %(origem)s
               AND (NOT d.ativa OR d.situacao <> 'valida'
@@ -236,17 +236,17 @@ def reaproveitar_vetores(conn: psycopg.Connection, id_modelo: int, origem: str) 
     with conn.transaction():
         cursor = conn.execute(
             """
-            INSERT INTO semantica.embedding (id_descricao, origem, id_modelo, hash_normalizado, vetor)
+            INSERT INTO busca.embedding (id_descricao, origem, id_modelo, hash_normalizado, vetor)
             SELECT DISTINCT ON (d.id_descricao)
                    d.id_descricao, d.origem, %(modelo)s, d.hash_normalizado, e.vetor
-            FROM semantica.descricao AS d
-            JOIN semantica.embedding AS e
+            FROM busca.descricao AS d
+            JOIN busca.embedding AS e
               ON e.origem = d.origem
              AND e.id_modelo = %(modelo)s
              AND e.hash_normalizado = d.hash_normalizado
             WHERE d.origem = %(origem)s AND d.ativa AND d.situacao = 'valida'
               AND NOT EXISTS (
-                  SELECT 1 FROM semantica.embedding x
+                  SELECT 1 FROM busca.embedding x
                   WHERE x.id_descricao = d.id_descricao AND x.id_modelo = %(modelo)s
               )
             ORDER BY d.id_descricao, e.id_descricao
@@ -263,10 +263,10 @@ def descricoes_pendentes(
     return conn.execute(
         """
         SELECT d.id_descricao, d.texto_normalizado, d.hash_normalizado
-        FROM semantica.descricao AS d
+        FROM busca.descricao AS d
         WHERE d.origem = %(origem)s AND d.ativa AND d.situacao = 'valida'
           AND NOT EXISTS (
-              SELECT 1 FROM semantica.embedding e
+              SELECT 1 FROM busca.embedding e
               WHERE e.id_descricao = d.id_descricao
                 AND e.id_modelo = %(modelo)s
                 AND e.hash_normalizado = d.hash_normalizado
@@ -288,7 +288,7 @@ def gravar_vetores(
     with conn.transaction(), conn.cursor() as cur:
         cur.executemany(
             """
-            INSERT INTO semantica.embedding (id_descricao, origem, id_modelo, hash_normalizado, vetor)
+            INSERT INTO busca.embedding (id_descricao, origem, id_modelo, hash_normalizado, vetor)
             VALUES (%s, %s, %s, %s, %s::vector)
             ON CONFLICT (id_descricao, id_modelo) DO UPDATE SET
                 hash_normalizado = EXCLUDED.hash_normalizado,

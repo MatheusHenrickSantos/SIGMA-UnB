@@ -1,4 +1,4 @@
-"""Testes da normalização de descrições (codigos/semantica/normalizacao.py)."""
+"""Testes da normalização compartilhada e dos metadados semânticos."""
 
 from __future__ import annotations
 

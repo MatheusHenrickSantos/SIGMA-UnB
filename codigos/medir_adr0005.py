@@ -9,7 +9,7 @@ Dois modos:
       aleatórios não têm agrupamentos: é o pior caso para o recall.
 
   python medir_adr0005.py real
-      Usa os vetores já gravados em semantica.embedding pelo pipeline
+      Usa os vetores já gravados em busca.embedding pelo pipeline
       (python -m semantica): latência da busca exata e recall@K da HNSW com
       vetores de verdade. Se não houver índice HNSW (situação desde a
       migração V3), cria um temporário, mede e o apaga no fim. A construção
@@ -83,7 +83,7 @@ def plano_padrao(conn, id_modelo: int, k: int) -> None:
         )
     )
     indices = [nome for (nome,) in conn.execute(
-        "SELECT indexname FROM pg_indexes WHERE schemaname = 'semantica' "
+        "SELECT indexname FROM pg_indexes WHERE schemaname = 'busca' "
         "AND tablename = 'embedding' AND indexdef ILIKE '%%hnsw%%'"
     )]
     usa = any(nome in plano for nome in indices)
@@ -160,16 +160,16 @@ def sintetico(conn, n_catmat: int, n_materiais: int, amostra: int, k: int) -> No
 
 def real(conn, amostra: int, k: int) -> None:
     linha = conn.execute(
-        "SELECT id_modelo, count(*) FROM semantica.embedding WHERE origem = 'catmat' "
+        "SELECT id_modelo, count(*) FROM busca.embedding WHERE origem = 'catmat' "
         "GROUP BY id_modelo ORDER BY count(*) DESC LIMIT 1"
     ).fetchone()
     if linha is None:
-        sys.exit("não há vetores CATMAT em semantica.embedding: rode python -m semantica antes")
+        sys.exit("não há vetores CATMAT em busca.embedding: rode python -m semantica antes")
     id_modelo, n_catmat = linha
     # amostra fixa, mas espalhada (ordem do md5 do id, não do id)
     consultas = [
         texto for (texto,) in conn.execute(
-            "SELECT vetor::text FROM semantica.embedding WHERE origem = 'estoque' AND id_modelo = %s "
+            "SELECT vetor::text FROM busca.embedding WHERE origem = 'estoque' AND id_modelo = %s "
             "ORDER BY md5(id_descricao::text) LIMIT %s", (id_modelo, amostra),
         )
     ]
@@ -177,7 +177,7 @@ def real(conn, amostra: int, k: int) -> None:
     plano_padrao(conn, id_modelo, k)
 
     tem_indice = conn.execute(
-        "SELECT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'semantica' "
+        "SELECT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'busca' "
         "AND tablename = 'embedding' AND indexdef ILIKE '%%hnsw%%')"
     ).fetchone()[0]
     try:
@@ -187,16 +187,16 @@ def real(conn, amostra: int, k: int) -> None:
             inicio = time.perf_counter()
             conn.execute(SQL_INDICE_HNSW.format(nome=INDICE_TEMPORARIO))
             print(f"  CREATE INDEX: {time.perf_counter() - inicio:.1f} s")
-            conn.execute("ANALYZE semantica.embedding")
+            conn.execute("ANALYZE busca.embedding")
         comparar(
             conn,
-            "SELECT id_descricao FROM semantica.embedding WHERE origem = 'catmat' "
+            "SELECT id_descricao FROM busca.embedding WHERE origem = 'catmat' "
             f"AND id_modelo = {int(id_modelo)} ORDER BY vetor <=> %s::vector LIMIT %s",
             consultas, k, [40, 100, 200],
         )
     finally:
         if not tem_indice:
-            conn.execute(f"DROP INDEX IF EXISTS semantica.{INDICE_TEMPORARIO}")
+            conn.execute(f"DROP INDEX IF EXISTS busca.{INDICE_TEMPORARIO}")
 
 
 def main() -> int:

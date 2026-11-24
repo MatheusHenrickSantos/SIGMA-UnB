@@ -15,6 +15,7 @@ COPY semantica/requirements.txt /tmp/requirements-semantica.txt
 RUN pip install --no-cache-dir -r /tmp/requirements-semantica.txt
 
 COPY semantica/ semantica/
+COPY normalizar/ normalizar/
 # medições do ADR 0005 (busca exata x HNSW)
 COPY medir_adr0005.py .
 

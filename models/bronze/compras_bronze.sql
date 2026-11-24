@@ -7,8 +7,8 @@
 
 {#-
     Compras públicas (Compras.gov.br, pesquisa de preços) em formato tabular.
-    Cada linha de raw.compras é um arquivo com a lista de registros da API de
-    um código CATMAT (codigos/inserir/baixar_compras.py).
+    Cada linha de raw.compras guarda a lista de registros da API de um código
+    CATMAT (codigos/inserir/baixar_compras.py).
 
     Deduplica por id_item_compra, a chave real da API: o par
     (id_compra, codigo_item_catalogo) se repete quando a compra tem vários

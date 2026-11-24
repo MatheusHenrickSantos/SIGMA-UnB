@@ -6,12 +6,12 @@
 
 \echo '=== ANTES: sem índice de trigramas (só o índice da PK) ==='
 BEGIN;
-DROP INDEX semantica.ix_descricao_catmat_trgm;
+DROP INDEX busca.ix_descricao_catmat_trgm;
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT m.chave_origem, vizinho.chave_origem
-FROM semantica.descricao AS m
+FROM busca.descricao AS m
 CROSS JOIN LATERAL (
-    SELECT k.chave_origem FROM semantica.descricao AS k
+    SELECT k.chave_origem FROM busca.descricao AS k
     WHERE k.origem = 'catmat' AND k.situacao = 'valida' AND k.ativa
     ORDER BY k.texto_normalizado <-> m.texto_normalizado
     LIMIT 20
@@ -21,14 +21,14 @@ ROLLBACK;
 
 \echo '=== TENTATIVA: índice GIN (gin_trgm_ops), que não atende ORDER BY <-> ==='
 BEGIN;
-DROP INDEX semantica.ix_descricao_catmat_trgm;
-CREATE INDEX ix_tmp_gin ON semantica.descricao USING gin (texto_normalizado gin_trgm_ops)
+DROP INDEX busca.ix_descricao_catmat_trgm;
+CREATE INDEX ix_tmp_gin ON busca.descricao USING gin (texto_normalizado gin_trgm_ops)
     WHERE origem = 'catmat' AND situacao = 'valida' AND ativa;
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT m.chave_origem, vizinho.chave_origem
-FROM semantica.descricao AS m
+FROM busca.descricao AS m
 CROSS JOIN LATERAL (
-    SELECT k.chave_origem FROM semantica.descricao AS k
+    SELECT k.chave_origem FROM busca.descricao AS k
     WHERE k.origem = 'catmat' AND k.situacao = 'valida' AND k.ativa
     ORDER BY k.texto_normalizado <-> m.texto_normalizado
     LIMIT 20
@@ -39,9 +39,9 @@ ROLLBACK;
 \echo '=== DEPOIS: índice GiST (gist_trgm_ops) da V4, busca KNN pelo índice ==='
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT m.chave_origem, vizinho.chave_origem
-FROM semantica.descricao AS m
+FROM busca.descricao AS m
 CROSS JOIN LATERAL (
-    SELECT k.chave_origem FROM semantica.descricao AS k
+    SELECT k.chave_origem FROM busca.descricao AS k
     WHERE k.origem = 'catmat' AND k.situacao = 'valida' AND k.ativa
     ORDER BY k.texto_normalizado <-> m.texto_normalizado
     LIMIT 20
@@ -51,9 +51,9 @@ WHERE m.origem = 'estoque' AND m.chave_origem = ANY(:materiais::text[]);
 \echo '=== DEPOIS, repetição (páginas já em cache) ==='
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT m.chave_origem, vizinho.chave_origem
-FROM semantica.descricao AS m
+FROM busca.descricao AS m
 CROSS JOIN LATERAL (
-    SELECT k.chave_origem FROM semantica.descricao AS k
+    SELECT k.chave_origem FROM busca.descricao AS k
     WHERE k.origem = 'catmat' AND k.situacao = 'valida' AND k.ativa
     ORDER BY k.texto_normalizado <-> m.texto_normalizado
     LIMIT 20

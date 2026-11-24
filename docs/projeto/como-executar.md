@@ -4,7 +4,7 @@ Versão resumida do README para o site da documentação.
 
 ## Escopo deste passo a passo
 
-Os comandos abaixo sobem o pipeline atual: o serviço `ingest` baixa o estoque da UnB e o catálogo CATMAT, carrega os arquivos na camada `raw`, e as etapas seguintes transformam os dados com dbt e calculam candidatos semânticos. A consulta de preços públicos pela API do Compras.gov.br continua exploratória e não está integrada ao Compose; consulte o [teste de viabilidade](../testes/teste-de-viabilidade.md).
+Os comandos abaixo sobem o pipeline atual: o serviço `ingest` baixa o estoque da UnB e o catálogo CATMAT diretamente para a camada `raw`; as etapas seguintes transformam os dados com dbt, calculam candidatos semânticos e consultam compras públicas dos itens aprovados. Os downloads não criam arquivos locais; compras concluídas e checkpoints ficam no banco.
 
 ## Pré-requisitos
 
@@ -25,7 +25,7 @@ docker compose up --build
 
 ```bash
 docker compose ps -a        # migrate, ingest, transformar, semantica, compras e transformar_ouro: Exited (0); db: Up (healthy)
-docker compose exec db psql -U sigma -d sigma -c "SELECT count(*) FROM semantica.candidato_catmat;"
+docker compose exec db psql -U sigma -d sigma -c "SELECT count(*) FROM prata.candidato_catmat;"
 ```
 
 ## Comandos úteis

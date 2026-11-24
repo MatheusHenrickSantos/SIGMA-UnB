@@ -42,16 +42,16 @@ def medir(conn: psycopg.Connection, rotulos: list[decisoes.Decisao], parametros:
           id_modelo: int) -> dict[str, tuple[int, int]]:
     corretos_por_texto = {d.material: set(d.codigos) for d in rotulos if not d.sem_correspondente}
     chave_por_texto = dict(conn.execute(
-        "SELECT texto_original, chave_origem FROM semantica.descricao "
+        "SELECT texto_original, chave_origem FROM busca.descricao "
         "WHERE origem = 'estoque' AND ativa AND situacao = 'valida' AND texto_original = ANY(%s)",
         (list(corretos_por_texto),),
     ).fetchall())
     corretos = {chave_por_texto[t]: c for t, c in corretos_por_texto.items() if t in chave_por_texto}
     if not corretos:
-        raise SystemExit("nenhum material rotulado encontrado em semantica.descricao (rode sincronizar)")
+        raise SystemExit("nenhum material rotulado encontrado em busca.descricao (rode sincronizar)")
 
     id_para_chave = dict(conn.execute(
-        "SELECT id_descricao, chave_origem FROM semantica.descricao "
+        "SELECT id_descricao, chave_origem FROM busca.descricao "
         "WHERE origem = 'estoque' AND chave_origem = ANY(%s)", (list(corretos),)
     ).fetchall())
     filtro = {"modelo": id_modelo, "chaves": list(corretos)}
@@ -66,7 +66,7 @@ def medir(conn: psycopg.Connection, rotulos: list[decisoes.Decisao], parametros:
                 recuperados[id_para_chave[id_m]][nome].append(chave_k)
         hibrido = _candidatos_hibridos(cur, filtro, parametros)
         chave_catmat = dict(cur.execute(
-            "SELECT id_descricao, chave_origem FROM semantica.descricao WHERE origem = 'catmat' "
+            "SELECT id_descricao, chave_origem FROM busca.descricao WHERE origem = 'catmat' "
             "AND id_descricao = ANY(%s)",
             (list({c[0] for lista in hibrido.values() for c in lista}),),
         ).fetchall())
@@ -117,7 +117,7 @@ def main(argv: list[str] | None = None) -> int:
         password=os.environ["SENHA_DO_BANCO"], autocommit=True,
     ) as conn:
         linha = conn.execute(
-            "SELECT id_modelo, nome FROM semantica.modelo_embedding ORDER BY id_modelo DESC LIMIT 1"
+            "SELECT id_modelo, nome FROM busca.modelo_embedding ORDER BY id_modelo DESC LIMIT 1"
         ).fetchone()
         if linha is None:
             raise SystemExit("nenhum modelo registrado: rode a etapa embeddings")

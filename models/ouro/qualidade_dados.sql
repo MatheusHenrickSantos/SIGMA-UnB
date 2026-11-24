@@ -96,7 +96,7 @@ materiais_atuais AS (
 
 execucao AS (
     SELECT MAX(id_execucao) AS id_execucao
-    FROM {{ source('semantica', 'execucao_correspondencia') }}
+    FROM {{ source('busca', 'execucao_correspondencia') }}
     WHERE finalizada_em IS NOT NULL
 ),
 
@@ -104,14 +104,14 @@ aprovados AS (
     SELECT
         COUNT(*) AS pares,
         COUNT(*) FILTER (WHERE candidato.situacao_especificacao = 'conflito_tecnico') AS com_conflito
-    FROM {{ source('semantica', 'revisao_correspondencia') }} AS revisao
-    INNER JOIN {{ source('semantica', 'descricao') }} AS material
+    FROM {{ source('prata_operacional', 'revisao_correspondencia') }} AS revisao
+    INNER JOIN {{ source('busca', 'descricao') }} AS material
         ON material.origem = 'estoque' AND material.ativa
        AND material.hash_original = revisao.hash_original_material
-    LEFT JOIN {{ source('semantica', 'descricao') }} AS item
+    LEFT JOIN {{ source('busca', 'descricao') }} AS item
         ON item.origem = 'catmat' AND item.chave_origem = revisao.codigo_item
     LEFT JOIN execucao ON TRUE
-    LEFT JOIN {{ source('semantica', 'candidato_catmat') }} AS candidato
+    LEFT JOIN {{ source('prata_operacional', 'candidato_catmat') }} AS candidato
         ON candidato.id_execucao = execucao.id_execucao
        AND candidato.id_descricao_material = material.id_descricao
        AND candidato.id_descricao_catmat = item.id_descricao

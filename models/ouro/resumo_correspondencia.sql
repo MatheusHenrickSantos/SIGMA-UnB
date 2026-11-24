@@ -24,7 +24,7 @@ valor AS (
 
 execucao AS (
     SELECT MAX(id_execucao) AS id_execucao
-    FROM {{ source('semantica', 'execucao_correspondencia') }}
+    FROM {{ source('busca', 'execucao_correspondencia') }}
     WHERE finalizada_em IS NOT NULL
 ),
 
@@ -34,9 +34,9 @@ melhor_candidato AS (
         candidato.pontuacao,
         candidato.similaridade,
         candidato.situacao_especificacao
-    FROM {{ source('semantica', 'candidato_catmat') }} AS candidato
+    FROM {{ source('prata_operacional', 'candidato_catmat') }} AS candidato
     INNER JOIN execucao ON execucao.id_execucao = candidato.id_execucao
-    INNER JOIN {{ source('semantica', 'descricao') }} AS material
+    INNER JOIN {{ source('busca', 'descricao') }} AS material
         ON material.id_descricao = candidato.id_descricao_material
     WHERE candidato.posicao = 1
 ),
@@ -46,7 +46,7 @@ justificativa AS (
         hash_original_material,
         justificativa,
         revisor
-    FROM {{ source('semantica', 'revisao_material') }}
+    FROM {{ source('prata_operacional', 'revisao_material') }}
 )
 
 SELECT
@@ -70,7 +70,7 @@ SELECT
               * COALESCE(valor.valor_estoque, 0)
     END AS prioridade_revisao
 FROM {{ ref('dim_material') }} AS dim
-LEFT JOIN {{ source('semantica', 'descricao') }} AS descricao
+LEFT JOIN {{ source('busca', 'descricao') }} AS descricao
     ON descricao.origem = 'estoque' AND descricao.chave_origem = dim.identificador_material
 LEFT JOIN justificativa ON justificativa.hash_original_material = descricao.hash_original
 LEFT JOIN melhor_candidato ON melhor_candidato.identificador_material = dim.identificador_material

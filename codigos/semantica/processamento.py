@@ -66,7 +66,7 @@ def preparar_modelo(conn: psycopg.Connection, codificador: Codificador) -> int:
     if codificador.dimensao != dimensao_banco:
         raise ErroEmbedding(
             f"o modelo {codificador.nome} gera vetores de {codificador.dimensao} dimensões, "
-            f"mas semantica.embedding.vetor é vector({dimensao_banco}). "
+            f"mas busca.embedding.vetor é vector({dimensao_banco}). "
             "Use um modelo dessa dimensão ou crie uma migração para o novo modelo."
         )
     return repositorio.registrar_modelo(

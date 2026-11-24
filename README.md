@@ -12,7 +12,7 @@ O SIGMA-UnB é uma plataforma de dados para apoiar a gestão de materiais e as d
 
 A comparação depende de validar a correspondência do item e a equivalência de unidade e período. Os preços de compras públicas são referências de compras, não cotações de lojas nem prova, por si só, de sobrepreço.
 
-O banco e o pipeline Docker descritos abaixo podem ser executados localmente, sem instalar PostgreSQL nem Python na máquina. O Compose baixa o estoque da UnB e o catálogo CATMAT, transforma esses dados e gera candidatos de correspondência semântica. A consulta de preços públicos na API do Compras.gov.br permanece exploratória e fora do pipeline automatizado.
+O banco e o pipeline Docker descritos abaixo podem ser executados localmente, sem instalar PostgreSQL nem Python na máquina. O Compose baixa o estoque da UnB e o catálogo CATMAT, transforma esses dados, gera candidatos de correspondência e consulta as compras públicas dos itens aprovados. As respostas são gravadas diretamente no banco, sem arquivos de dados locais.
 
 ---
 
@@ -42,7 +42,7 @@ Um único comando sobe estes serviços, nesta ordem:
 | `migrate` | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio. | Sim |
 | `ingest` | Python: baixa o estoque e o catálogo CATMAT e grava no schema `raw`. | Sim |
 | `transformar` | dbt: `raw` → `bronze` → `prata`, com os testes de dados (`dbt build`). | Sim |
-| `semantica` | Python: embeddings das descrições, candidatos CATMAT para cada material (busca híbrida: cosseno + trigramas + rapidfuzz) e importação das decisões sugeridas por agentes de IA ([detalhes](docs/dados-e-pipeline/semantica.md)). | Sim |
+| `semantica` | Python: calcula embeddings e candidatos; vetores e execuções ficam em `busca`, candidatos e decisões ficam em `prata` ([detalhes](docs/dados-e-pipeline/semantica.md)). | Sim |
 | `compras` | Python: baixa as compras públicas (Compras.gov.br) dos itens CATMAT aprovados e grava em `raw.compras`. | Sim |
 | `transformar_ouro` | dbt: compras (`bronze.compras`, `prata.compra_publica`), snapshot da correspondência (SCD tipo 2) e camada ouro (fato e dimensões). | Sim |
 | `painel` | Streamlit em http://localhost:8501: maiores diferenças entre o preço do estoque e o das compras públicas, por almoxarifado e mês ([camada ouro](docs/dados-e-pipeline/camada-ouro.md)). | Não, fica rodando |
@@ -141,10 +141,12 @@ Os comandos são os mesmos nos dois sistemas daqui em diante. No terminal, cada 
 1. Download das imagens e build do container Python — **só na primeira vez**, pode levar alguns minutos.
 2. `db-1 | ... database system is ready to accept connections`
 3. `migrate-1 | ...` — o Flyway lista as migrações aplicadas, e depois `migrate-1 exited with code 0`.
-4. `ingest-1 | ...` — baixa os arquivos de estoque e do CATMAT, inicializa o schema `raw` e carrega os dados.
+4. `ingest-1 | ...` — inicializa o schema `raw` e grava as respostas de estoque e CATMAT diretamente no banco.
 5. `transformar-1 | ...` — executa `dbt deps` e `dbt build`.
 6. `semantica-1 | ...` — calcula embeddings e candidatos CATMAT; na primeira execução baixa o modelo.
-7. **O terminal fica parado mostrando os logs do banco.** Isso é esperado: o banco continua rodando. Para parar, `Ctrl+C`.
+7. `compras-1 | ...` — consulta a API de compras públicas e salva cada código concluído em `raw.compras`; progresso e códigos sem resultados ficam registrados em `raw.compras_coleta`.
+8. `transformar_ouro-1 | ...` — atualiza a camada Ouro.
+9. **O terminal fica parado mostrando os logs do banco e do painel.** Isso é esperado: esses serviços continuam rodando. Para parar, `Ctrl+C`.
 
 Para subir em segundo plano e liberar o terminal, use `docker compose up --build -d` e acompanhe com `docker compose logs -f`.
 
@@ -157,12 +159,6 @@ Para subir em segundo plano e liberar o terminal, use `docker compose up --build
 ```bash
 docker compose ps -a
 ```
-
-**Arquivos baixados** — devem existir `dados/estoque/` e `dados/catmat/`:
-
-| Windows (PowerShell) | Linux |
-|---|---|
-| `Get-ChildItem dados\estoque, dados\catmat` | `ls -lh dados/estoque dados/catmat` |
 
 **Banco e migrações** — abra o `psql` dentro do container:
 
@@ -178,13 +174,13 @@ SELECT count(*) FROM raw.estoque;                        -- documentos JSON de e
 SELECT count(*) FROM raw.catmat;                         -- documentos JSON do catálogo carregados
 SELECT count(*) FROM bronze.estoque;                     -- registros de estoque transformados
 SELECT count(*) FROM prata.material;                      -- materiais normalizados
-SELECT count(*) FROM semantica.candidato_catmat;          -- candidatos gerados para revisão
+SELECT count(*) FROM prata.candidato_catmat;          -- candidatos gerados para revisão
 SELECT version, description, success
   FROM flyway_schema_history ORDER BY installed_rank;    -- migrações aplicadas (existe após a 1ª)
 \q                                                       -- sai
 ```
 
-`raw.estoque` e `raw.catmat` contam arquivos/documentos JSON; `bronze.estoque` conta registros expandidos. Para conectar de fora (DBeaver, pgAdmin, VS Code): host `localhost`, porta publicada (por padrão `5432`), banco e usuário `sigma`, senha configurada no `.env`.
+`raw.estoque` e `raw.catmat` contam documentos JSON; `bronze.estoque` conta registros expandidos. `raw.compras_coleta` mostra os códigos consultados por janela. Para conectar de fora (DBeaver, pgAdmin, VS Code): host `localhost`, porta publicada (por padrão `5432`), banco e usuário `sigma`, senha configurada no `.env`.
 
 ---
 
@@ -289,7 +285,7 @@ Já existe algo usando a porta 5432 (geralmente um Postgres instalado na máquin
 | `netstat -ano \| findstr :5432` | `sudo ss -ltnp \| grep 5432` |
 
 **`ingest` mostra falha ao baixar dados**
-Confira a conexão com a internet e os logs do serviço: `docker compose logs ingest`. CATMAT preserva o cache de páginas em `dados/catmat/cache_catmat_json`, que pode ser reutilizado na próxima execução.
+Confira a conexão com a internet e os logs do serviço: `docker compose logs ingest`. As respostas são gravadas diretamente nas tabelas `raw.estoque` e `raw.catmat`; não é necessário montar uma pasta local de dados.
 
 **`ingest` sai com código diferente de zero**
 Confira a mensagem do serviço `ingest`; a etapa seguinte (`transformar`) só é executada após a carga terminar com sucesso.
@@ -310,7 +306,7 @@ Rode com `--build` para reconstruir a imagem: `docker compose up --build`.
 | Item | Situação |
 |---|---|
 | Banco PostgreSQL em Docker | ✅ |
-| Migrações versionadas (Flyway) | ✅ `V1__esquema_inicial.sql`, `V2__semantica_pgvector.sql`, `V3__semantica_sem_indice_hnsw.sql`, `V4__semantica_busca_hibrida.sql`, `V5__semantica_revisao_por_material.sql` |
+| Migrações versionadas (Flyway) | ✅ V1–V5 (schema histórico `semantica`), V6 (busca técnica e correspondências) e V7 (checkpoint das compras) |
 | Ingestão idempotente por hash em `raw.estoque` e `raw.catmat`, seguida da transformação dbt | ✅ |
 | Download do estoque e do CATMAT, transformação dbt e candidatos semânticos | ✅ Integrados ao Compose |
 | Camada ouro: fato com grão declarado, dimensões e SCD tipo 2 da correspondência (dbt snapshot) | ✅ [Camada ouro](docs/dados-e-pipeline/camada-ouro.md), [ADR 0007](docs/adr/0007-modelo-estrela-para-comparacao-de-precos.md) |
@@ -319,6 +315,7 @@ Rode com `--build` para reconstruir a imagem: `docker compose up --build`.
 | Orquestração agendada, retry e backfill | ✅ Dagster ([orquestração](docs/dados-e-pipeline/orquestracao.md)) |
 | Painel analítico | ✅ Serviço `painel` (Streamlit, http://localhost:8501) |
 | Compras públicas dos itens CATMAT aprovados (API Compras.gov.br) | ✅ Serviços `compras` e `transformar_ouro`: `raw.compras` → `bronze.compras` → `prata.compra_publica` |
+| Coleta das APIs sem arquivos locais | ✅ Respostas gravadas diretamente em `raw`; checkpoint de consultas de compras no banco |
 | ADR da E1 ([`docs/adr/adr-1.md`](docs/adr/adr-1.md)) | ✅ |
 | Diário ([`docs/gestao/diario/`](docs/gestao/diario/)) | ✅ |
 | Registro de uso de IA ([`docs/gestao/ai-usage.md`](docs/gestao/ai-usage.md)) | ✅ |

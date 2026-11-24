@@ -18,6 +18,8 @@
   - [ADR 5 — Busca semântica com pgvector](adr/0005-busca-semantica-com-pgvector.md)
   - [ADR 6 — Busca híbrida, decisões por agentes e compras](adr/0006-busca-hibrida-e-decisoes-por-agentes.md)
   - [ADR 7 — Modelo estrela, grão e orquestração](adr/0007-modelo-estrela-para-comparacao-de-precos.md)
+  - [ADR 8 — Correspondências na Prata e busca técnica](adr/0008-correspondencia-na-prata-e-busca-tecnica.md)
+  - [ADR 9 — Ingestão direta na raw](adr/0009-ingestao-direta-na-raw.md)
   - [ADR 10 — Camada de métricas em macros dbt](adr/0010-camada-semantica-de-metricas-em-macros-dbt.md)
   - [ADR 11 — ETL reverso por arquivo e tabela](adr/0011-etl-reverso-por-arquivo-e-tabela-com-destino-que-puxa.md)
   - [ADR 12 — LGPD e controle de acesso](adr/0012-governanca-lgpd-e-controle-de-acesso.md)
