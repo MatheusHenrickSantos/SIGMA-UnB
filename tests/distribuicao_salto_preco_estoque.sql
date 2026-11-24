@@ -7,16 +7,22 @@
     comparação com o preço público sem quebrar nenhum tipo.
     Na carga de 10/11/2026 o teste achou 2 casos reais, investigados e
     registrados em seeds/excecoes_qualidade.csv; qualquer outro derruba o build.
+    A chave da exceção usa a DESCRIÇÃO NORMALIZADA do material, não o código
+    (maNNNN): o código é sequencial e muda quando a normalização muda, o que já
+    deixou a exceção obsoleta num banco limpo (ma1216 virou ma1234).
 -#}
 WITH preco_mensal AS (
     SELECT
-        identificador_material,
-        identificador_almoxarifado,
-        MAKE_DATE(ano_de_referencia, mes_de_referencia, 1) AS mes,
-        AVG(preco) AS preco
-    FROM {{ ref('estoque_prata') }}
-    WHERE preco > 0
-    GROUP BY 1, 2, 3
+        material.descricao_normalizada,
+        estoque.identificador_material,
+        estoque.identificador_almoxarifado,
+        MAKE_DATE(estoque.ano_de_referencia, estoque.mes_de_referencia, 1) AS mes,
+        AVG(estoque.preco) AS preco
+    FROM {{ ref('estoque_prata') }} AS estoque
+    INNER JOIN {{ ref('material_prata') }} AS material
+        ON material.identificador_material = estoque.identificador_material
+    WHERE estoque.preco > 0
+    GROUP BY 1, 2, 3, 4
 ),
 
 serie AS (
@@ -35,6 +41,6 @@ WHERE preco_anterior IS NOT NULL
   AND NOT EXISTS (
       SELECT 1 FROM {{ ref('excecoes_qualidade') }} AS excecao
       WHERE excecao.teste = 'distribuicao_salto_preco_estoque'
-        AND excecao.chave = TRIM(serie.identificador_material) || ' '
+        AND excecao.chave = TRIM(serie.descricao_normalizada) || ' | '
             || TRIM(serie.identificador_almoxarifado) || ' ' || TO_CHAR(serie.mes, 'YYYY-MM')
   )
