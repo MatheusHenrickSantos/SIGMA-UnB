@@ -69,8 +69,8 @@ Cada item é uma história: **como** [usuário], **quero** [capacidade], **para*
 | ID | História | Prio | Etapa | Situação |
 |---|---|---|---|---|
 | RF-14 | Como gestor, quero um painel analítico que responda diretamente à pergunta de gestão, sem gráficos que não ajudam a decidir. | Must | E3 | ⏳ |
-| RF-15 | Como gestor, quero que cada métrica (por exemplo, variação de preço e economia potencial) tenha uma definição única e versionada, para que duas telas nunca mostrem valores diferentes. | Must | E4 | ⏳ |
-| RF-16 | Como setor de compras ou almoxarifado, quero receber a lista de materiais com preço acima do mercado em um sistema onde eu aja (tabela lida por uma aplicação, arquivo ou API), para renegociar ou rever a próxima compra. | Must | E4 | ⏳ |
+| RF-15 | Como gestor, quero que cada métrica (por exemplo, variação de preço e economia potencial) tenha uma definição única e versionada, para que duas telas nunca mostrem valores diferentes. | Must | E4 | 🚧 macros/metricas.sql, branch `feat/camada-de-metricas` |
+| RF-16 | Como setor de compras ou almoxarifado, quero receber a lista de materiais com preço acima do mercado em um sistema onde eu aja (tabela lida por uma aplicação, arquivo ou API), para renegociar ou rever a próxima compra. | Must | E4 | 🚧 CSV e tabela com RLS, branch `feat/etl-reverso-e-acesso`; falta evidência de uso por compras |
 | RF-17 | Como gestor, quero exportar os resultados (CSV ou PDF), para levar a análise a reuniões. | Could | E4 | ⏳ |
 
 ---
@@ -111,12 +111,12 @@ Cada item é uma história: **como** [usuário], **quero** [capacidade], **para*
 
 | ID | Requisito | Prio | Etapa | Situação |
 |---|---|---|---|---|
-| RD-21 | Camada semântica de métricas (métricas do dbt ou equivalente), com a definição de cada métrica versionada num único lugar; painel e ETL reverso leem a mesma definição. | Must | E4 | ⏳ |
-| RD-22 | ETL reverso: ao menos uma métrica tratada volta a um sistema operacional, com consumidor e uso declarados, e com política para o destino fora do ar (empurra ou puxa, e com que frequência). | Must | E4 | ⏳ |
-| RD-23 | Catálogo de dados publicado. | Must | E4 | ⏳ |
-| RD-24 | Linhagem da fonte ao consumo: de uma coluna do painel até a fonte pública, passando pelo OLTP e pelas camadas analíticas. | Must | E4 | ⏳ |
-| RD-25 | Análise de LGPD: cada dado pessoal identificado (credores pessoa física, requisições de serviço), a base legal, o prazo de retenção e o mecanismo de descarte; incluir o risco de reidentificação por cruzamento de bases. | Must | E4 | 🚧 credor já está em tabela separada |
-| RD-26 | Controle de acesso demonstrado em ao menos um recorte de linha ou de coluna, com privilégio mínimo (por exemplo, papéis no banco e mascaramento do nome do credor). | Must | E4 | ⏳ |
+| RD-21 | Camada semântica de métricas (métricas do dbt ou equivalente), com a definição de cada métrica versionada num único lugar; painel e ETL reverso leem a mesma definição. | Must | E4 | 🚧 `ouro.metrica_mensal` e `catalogo_metrica`, ADR 0010 |
+| RD-22 | ETL reverso: ao menos uma métrica tratada volta a um sistema operacional, com consumidor e uso declarados, e com política para o destino fora do ar (empurra ou puxa, e com que frequência). | Must | E4 | 🚧 `reverso.alerta_preco_compras` e serviço `exportar`, ADR 0011 |
+| RD-23 | Catálogo de dados publicado. | Must | E4 | 🚧 `docs/governanca/catalogo-gerado.md` (gerado do dbt) |
+| RD-24 | Linhagem da fonte ao consumo: de uma coluna do painel até a fonte pública, passando pelo OLTP e pelas camadas analíticas. | Must | E4 | 🚧 `docs/governanca/catalogo-e-linhagem.md` |
+| RD-25 | Análise de LGPD: cada dado pessoal identificado (credores pessoa física, requisições de serviço), a base legal, o prazo de retenção e o mecanismo de descarte; incluir o risco de reidentificação por cruzamento de bases. | Must | E4 | 🚧 `docs/governanca/lgpd.md`, V12; base legal a confirmar com o DPO |
+| RD-26 | Controle de acesso demonstrado em ao menos um recorte de linha ou de coluna, com privilégio mínimo (por exemplo, papéis no banco e mascaramento do nome do credor). | Must | E4 | 🚧 V11, RLS e permissão por coluna (`docs/governanca/acesso.md`); painel ainda conecta como dono |
 
 ---
 
@@ -127,8 +127,8 @@ Cada item é uma história: **como** [usuário], **quero** [capacidade], **para*
 | RNF-01 | Tudo sobe do zero com um único `docker compose up --build`, em Windows e Linux. | Must | todas | ✅ (E1); manter nas demais etapas |
 | RNF-02 | Reprodutibilidade: outra pessoa clona o repositório e obtém o mesmo resultado, com instruções no README. | Must | todas | 🚧 |
 | RNF-03 | Cada Entrega marcada com uma tag no repositório público (`e2`, `e3`, `e4`). | Must | todas | 🚧 só `e1` |
-| RNF-04 | Portfólio completo de 5 ADRs, cada um com a opção nula considerada, uma medição e gatilhos de revisão; reler os anteriores a cada Entrega para ver se algum gatilho disparou. | Must | E4 | 🚧 só o ADR 1 |
-| RNF-05 | Diário de bordo semanal e registro de uso de IA mantidos durante o trabalho, com retrospectiva do ciclo no fim. | Must | todas | 🚧 diário ainda é o modelo em branco |
+| RNF-04 | Portfólio completo de 5 ADRs, cada um com a opção nula considerada, uma medição e gatilhos de revisão; reler os anteriores a cada Entrega para ver se algum gatilho disparou. | Must | E4 | 🚧 12 ADRs; revisão em `docs/adr/revisao-dos-gatilhos.md`; 0002, 0008 e 0009 incompletos |
+| RNF-05 | Diário de bordo semanal e registro de uso de IA mantidos durante o trabalho, com retrospectiva do ciclo no fim. | Must | todas | 🚧 retrospectiva em `docs/gestao/diario/retrospectiva-e4.md` |
 | RNF-06 | Documentação publicada (Docsify), com diagramas de arquitetura, modelo e dicionário de dados. | Must | todas | ✅ |
 | RNF-07 | Defesa de 20 minutos com arguição, que sirva ao público técnico (como a métrica é calculada e por que naquela granularidade) e ao de gestão (o que a plataforma permite decidir que antes não se decidia). | Must | E4 | ⏳ |
 | RNF-08 | Carga mensal em até 5 minutos (meta do ADR 1). | Should | E3 | ⏳ |

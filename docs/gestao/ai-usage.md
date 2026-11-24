@@ -90,6 +90,15 @@ o hábito de rodar um comando por vez e salvar saídas em arquivo (> medicao.txt
 - **Quem revisou:** Magno Luiz
 
 
+### 2026-11-24 — revisão do pipeline e da camada semântica, confiabilidade, painel e governança da E4
+
+- **Ferramenta:** Claude Code (claude-sonnet-5-5), em modo agente na máquina de magnluiz
+- **Onde:** `docker-compose.yml` e `codigos/semantica/` (`validacao.py`, `__main__.py`), `macros/metricas.sql`, `models/ouro/` (`qualidade_dados`, `resumo_correspondencia`, `metrica_mensal`, `catalogo_metrica`), `models/reverso/`, `db/migrations/V11` e `V12`, `codigos/reverso/`, `codigos/gerar_catalogo.py`, `painel/`, `docs/governanca/`, `docs/adr/0010` a `0012` e `revisao-dos-gatilhos.md`, `docs/gestao/diario/retrospectiva-e4.md`
+- **O que foi pedido:** revisar a camada semântica e a ordem do pipeline, analisar a confiabilidade dos dados, expandir o painel com a paleta da UnB e preparar a E4 (camada de métricas, ETL reverso, catálogo e linhagem, LGPD, controle de acesso, ADRs e retrospectiva)
+- **O que foi aproveitado:** [a preencher pela Squad depois da revisão]
+- **Como foi verificado:** dbt `build` num PostgreSQL local com o estoque real (39 arquivos) e compras e correspondências **sintéticas** (só para exercitar o painel); testes de acesso com usuários do banco; teste do painel na imagem Docker. Medição de fornecedor na API pública (60 códigos). A análise de confiabilidade do estoque usa os arquivos reais; a de compras e correspondência não foi medida com a carga real nesta rodada. Os textos de LGPD e dos ADRs são rascunhos que a Squad precisa validar
+- **Quem revisou:** [pendente]
+
 ### AAAA-MM-DD — [o que estava sendo feito]
 
 - **Ferramenta:**

@@ -7,6 +7,7 @@
 - Gestão e acompanhamento
   - [Modelo de ADR](gestao/adr-template.md)
   - [Diário de bordo](gestao/diario/README.md)
+  - [Retrospectiva da E4](gestao/diario/retrospectiva-e4.md)
   - [Backlog do produto](gestao/backlog.md)
   - [Uso de IA](gestao/ai-usage.md)
 - Registro de Decisão Arquitetural (ADR)
@@ -17,6 +18,10 @@
   - [ADR 5 — Busca semântica com pgvector](adr/0005-busca-semantica-com-pgvector.md)
   - [ADR 6 — Busca híbrida, decisões por agentes e compras](adr/0006-busca-hibrida-e-decisoes-por-agentes.md)
   - [ADR 7 — Modelo estrela, grão e orquestração](adr/0007-modelo-estrela-para-comparacao-de-precos.md)
+  - [ADR 10 — Camada de métricas em macros dbt](adr/0010-camada-semantica-de-metricas-em-macros-dbt.md)
+  - [ADR 11 — ETL reverso por arquivo e tabela](adr/0011-etl-reverso-por-arquivo-e-tabela-com-destino-que-puxa.md)
+  - [ADR 12 — LGPD e controle de acesso](adr/0012-governanca-lgpd-e-controle-de-acesso.md)
+  - [Revisão dos gatilhos](adr/revisao-dos-gatilhos.md)
 - Modelagem
   - [Diagrama de Arquitetura](modelagem/diagrama-de-arquitetura.md)
   - [Dicionário de Dados](modelagem/dicionario-de-dados.md)
@@ -25,6 +30,12 @@
 - Dados e pipeline
   - [Caracterização da carga](dados-e-pipeline/caracterizacao-da-carga.md)
   - [Confiabilidade dos dados](dados-e-pipeline/confiabilidade.md)
+  - [Consumo e ETL reverso](dados-e-pipeline/consumo-e-etl-reverso.md)
+- Governança
+  - [Catálogo e linhagem](governanca/catalogo-e-linhagem.md)
+  - [Catálogo gerado do dbt](governanca/catalogo-gerado.md)
+  - [Análise de LGPD](governanca/lgpd.md)
+  - [Controle de acesso](governanca/acesso.md)
   - [Pipeline e camadas](dados-e-pipeline/arquitetura-em-camadas.md)
   - [Consultas](dados-e-pipeline/consultas.md)
   - [Busca semântica (CATMAT)](dados-e-pipeline/semantica.md)
