@@ -206,15 +206,41 @@ aba_geral, aba_precos, aba_busca, aba_almox, aba_serie, aba_qualidade, aba_revis
 
 # --- Visão geral -----------------------------------------------------------
 with aba_geral:
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Materiais em estoque", inteiro(len(base)))
-    c2.metric("Com item CATMAT", inteiro(len(com_item)),
-              f"{len(com_item) / max(len(base), 1):.0%} dos materiais", delta_color="off")
-    c3.metric("Com preço público", inteiro(len(com_preco)),
-              f"{len(com_preco) / max(len(base), 1):.0%} dos materiais", delta_color="off")
-    c4.metric("Valor comparável",
-              f"{com_preco['valor_estoque'].sum() / valor_total:.1%}" if valor_total else "-",
-              f"de {reais(valor_total)} em estoque", delta_color="off")
+    # Todos os KPIs vêm da camada de métricas (ouro.metrica_mensal): a fórmula
+    # fica em macros/metricas.sql e este painel não recalcula nada.
+    if existe("ouro.metrica_mensal"):
+        todas = consultar("SELECT metrica, almoxarifado, valor FROM ouro.metrica_mensal WHERE mes_referencia = %s",
+                          (mes,))
+        escopo = escolhidos[0] if len(escolhidos) == 1 else "TODOS"
+        if 1 < len(escolhidos) < len(almoxarifados):
+            st.caption("KPIs de todos os almoxarifados; para comparar só alguns, use a aba Almoxarifados.")
+        m = {r.metrica: float(r.valor) for r in todas[todas["almoxarifado"] == escopo].itertuples()
+             if r.valor is not None}
+
+        def kpi(coluna, rotulo, nome, formato):
+            coluna.metric(rotulo, "-" if nome not in m else formato(m[nome]))
+
+        c1, c2, c3, c4 = st.columns(4)
+        kpi(c1, "Materiais em estoque", "materiais_em_estoque", inteiro)
+        kpi(c2, "Com item CATMAT", "cobertura_item_catmat_pct", lambda v: f"{v:.0f}%")
+        kpi(c3, "Com preço público", "cobertura_preco_publico_pct", lambda v: f"{v:.0f}%")
+        kpi(c4, "Valor comparável", "valor_comparavel_pct", lambda v: f"{v:.1f}%")
+        d1, d2, d3, d4 = st.columns(4)
+        kpi(d1, "Valor em estoque", "valor_estoque", reais)
+        kpi(d2, "Economia potencial", "economia_potencial", reais)
+        kpi(d3, "Materiais acima do limiar", "materiais_acima_do_limiar", inteiro)
+        kpi(d4, "Diferença mediana", "diferenca_pct_mediana", lambda v: f"{v:+.1f}%")
+        with st.expander("Como cada métrica é definida"):
+            st.caption("Definições versionadas em macros/metricas.sql; este painel, o registro de qualidade "
+                       "e o ETL reverso usam as mesmas.")
+            st.dataframe(
+                consultar("SELECT metrica AS \"Métrica\", unidade AS \"Unidade\", versao AS \"Versão\", "
+                          "descricao AS \"Definição\", formula AS \"Fórmula (SQL)\" "
+                          "FROM ouro.catalogo_metrica ORDER BY tipo, metrica"),
+                hide_index=True, width="stretch",
+            )
+    else:
+        st.info("ouro.metrica_mensal ainda não existe: rode o transformar_ouro.")
 
     if tem_qualidade:
         q = consultar("SELECT situacao, count(*) AS n FROM ouro.qualidade_dados GROUP BY 1")

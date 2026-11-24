@@ -52,3 +52,7 @@ vars:
   # que passa a janela a codigos/inserir/baixar_compras.py.
   compras_inicio: "{{ env_var('COMPRAS_INICIO', '2025-07-01') }}"
   compras_fim: "{{ env_var('COMPRAS_FIM', '2025-12-31') }}"
+
+  # Parâmetros de negócio das métricas (ver macros/metricas.sql).
+  minimo_compras_referencia: 5
+  limiar_diferenca_pct: 30

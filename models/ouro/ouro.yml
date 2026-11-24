@@ -166,3 +166,34 @@ models:
         data_tests:
           - accepted_values:
               arguments: {values: ['pessoa', 'agente', 'sem_decisao']}
+
+  - name: metrica_mensal
+    description: >
+      Camada semântica de métricas: uma linha por (métrica, mês, almoxarifado),
+      com almoxarifado = 'TODOS' para o total. As fórmulas moram em
+      macros/metricas.sql, versionadas; painel, qualidade_dados e ETL reverso
+      leem daqui e nenhum recalcula.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [metrica, mes_referencia, almoxarifado]
+    columns:
+      - name: metrica
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('catalogo_metrica')
+                field: metrica
+      - name: unidade
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['R$', 'materiais', '%']}
+      - name: versao_definicao
+        data_tests: [not_null]
+
+  - name: catalogo_metrica
+    description: Definição de cada métrica (nome, tipo, unidade, versão, descrição e fórmula).
+    columns:
+      - name: metrica
+        data_tests: [not_null, unique]

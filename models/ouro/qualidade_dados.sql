@@ -26,6 +26,15 @@ fato AS (
     INNER JOIN ultimo_mes ON ultimo_mes.mes = fato.mes_referencia
 ),
 
+-- Métricas já definidas na camada semântica (macros/metricas.sql): a qualidade
+-- as lê em vez de recalcular, para o painel e este registro nunca divergirem.
+metrica AS (
+    SELECT metrica.metrica, metrica.valor
+    FROM {{ ref('metrica_mensal') }} AS metrica
+    INNER JOIN ultimo_mes ON ultimo_mes.mes = metrica.mes_referencia
+    WHERE metrica.almoxarifado = 'TODOS'
+),
+
 -- ---------------------------------------------------------------- estoque
 estoque_bronze AS (
     SELECT
@@ -184,20 +193,20 @@ medidas AS (
     UNION ALL
     SELECT 'comparacao_cobertura_preco_publico_pct', 'Comparação',
         'Materiais com item CATMAT equivalente que têm preço público na janela (último mês).',
-        100.0 * com_preco / NULLIF(com_item, 0), 70, 40, 'min', '%'
-    FROM comparaveis
+        valor, 70, 40, 'min', '%'
+    FROM metrica WHERE metrica = 'cobertura_preco_publico_pct'
 
     UNION ALL
     SELECT 'comparacao_valor_comparavel_pct', 'Comparação',
         'Parte do valor do estoque (último mês) que tem preço público para comparar.',
-        100.0 * valor_comparavel / NULLIF(valor, 0), 60, 30, 'min', '%'
-    FROM comparaveis
+        valor, 60, 30, 'min', '%'
+    FROM metrica WHERE metrica = 'valor_comparavel_pct'
 
     UNION ALL
     SELECT 'comparacao_referencia_com_poucas_compras_pct', 'Comparação',
-        'Comparações cuja mediana pública vem de menos de 5 compras.',
-        100.0 * com_poucas_compras / NULLIF(com_preco, 0), 25, 50, 'max', '%'
-    FROM comparaveis
+        'Comparações cuja mediana pública vem de menos compras que o mínimo da referência (definição em macros/metricas.sql).',
+        valor, 25, 50, 'max', '%'
+    FROM metrica WHERE metrica = 'referencia_com_poucas_compras_pct'
 
     UNION ALL
     SELECT 'comparacao_diferenca_extrema_pct', 'Comparação',
