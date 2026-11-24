@@ -6,7 +6,7 @@
 
 ## Contexto
 
-A API de pesquisa de preços devolve, em cada compra pública, o CNPJ ou CPF e o nome do fornecedor. Medimos 60 códigos CATMAT sorteados: 408 registros, **todos CNPJ (14 dígitos), nenhum CPF**, mas empresário individual e MEI têm o nome da pessoa no nome empresarial, e a amostra não prova a ausência de CPF. A análise de preço não usa esses campos. Além deles há nomes de revisores e de usuários de acesso. O estoque e o CATMAT não têm dado pessoal.
+A API de pesquisa de preços devolve, em cada compra pública, o CNPJ ou CPF e o nome do fornecedor. Medimos as 41.522 compras reais (2025-07 a 2025-12, 6.908 fornecedores distintos) antes da minimização: **41.489 com CNPJ (14 dígitos), 11 com CPF (11 dígitos) e 22 sem número de 11 ou 14 dígitos**. Uma amostra anterior de 60 códigos (408 registros) só tinha CNPJ e dava a impressão de que não havia CPF. Além disso, empresário individual e MEI têm o nome da pessoa no nome empresarial. A análise de preço não usa esses campos. Além deles há nomes de revisores e de usuários de acesso. O estoque e o CATMAT não têm dado pessoal.
 
 Antes desta decisão, o painel e o pipeline conectavam com um só usuário dono do banco, e o JSON bruto das compras ficava inteiro na raw. Restrições: projeto acadêmico em PostgreSQL, equipe sem DPO próprio, exigência de privilégio mínimo demonstrado em ao menos um recorte.
 
@@ -38,7 +38,7 @@ python codigos/gerar_catalogo.py
 
 | Verificação | Resultado |
 |---|---|
-| Fornecedor em 408 compras (60 códigos) | 408 CNPJ, 0 CPF |
+| Fornecedor em 41.522 compras reais, antes da minimização | 41.489 CNPJ, **11 CPF**, 22 outros; 6.908 distintos |
 | Minimização: arquivo com 2 itens com `niFornecedor` e `nomeFornecedor` | 1 arquivo alterado; depois, 0; segunda execução altera 0 (idempotente); ordem dos itens preservada |
 | `compras_bronze` reconstruída depois da minimização | 8 testes passam |
 | Teste de coluna de fornecedor nas camadas analíticas | passa |
@@ -61,8 +61,8 @@ Escolhemos C. A minimização liga por padrão (`remover_identificacao_fornecedo
 
 ## Gatilho de revisão
 
-- Aparecer **qualquer** `niFornecedor` com 11 dígitos (CPF) na raw antes da minimização: tratar como dado pessoal identificado, revisar a base legal e o prazo com o DPO.
+- Aparecer **qualquer** `niFornecedor` com 11 dígitos (CPF) na raw antes da minimização: tratar como dado pessoal identificado, revisar a base legal e o prazo com o DPO. **Disparou em 24/11/2026** (11 compras com CPF). Efeito: a minimização deixa de ser só preventiva; o DPO precisa confirmar que a remoção feita já na raw é suficiente e se o dump `~/sigma-backups/sigma-real-pre-integracao.dump`, que guarda esses dados, deve ser apagado.
 - A pergunta de gestão passar a exigir o fornecedor (RF-03): reabrir a minimização (reter só o CNPJ de pessoa jurídica, com acesso restrito).
-- O painel for exposto **fora da rede da UnB** ou ganhar login por usuário: mapear linhas por usuário e trocar a conexão do painel para `sigma_painel` (hoje ainda conecta como dono).
+- O painel for exposto **fora da rede da UnB** ou ganhar login por usuário: mapear linhas por usuário e a conexão do painel já usa `sigma_painel_app` (V13).
 - Mais de **20 usuários** com mapeamento por almoxarifado: sair da semente CSV para uma tabela gerida.
 - O encarregado de dados da UnB discordar da base legal ou do prazo: revisar a retenção.

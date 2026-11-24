@@ -20,7 +20,7 @@ Segue o formato do [diário de bordo](gestao/diario-de-bordo.md): o que foi medi
 - **Correspondência material × CATMAT:** 2.306 decisões, **todas de agentes de IA, 0 conferidas por pessoa**. Concordância 80% (119/149), mas os rótulos de referência também são de IA.
 - **Cobertura:** 54% dos materiais e 50,9% do valor do estoque com preço público (carga de 10/11).
 - **Camada de métricas:** 13 métricas, 1 definição cada (antes 3 lugares); ler um mês: 0,085 ms contra 2,7 ms recalculando; construir: 2,7 s.
-- **LGPD:** 408 compras de 60 códigos sorteados, 408 CNPJ e 0 CPF; o JSON bruto trazia o fornecedor, que a análise não usa.
+- **LGPD:** a amostra de 60 códigos (408 compras) só tinha CNPJ, mas a contagem nas 41.522 compras reais achou 11 CPF; o gatilho do ADR 0012 disparou. O JSON bruto trazia o fornecedor, que a análise não usa, e a V12 o remove da raw.
 - **ADRs:** 12 no portfólio, 4 de 7 na `main` ainda "propostos"; ver [revisão dos gatilhos](adr/revisao-dos-gatilhos.md).
 
 ## O que surpreendeu
@@ -65,6 +65,7 @@ Veja o quadro completo em [Revisão dos gatilhos](adr/revisao-dos-gatilhos.md). 
 - [ ] Conferir por pessoas as correspondências de confiança baixa e de maior valor — [a definir]
 - [ ] Confirmar base legal e prazos com o encarregado de dados da UnB — [a definir]
 - [ ] Preencher ou marcar como substituído o ADR 0002; completar 0008 e 0009 — [a definir]
-- [ ] Conectar o painel como `sigma_painel` e apagar `dados/compras_cache` após a carga — [a definir]
+- [x] Painel conectado como `sigma_painel_app` (V13), testado.
+- [ ] Apagar `dados/compras_cache` (páginas brutas da API, com CNPJ/CPF do fornecedor) e o dump de segurança em `~/sigma-backups/` depois de confirmar com o DPO — [a definir]
 - [ ] Combinar com compras um retorno do alerta (conferido, descartado, renegociado) — [a definir]
 - [ ] Integrar a branch `feat/prata-correspondencias-busca-tecnica` com as desta rodada (conflito conhecido em `models/fontes.yml`; as fontes do dbt passam de `semantica` para `busca` e `prata`) — [a definir]

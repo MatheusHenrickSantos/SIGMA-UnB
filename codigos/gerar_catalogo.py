@@ -17,7 +17,7 @@ from collections import defaultdict
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
-CAMADAS = ["raw", "bronze", "prata", "semantica", "ouro", "reverso"]
+CAMADAS = ["raw", "bronze", "prata", "busca", "ouro", "reverso"]
 
 
 def camada(no: dict) -> str:

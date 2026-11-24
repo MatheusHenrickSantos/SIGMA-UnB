@@ -61,12 +61,12 @@ Um `SELECT` que grava numa tabela que ninguém lê não é ETL reverso. **Não h
 
 ## Medições {#medicoes}
 
-Banco de teste local com o **estoque real** (39 arquivos, 39.182 linhas no fato) e **compras e correspondências sintéticas** para 680 materiais (a carga real do CATMAT e das compras não rodou nesta medição). Os números mostram custo e forma, **não** o resultado de gestão.
+Medido em 24/11/2026 no **banco real** (estoque de 39 arquivos, 39.176 linhas no fato; CATMAT completo; compras de 2025-07 a 2025-12 com 41.522 registros). Os números mostram custo e forma. Os de "recalcular no fato" vêm do banco de teste anterior (39.182 linhas no fato, praticamente o mesmo tamanho) e não foram repetidos.
 
 | Medida | Resultado |
 |---|---|
-| Construir `ouro.metrica_mensal` (1.521 linhas) | 2,7 s |
-| Ler os KPIs de um mês: recalcular no fato × ler `metrica_mensal` | 2,7 ms × 0,085 ms |
-| Série de todos os meses: recalcular no fato × ler `metrica_mensal` | 24,5 ms × 0,080 ms |
-| Exportar 91 alertas para CSV | 0,14 s |
-| Alertas × `materiais_alertados` × `economia_potencial` | 91 = 91; R$ 21.476 × R$ 21.475,51 (teste passa) |
+| Construir `ouro.metrica_mensal` (1.521 linhas) | 0,19 s (dbt, banco real) |
+| Ler os KPIs de um mês: recalcular no fato × ler `metrica_mensal` | 2,7 ms (teste) × 0,23 ms (real) |
+| Série de todos os meses: recalcular no fato × ler `metrica_mensal` | 24,5 ms (teste) × 0,14 ms (real) |
+| Exportar 18 alertas para CSV | 0,7 s, com a partida do contêiner |
+| Alertas × `materiais_alertados` × `economia_potencial` | 18 = 18; R$ 44.405,42 nos dois (teste de consistência passa) |

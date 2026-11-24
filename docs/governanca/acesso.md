@@ -8,7 +8,7 @@ Os papéis são grupos (`NOLOGIN`). Cada pessoa ou aplicação tem o seu usuári
 
 | Papel | Quem | Enxerga | Não enxerga |
 |---|---|---|---|
-| `sigma_painel` | O painel (Streamlit) | Schema `ouro`, só leitura | `raw`, `bronze`, `prata`, `semantica`, `reverso` |
+| `sigma_painel` | O painel (Streamlit) | Schema `ouro`, só leitura | `raw`, `bronze`, `prata`, `busca`, `reverso` |
 | `sigma_compras` | Setor de compras | Todas as linhas de `reverso.alerta_preco_compras` | A coluna `justificativa_agente` (**recorte de coluna**); qualquer outro schema |
 | `sigma_almoxarifado` | Chefias de almoxarifado | Só as linhas dos almoxarifados que o seu usuário tem em `reverso.acesso_almoxarifado` (**recorte de linha, RLS**) | A coluna `justificativa_agente`; qualquer outro schema |
 

@@ -116,7 +116,7 @@ Cada item é uma história: **como** [usuário], **quero** [capacidade], **para*
 | RD-23 | Catálogo de dados publicado. | Must | E4 | 🚧 `docs/governanca/catalogo-gerado.md` (gerado do dbt) |
 | RD-24 | Linhagem da fonte ao consumo: de uma coluna do painel até a fonte pública, passando pelo OLTP e pelas camadas analíticas. | Must | E4 | 🚧 `docs/governanca/catalogo-e-linhagem.md` |
 | RD-25 | Análise de LGPD: cada dado pessoal identificado (credores pessoa física, requisições de serviço), a base legal, o prazo de retenção e o mecanismo de descarte; incluir o risco de reidentificação por cruzamento de bases. | Must | E4 | 🚧 `docs/governanca/lgpd.md`, V12; base legal a confirmar com o DPO |
-| RD-26 | Controle de acesso demonstrado em ao menos um recorte de linha ou de coluna, com privilégio mínimo (por exemplo, papéis no banco e mascaramento do nome do credor). | Must | E4 | 🚧 V11, RLS e permissão por coluna (`docs/governanca/acesso.md`); painel ainda conecta como dono |
+| RD-26 | Controle de acesso demonstrado em ao menos um recorte de linha ou de coluna, com privilégio mínimo (por exemplo, papéis no banco e mascaramento do nome do credor). | Must | E4 | 🚧 V11, RLS e permissão por coluna (`docs/governanca/acesso.md`); painel conecta como `sigma_painel_app` (V13) |
 
 ---
 

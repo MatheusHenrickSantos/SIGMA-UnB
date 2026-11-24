@@ -36,7 +36,7 @@ Detalhes que costumam ser esquecidos:
 | **Preço público (mediana)** | `fato_comparacao_preco.preco_publico_mediano` | `PERCENTILE_CONT(0,5)` de `compra_publica.preco_unitario` dos itens equivalentes | `prata.compra_publica` ← `bronze.compras` | `precoUnitario` da API de pesquisa de preços |
 | **Diferença (%)** | `fato.diferenca_pct` | `(preco_estoque ÷ preco_publico_mediano − 1) × 100` | idem | idem |
 | **Confiabilidade (selos)** | `ouro.qualidade_dados` | verificações com limites; as de comparação leem `metrica_mensal` | `bronze`, `prata`, `dim_tempo`, snapshot | todas |
-| **Fila de conferência** | `ouro.resumo_correspondencia` | decisão vigente + valor em estoque do último mês | `semantica.revisao_*`, `candidato_catmat` | decisões de agentes (`decisoes_agentes.csv`) e de pessoas |
+| **Fila de conferência** | `ouro.resumo_correspondencia` | decisão vigente + valor em estoque do último mês | `prata.revisao_*`, `prata.candidato_catmat` | decisões de agentes (`decisoes_agentes.csv`) e de pessoas |
 
 ## Como reproduzir e manter
 

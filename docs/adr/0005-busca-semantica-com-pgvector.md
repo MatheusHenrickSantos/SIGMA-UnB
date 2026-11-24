@@ -5,7 +5,7 @@
 > descreve o desenho vigente quando este ADR foi escrito; a camada semântica
 > analítica continua reservada para depois da Ouro.
 
-- **Status:** proposto (falta a revisão da Squad e a medição com vetores reais; ver *Gatilho de revisão*)
+- **Status:** proposto (falta a revisão da Squad; a medição com vetores reais foi feita em 24/11/2026, ver *Medição com vetores reais*)
 - **Data:** 2026-11-08
 - **Decisores:** [a definir pela Squad] — proposta preparada com assistente de IA (ver [Uso de IA](../ai-usage.md))
 
@@ -173,11 +173,24 @@ recalculado (~30 min), **exceto** `revisao_correspondencia`, que deve ser
 exportada antes. Voltar ao índice HNSW é uma migração com o comando de
 `correspondencia.SQL_INDICE_HNSW` (~3–4 min para construir).
 
+## Medição com vetores reais
+
+Feita em 24/11/2026 depois da carga real (`python medir_adr0005.py real --amostra 100`, mesmo PostgreSQL/pgvector, 100 materiais sorteados, top-10): 251.062 vetores CATMAT do modelo e5-small, índice HNSW temporário (m=16, ef_construction=64) criado só para a medição e apagado no fim. No contêiner foi preciso desligar o paralelismo da construção (`max_parallel_maintenance_workers = 0`), porque o `/dev/shm` de 64 MB do Docker não comporta a construção paralela.
+
+| Alternativa | Latência por consulta (mediana / p95) | Recall@10 |
+|---|---|---|
+| B — busca exata (a usada pelo pipeline) | 69,4 / 71,9 ms | 1 (exata) |
+| C — HNSW, ef_search 40 | 0,9 / 3,3 ms | 0,796 |
+| C — HNSW, ef_search 100 | 1,4 / 2,4 ms | 0,909 |
+| C — HNSW, ef_search 200 | 2,2 / 3,9 ms | **0,954** |
+
+Construção do índice: 76 s para 251 mil vetores. O recall com vetores reais é muito melhor que o 0,03–0,10 dos vetores aleatórios (que era o pior caso, como o texto acima já avisava).
+
+**Leitura:** o critério de recall do gatilho 2 (≥ 0,95 com ef_search ≤ 200) agora é atendido, mas os outros critérios de criação do índice não: a busca exata responde em ~70 ms (abaixo dos 100 ms de uma consulta interativa) e o número de consultas por execução continua na casa dos milhares. A decisão de manter a busca exata se mantém; o HNSW passa a ser uma opção medida e pronta para quando um dos outros gatilhos disparar. Não medido nesta rodada: o tempo total da etapa `corresponder` com a carga real.
+
 ## Gatilho de revisão
 
-1. **Medição com vetores reais** (antes de mudar o status para aceito): rodar
-   `medir_adr0005.py real` depois da primeira execução completa e registrar os
-   números aqui.
+1. ~~**Medição com vetores reais**~~ — feita em 24/11/2026 (seção acima). Falta só a revisão da Squad para mudar o status para aceito.
 2. **Criar o índice HNSW** (nova migração) se a etapa `corresponder` passar de
    **30 min**, se o número de consultas por execução passar de **~10 mil**
    (por exemplo, com as descrições de compras públicas) ou se surgir uma

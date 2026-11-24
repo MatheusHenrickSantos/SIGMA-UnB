@@ -184,6 +184,8 @@ def real(conn, amostra: int, k: int) -> None:
         if not tem_indice:
             print(f"  sem índice HNSW: criando {INDICE_TEMPORARIO} só para a medição...")
             conn.execute("SET maintenance_work_mem = '1GB'")
+            # o /dev/shm do contêiner (64 MB) não comporta a construção paralela
+            conn.execute("SET max_parallel_maintenance_workers = 0")
             inicio = time.perf_counter()
             conn.execute(SQL_INDICE_HNSW.format(nome=INDICE_TEMPORARIO))
             print(f"  CREATE INDEX: {time.perf_counter() - inicio:.1f} s")

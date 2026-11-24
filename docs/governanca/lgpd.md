@@ -6,8 +6,8 @@
 
 | Dado | Onde está | Pessoal? | Titular | Medição |
 |---|---|---|---|---|
-| `niFornecedor` (CNPJ ou CPF) e `nomeFornecedor` | `raw.compras` (JSON bruto da API de pesquisa de preços) | **Sim, potencialmente**: empresário individual e MEI têm nome da pessoa no nome empresarial; CPF seria pessoa física | Fornecedor da Administração | 60 códigos CATMAT sorteados, 408 registros: **408 CNPJ (14 dígitos), 0 CPF (11 dígitos)**. Amostra, não prova de ausência de CPF |
-| Nome de quem revisou a correspondência | `semantica.revisao_correspondencia.revisor`, `revisao_material.revisor`, `ouro.resumo_correspondencia.revisor` | Sim (nome da pessoa da Squad) | Membros da Squad | Hoje todas as decisões são `agente:ia`; entra nome quando pessoas conferirem |
+| `niFornecedor` (CNPJ ou CPF) e `nomeFornecedor` | `raw.compras` (JSON bruto da API de pesquisa de preços) | **Sim, potencialmente**: empresário individual e MEI têm nome da pessoa no nome empresarial; CPF seria pessoa física | Fornecedor da Administração | 41.522 compras reais, antes da minimização: **41.489 CNPJ, 11 CPF**, 22 outros; 6.908 fornecedores distintos |
+| Nome de quem revisou a correspondência | `prata.revisao_correspondencia.revisor`, `prata.revisao_material.revisor`, `ouro.resumo_correspondencia.revisor` | Sim (nome da pessoa da Squad) | Membros da Squad | Hoje todas as decisões são `agente:ia`; entra nome quando pessoas conferirem |
 | Nome de usuário de banco | `reverso.acesso_almoxarifado.usuario` e papéis do PostgreSQL | Sim (login) | Chefias de almoxarifado e compras | 2 usuários de exemplo na semente |
 | Estoque (material, almoxarifado, saldo, preço) | `raw.estoque` e camadas seguintes | Não | — | Nenhuma coluna de pessoa nos 39 arquivos mensais (06/2021 a 12/2025) |
 | CATMAT | `raw.catmat` | Não | — | Catálogo de itens |
@@ -55,4 +55,4 @@ Duas bases anonimizadas podem reidentificar quem nenhuma identificava sozinha. O
 
 - Confirmar a base legal e os prazos com o DPO da UnB.
 - Automatizar o descarte do cache em disco (`dados/compras_cache`).
-- Amostra maior para confirmar a ausência de CPF: depois da carga completa, contar `length(regexp_replace(niFornecedor,'\D','','g')) = 11` **antes** de executar a minimização (a função apaga a evidência).
+- Feito em 24/11/2026: a contagem completa achou 11 CPF (gatilho do ADR 0012). Falta o DPO confirmar a base legal e decidir o destino do dump de segurança que ainda guarda esses dados.

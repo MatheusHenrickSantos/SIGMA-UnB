@@ -1,6 +1,6 @@
 # 0010 — Definir as métricas em macros dbt, materializadas numa tabela, em vez de métricas MetricFlow ou SQL em cada consumidor
 
-- **Status:** proposto (falta a revisão da Squad e a medição com a carga real)
+- **Status:** proposto (falta a revisão da Squad; medição com a carga real feita em 24/11/2026)
 - **Data:** 2026-11-24
 - **Decisores:** [a definir pela Squad] — proposta preparada com assistente de IA (ver [Uso de IA](../gestao/ai-usage.md))
 
@@ -32,7 +32,7 @@ Simples, e a divergência volta: cada visão é uma fórmula que ninguém compar
 
 ## Medição
 
-Banco local com estoque real e compras sintéticas (a carga real das compras ainda não rodou; os tempos dependem do volume do fato, não do conteúdo das compras).
+Banco real em 24/11/2026 (fato com 39.176 linhas). Construir `metrica_mensal` levou 0,19 s; ler os KPIs de um mês, 0,23 ms; a série inteira, 0,14 ms. Os tempos de recalcular no fato vêm do banco de teste anterior, de tamanho equivalente.
 
 Como reproduzir:
 
@@ -67,4 +67,4 @@ Escolhemos C: métricas em `macros/metricas.sql`, materializadas em `ouro.metric
 - Migrar para MetricFlow (alternativa B) se o painel precisar de uma dimensão que não está materializada em **mais de 3 perguntas por semestre**, ou se as métricas passarem de **25**.
 - Reavaliar a materialização se `metrica_mensal` levar mais de **60 s** para construir ou o fato passar de **5 milhões de linhas**.
 - Reabrir se o teste de consistência falhar por **duas cargas seguidas** (as definições passaram a divergir apesar da camada).
-- Registrar a medição com a carga real (CATMAT e compras completos) e mudar o status para aceito.
+- ~~Registrar a medição com a carga real~~ (feita em 24/11/2026); falta a revisão da Squad para mudar o status para aceito.

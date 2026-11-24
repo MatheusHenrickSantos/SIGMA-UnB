@@ -39,9 +39,9 @@ Modelos, sementes e snapshots: **26**. Fontes (tabelas escritas fora do dbt): **
 | `fato_comparacao_preco` | model | GRÃO: uma linha por material, por almoxarifado, por mês de referência publicado. Preço registrado no estoque comparado com a mediana do preço das compras públicas dos itens CATMAT equivalentes (versão da correspondência … | 9 | `estoque_prata`, `dim_material`, `compra_publica_prata` | `alerta_preco_compras`, `metrica_mensal`, `monitor_atualizacao`, `qualidade_dados`, `resumo_correspondencia` |
 | `metrica_mensal` | model | Camada semântica de métricas: uma linha por (métrica, mês, almoxarifado), com almoxarifado = 'TODOS' para o total. As fórmulas moram em macros/metricas.sql, versionadas; painel, qualidade_dados e ETL reverso leem daqui e… | 0 | `fato_comparacao_preco`, `dim_almoxarifado`, `dim_material` | `alerta_preco_compras`, `qualidade_dados` |
 | `monitor_atualizacao` | model | Métrica de freshness e SLA das tabelas de consumo. Uma linha por tabela: último dado disponível, atraso em dias e situação diante do SLA declarado. | 0 | `fato_comparacao_preco`, `compra_publica_prata` | `qualidade_dados` |
-| `qualidade_dados` | model | Registro de confiabilidade: uma linha por verificação (estoque, compras públicas, comparação e correspondência CATMAT) com valor medido, limites e situação (ok, atencao, critico, sem_dado). Não derruba o build; mede o qu… | 0 | `semantica.revisao_correspondencia`, `semantica.candidato_catmat`, `semantica.execucao_correspondencia`, `semantica.descricao`, `fato_comparacao_preco`, `metrica_mensal`, `estoque_bronze`, `estoque_prata`, `dim_tempo`, `compra_publica_prata`, `dim_material`, `monitor_atualizacao` | — |
-| `resumo_correspondencia` | model | Uma linha por material (versão vigente): tipo de revisor, confiança, itens CATMAT, melhor candidato da busca, valor em estoque e prioridade de revisão. | 0 | `semantica.revisao_material`, `semantica.descricao`, `semantica.execucao_correspondencia`, `semantica.candidato_catmat`, `fato_comparacao_preco`, `dim_material` | `alerta_preco_compras` |
-| `snap_correspondencia_material` | snapshot | — | 0 | `semantica.descricao`, `semantica.revisao_correspondencia`, `semantica.revisao_material` | `dim_material` |
+| `qualidade_dados` | model | Registro de confiabilidade: uma linha por verificação (estoque, compras públicas, comparação e correspondência CATMAT) com valor medido, limites e situação (ok, atencao, critico, sem_dado). Não derruba o build; mede o qu… | 0 | `busca.execucao_correspondencia`, `prata_operacional.candidato_catmat`, `prata_operacional.revisao_correspondencia`, `busca.descricao`, `fato_comparacao_preco`, `metrica_mensal`, `estoque_bronze`, `estoque_prata`, `dim_tempo`, `compra_publica_prata`, `dim_material`, `monitor_atualizacao` | — |
+| `resumo_correspondencia` | model | Uma linha por material (versão vigente): tipo de revisor, confiança, itens CATMAT, melhor candidato da busca, valor em estoque e prioridade de revisão. | 0 | `busca.execucao_correspondencia`, `prata_operacional.candidato_catmat`, `prata_operacional.revisao_material`, `busca.descricao`, `fato_comparacao_preco`, `dim_material` | `alerta_preco_compras` |
+| `snap_correspondencia_material` | snapshot | — | 0 | `busca.descricao`, `prata_operacional.revisao_correspondencia`, `prata_operacional.revisao_material` | `dim_material` |
 
 ## Camada `reverso`
 
@@ -54,13 +54,13 @@ Modelos, sementes e snapshots: **26**. Fontes (tabelas escritas fora do dbt): **
 
 | Fonte | Descrição |
 |---|---|
+| `busca.descricao` | — |
+| `busca.embedding` | — |
+| `busca.execucao_correspondencia` | — |
+| `busca.modelo_embedding` | — |
+| `prata_operacional.candidato_catmat` | — |
+| `prata_operacional.revisao_correspondencia` | — |
+| `prata_operacional.revisao_material` | — |
 | `raw.catmat` | — |
 | `raw.compras` | — |
 | `raw.estoque` | — |
-| `semantica.candidato_catmat` | — |
-| `semantica.descricao` | — |
-| `semantica.embedding` | — |
-| `semantica.execucao_correspondencia` | — |
-| `semantica.modelo_embedding` | — |
-| `semantica.revisao_correspondencia` | — |
-| `semantica.revisao_material` | — |

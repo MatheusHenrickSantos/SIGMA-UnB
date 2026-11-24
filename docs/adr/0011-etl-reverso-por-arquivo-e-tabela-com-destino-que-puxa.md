@@ -30,7 +30,7 @@ Acopla o destino ao nosso esquema e ao nosso banco; descartada.
 
 ## Medição
 
-Banco local com estoque real e compras sintéticas (a carga real das compras não rodou nesta medição; mede forma e custo, não a lista final).
+Banco real em 24/11/2026 (estoque, CATMAT e compras de 2025-07 a 2025-12). Mede forma e custo; **a lista de 18 alertas ainda não foi conferida por pessoa**, porque nenhuma correspondência foi (ver `qualidade_dados`).
 
 ```bash
 docker compose run --rm exportar            # CSV + manifesto
@@ -39,7 +39,7 @@ dbt test --select consistencia_metricas_e_alertas
 
 | Alternativa | Custo medido | Se o destino cai | Acoplamento |
 |---|---|---|---|
-| A — CSV | 0,14 s para 91 linhas; arquivo de poucos KB | Nada se perde: regrava o mesmo nome | Nenhum |
+| A — CSV | 0,7 s para 18 linhas (com a partida do contêiner); arquivo de poucos KB | Nada se perde: regrava o mesmo nome | Nenhum |
 | B — tabela com RLS | leitura direta; sem etapa extra | Nada se perde: a tabela é a fonte | Usuário de banco por consumidor |
 | C — push | não medido (sem destino) | Precisa de reenvio e idempotência | Alto |
 
