@@ -15,3 +15,13 @@
     {% do run_query(sql) %}
   {% endif %}
 {% endmacro %}
+
+{#- LGPD, minimização: depois de construir bronze.compras, remove da raw o CNPJ/CPF
+    e o nome do fornecedor (V12). Desligue com remover_identificacao_fornecedor: false. -#}
+{% macro remover_identificacao_fornecedor() -%}
+{%- if var('remover_identificacao_fornecedor', true) -%}
+SELECT raw.remover_identificacao_fornecedor()
+{%- else -%}
+SELECT 1
+{%- endif -%}
+{%- endmacro %}

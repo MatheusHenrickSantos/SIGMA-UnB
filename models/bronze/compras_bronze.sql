@@ -1,7 +1,8 @@
 {{ config(
     materialized = 'table',
     schema = 'bronze',
-    alias = 'compras'
+    alias = 'compras',
+    post_hook = "{{ remover_identificacao_fornecedor() }}"
 ) }}
 
 {#-

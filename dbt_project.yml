@@ -62,3 +62,6 @@ vars:
   # Parâmetros de negócio das métricas (ver macros/metricas.sql).
   minimo_compras_referencia: 5
   limiar_diferenca_pct: 30
+
+  # LGPD: remove o CNPJ/CPF e o nome do fornecedor de raw.compras depois da bronze (V12).
+  remover_identificacao_fornecedor: true
