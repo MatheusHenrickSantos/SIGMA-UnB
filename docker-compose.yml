@@ -41,6 +41,8 @@ services:
       context: ./db
     image: sigma-unb/postgres-pgvector:16
     restart: unless-stopped
+    # Registra conexões e desconexões: sem isso não há como saber quem acessou o banco.
+    command: ["postgres", "-c", "log_connections=on", "-c", "log_disconnections=on"]
     environment:
       POSTGRES_DB: ${NOME_DO_BANCO:-sigma}
       POSTGRES_USER: ${USUARIO_DO_BANCO:-sigma}
