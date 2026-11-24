@@ -33,6 +33,8 @@ Segue o formato do [diário de bordo](gestao/diario-de-bordo.md): o que foi medi
 6. **Trabalho que não chegou à `main`.** CDC, Delta Lake e o ADR 2 reais estão na `e2-entrega`; o ADR 0002 da `main` é o modelo em branco. A decisão foi superada (ouro em PostgreSQL) sem registro.
 7. **O estoque some e volta.** 29% dos meses não foram publicados; a queda de 11/2022 segue sem explicação.
 
+8. **Uma carga do zero achou o que o banco em uso escondia (24/11/2026).** O banco real vinha de builds incrementais e parecia saudável (162 testes ok), mas a `prata.estoque` tinha 35.458 linhas contra 39.183 na bronze. A refatoração de normalização mudou as descrições, mas `prata.material` é incremental e manteve a numeração antiga. Subir tudo do zero com os mesmos dados revelou três defeitos que só existiam em banco limpo: (a) as exceções de qualidade usavam o código sequencial (`ma1216`, hoje `ma1234`) e quebravam o teste; (b) as 236 decisões dos agentes, chaveadas pelo texto normalizado antigo, deixaram de casar e 10% dos materiais ficaram sem decisão; (c) os dois erros se escondiam porque ninguém reconstruía o banco. Corrigidos: exceções chaveadas pela descrição, decisões remapeadas pela seed antiga → nova (2.306 de 2.306, sem ambiguidade). O banco limpo reproduz as métricas do antigo (fato 39.176, 18 alertas, R$ 44.405,42), então as medições dos ADRs continuam válidas.
+
 ## O que foi decidido
 
 | Decisão | Onde |
@@ -57,6 +59,8 @@ Veja o quadro completo em [Revisão dos gatilhos](adr/revisao-dos-gatilhos.md). 
 - **Começar a governança antes.** LGPD, acesso e linhagem dependem de decisões da raw: o fornecedor ficou lá sem decisão explícita, e a minimização de agora é irreversível. Decidir na E3 evitaria isso.
 - **Rotular uma amostra por pessoas na E3**, não por IA. Sem isso, os gatilhos do 0006 não são avaliáveis e a correspondência fica em "palpite revisado por palpite".
 - **Um ADR por decisão, no dia, com a medição.** Hoje 0005, 0006 e 0007 seguem "propostos" e 0008 e 0009 não têm opção nula, medição nem gatilho.
+- **Reconstruir o banco do zero a cada mudança de normalização ou de semente, e fazer `--full-refresh` de `prata.material`.** Modelos incrementais que atribuem códigos sequenciais mascaram divergência: o banco "verde" estava incompleto.
+- **Chavear decisões e exceções por texto normalizado, nunca por código sequencial**, ou versionar o mapeamento original → normalizado junto da decisão.
 - **Integrar a `e2-entrega` ou descartá-la com um ADR**, em vez de deixá-la como branch paralela por um mês.
 
 ## Pendências
