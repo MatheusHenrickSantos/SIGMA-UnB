@@ -62,22 +62,23 @@ os campos tipados e mantêm o hash de origem. Cada item CATMAT vira uma linha em
 
 ### Normalização e seed
 
-As regras compartilhadas ficam em `codigos/normalizar/limpeza.py`. O comando
-`python -m codigos.normalizar` lê as descrições distintas de
+As regras compartilhadas ficam em `codigos/normalizar/limpeza.py`. Depois de
+materializar a Bronze, o serviço `transformar` chama
+`python -m codigos.normalizar`: o script lê as descrições distintas de
 `bronze.estoque`, aplica essas regras e grava o mapeamento original →
-normalizado em `seeds/materiais_normalizados.csv`. Esse CSV é versionado no
-repositório e o dbt o carrega em `bronze.materiais_normalizados`.
+normalizado em `seeds/materiais_normalizados.csv`. Em seguida, o Compose roda
+`dbt seed` e reconstrói os modelos Bronze e Prata. O CSV é versionado no
+repositório e carregado pelo dbt em `bronze.materiais_normalizados`.
 
 O CSV **não vai para `raw`**. Ele é um seed do dbt na Bronze. A Prata usa o seed
 para criar `prata.material` e relacionar as linhas de `prata.estoque` com o
 material normalizado. `seeds/excecoes_qualidade.csv` também é carregado na
 Bronze e fornece exceções revisadas para os testes de qualidade.
 
-Há uma etapa operacional que precisa ficar explícita: o Compose executa
-`dbt build`, mas não chama `python -m codigos.normalizar`. Portanto, se uma
-nova carga Bronze trouxer descrições que ainda não estão no CSV, é necessário
-regenerar o seed antes de reconstruir os modelos Prata. O seed atual tem 2.327
-descrições; `prata.material` tem 2.306 materiais válidos.
+Quando o seed muda, o arquivo atualizado fica no checkout que executou o
+Compose; revise e versione essa mudança. O seed contém 2.327 descrições
+originais, que resultam em 2.306 descrições normalizadas distintas em
+`prata.material`.
 
 ### Prata e correspondência CATMAT
 

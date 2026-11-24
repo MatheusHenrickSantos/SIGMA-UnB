@@ -94,8 +94,8 @@ services:
         && python codigos/inserir/buscar-dados-de-almoxarifado.py
         && python codigos/inserir/baixar_catalogo_catmat.py $${CATMAT_MAX_PAGINAS:+--max-paginas $$CATMAT_MAX_PAGINAS}
 
-  # Bronze e Prata (dbt). Monta o repositório porque o projeto dbt fica na raiz;
-  # target/, logs/ e dbt_packages/ são criados no host (ignorados pelo git).
+  # Primeiro materializa Bronze para a normalização ler o estoque; depois
+  # atualiza o seed versionado e reconstrói Bronze e Prata.
   transformar:
     build:
       context: ./codigos
@@ -106,7 +106,15 @@ services:
     environment: *conexao-banco
     volumes:
       - .:/projeto
-    command: ["sh", "-c", "dbt deps && dbt build --profiles-dir . --project-dir . --exclude path:snapshots path:models/ouro"]
+    command:
+      - sh
+      - -c
+      - >-
+        dbt deps
+        && dbt run --profiles-dir . --project-dir . --select estoque_bronze catmat_bronze
+        && python -m codigos.normalizar.main
+        && dbt seed --profiles-dir . --project-dir . --full-refresh --select materiais_normalizados
+        && dbt build --profiles-dir . --project-dir . --exclude path:snapshots path:models/ouro
 
   # Busca semântica: embeddings (pgvector) e candidatos CATMAT para revisão.
   semantica:

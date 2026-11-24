@@ -1,9 +1,10 @@
 # Orquestração
 
 O `docker compose up` sobe a cadeia inteira uma vez, na ordem dos
-`depends_on`, mas não agenda, não refaz uma etapa que falhou e não recarrega
-um mês específico. Para isso o projeto usa o **Dagster**
-(`orquestracao/definicoes.py`). A escolha e a opção nula (cron) estão no
+`depends_on`. Ele já executa o pipeline sem Dagster. O **Dagster**
+(`orquestracao/definicoes.py`) é uma camada opcional de orquestração: chama os
+mesmos serviços Compose para adicionar agenda, retries, backfill e histórico.
+A escolha e a opção nula (cron) estão no
 [ADR 0007](adr/0007-modelo-estrela-para-comparacao-de-precos.md).
 
 Cada etapa do Dagster roda um serviço do compose
@@ -36,9 +37,12 @@ subir_banco → migrar → ingerir → transformar → buscar_correspondencias �
 `recarga_mensal` é particionado por mês de referência do estoque (06/2021 a
 12/2025). Para a partição M:
 
-1. `carregar_estoque_do_mes`: grava em `raw.estoque` o arquivo do mês M
-   (`inserir_dados_na_camada_raw estoque --mes MM-AAAA`; idempotente pelo hash);
-2. `refazer_bronze_prata`: `dbt build --select estoque_bronze+` (sem ouro);
+1. `carregar_estoque_do_mes`: baixa do portal e grava em `raw.estoque` somente
+   o recurso do mês M (`buscar-dados-de-almoxarifado.py --mes MM-AAAA`, idempotente
+   pelo hash);
+2. `refazer_bronze_prata`: materializa `estoque_bronze`, executa a normalização,
+   atualiza `bronze.materiais_normalizados` com `dbt seed --full-refresh` e
+   reconstrói Bronze/Prata (sem Ouro);
 3. `recalcular_fato_do_mes`: `dbt build --select fato_comparacao_preco monitor_atualizacao --vars '{mes_referencia: "AAAA-MM-01"}'`,
    que apaga e recalcula só o mês M do fato (incremental delete+insert).
 

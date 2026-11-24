@@ -119,14 +119,19 @@ def _mes(context: OpExecutionContext) -> tuple[str, str]:
 def carregar_estoque_do_mes(context: OpExecutionContext) -> None:
     arquivo, _ = _mes(context)
     compose(context, "run", "--rm", "--no-deps", "ingest",
-            "python", "-m", "codigos.banco_de_dados.inserir_dados_na_camada_raw",
-            "estoque", "--mes", arquivo)
+            "python", "codigos/inserir/buscar-dados-de-almoxarifado.py",
+            "--mes", arquivo)
 
 
 @op(ins={"anterior": In(Nothing)}, retry_policy=RETRY)
 def refazer_bronze_prata(context: OpExecutionContext) -> None:
     compose(context, "run", "--rm", "--no-deps", "transformar", "sh", "-c",
-            "dbt deps --quiet && dbt build --profiles-dir . --project-dir . "
+            "dbt deps --quiet "
+            "&& dbt run --profiles-dir . --project-dir . --select estoque_bronze "
+            "&& python -m codigos.normalizar.main "
+            "&& dbt seed --profiles-dir . --project-dir . --full-refresh "
+            "--select materiais_normalizados "
+            "&& dbt build --profiles-dir . --project-dir . "
             "--select estoque_bronze+ --exclude path:snapshots path:models/ouro")
 
 

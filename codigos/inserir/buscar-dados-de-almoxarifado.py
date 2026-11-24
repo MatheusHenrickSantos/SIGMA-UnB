@@ -1,3 +1,4 @@
+import argparse
 import re
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -42,7 +43,7 @@ def selecionar_recursos_json(recursos: list[dict]) -> dict[str, dict]:
     return selecionados
 
 
-def baixar_dados() -> int:
+def baixar_dados(mes_referencia: str | None = None) -> int:
     """Baixa os recursos mensais e persiste cada resposta direto na raw."""
     resposta = requests.get(
         URL_API,
@@ -61,6 +62,17 @@ def baixar_dados() -> int:
     selecionados = selecionar_recursos_json(recursos)
     if not selecionados:
         raise RuntimeError("O portal não retornou recursos JSON mensais.")
+
+    if mes_referencia:
+        if not re.fullmatch(r"\d{2}-\d{4}", mes_referencia):
+            raise ValueError("Mês inválido; use MM-AAAA.")
+        mes, _ = map(int, mes_referencia.split("-"))
+        if not 1 <= mes <= 12:
+            raise ValueError("Mês inválido; use MM-AAAA.")
+        nome = f"estoque-do-almoxarifado-{mes_referencia}.json"
+        if nome not in selecionados:
+            raise RuntimeError(f"O portal não publicou o recurso {nome}.")
+        selecionados = {nome: selecionados[nome]}
 
     for nome_arquivo, recurso in sorted(selecionados.items()):
         print(f"Baixando: {nome_arquivo}")
@@ -85,4 +97,10 @@ def baixar_dados() -> int:
 
 
 if __name__ == "__main__":
-    baixar_dados()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--mes",
+        help="baixar somente a referência MM-AAAA (usado pelo backfill do Dagster)",
+    )
+    argumentos = parser.parse_args()
+    baixar_dados(argumentos.mes)
