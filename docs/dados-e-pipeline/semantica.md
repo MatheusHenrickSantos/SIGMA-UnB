@@ -42,9 +42,10 @@ sozinha e é segura para repetir.
 | `sincronizar` | `prata.material` (`descricao_normalizada`), `prata.catmat_item` (ativos) | `semantica.descricao` | Linhas sem mudança não são tocadas |
 | `embeddings` | descrições válidas sem vetor atual | `semantica.embedding` | Texto já vetorizado (mesmo hash) não volta ao modelo |
 | `corresponder` | vetores e textos normalizados do estoque e do CATMAT | `execucao_correspondencia`, `candidato_catmat` | — (cada execução é uma fotografia completa) |
-| `tudo` | as três acima, em ordem | | |
-| `revisar` | um par material × item CATMAT | `revisao_correspondencia` | |
 | `importar` | CSV de decisões (agentes ou planilha da squad) | `revisao_correspondencia`, `revisao_material` | Reimportar substitui, não duplica |
+| `validar` | semântica inteira | nada (erro = saída 1) | Confere a ordem das etapas e a coerência das decisões (`validacao.py`) |
+| `tudo` | a cadeia, nesta ordem: `sincronizar` → `embeddings` → `corresponder` → `importar` (só com `--arquivo`) → `validar` | | |
+| `revisar` | um par material × item CATMAT | `revisao_correspondencia` | |
 | `fila` | `v_fila_revisao` | CSV em `dados/semantica/` | |
 
 Proveniência: cada linha de `descricao` guarda a origem (`estoque`/`catmat`),
