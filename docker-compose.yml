@@ -12,7 +12,8 @@
 #   5. semantica   — embeddings e candidatos CATMAT para cada material (busca híbrida)
 #                    e importação das decisões sugeridas por agentes de IA
 #   6. compras     — compras públicas dos itens CATMAT aprovados -> raw.compras
-#   7. transformar_ouro — dbt: compras (bronze, prata), snapshot SCD 2 e camada ouro
+#   7. transformar_ouro — dbt: compras (bronze, prata), snapshot SCD 2, camada ouro e ETL reverso
+#   8. exportar    — CSV de alertas de preço para o setor de compras (dados/saida)
 #
 # Só o db fica rodando; os outros terminam (Exited 0) e o seguinte começa.
 # O semantica baixa o modelo de linguagem (~0,5 GB) na primeira vez e guarda
@@ -183,6 +184,23 @@ services:
     volumes:
       - .:/projeto
     command: ["sh", "-c", "dbt deps && dbt build --profiles-dir . --project-dir . --select compras_bronze+ path:snapshots+ path:models/ouro+"]
+
+  # ETL reverso: grava em dados/saida/ o CSV de alertas de preço (reverso.alerta_preco_compras)
+  # para o setor de compras. O destino puxa: se estiver fora do ar nada se perde, a
+  # próxima execução regrava o mesmo arquivo (ver docs/adr/0011).
+  exportar:
+    build:
+      context: ./codigos
+    depends_on:
+      transformar_ouro:
+        condition: service_completed_successfully
+    working_dir: /app
+    environment:
+      <<: *conexao-banco
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./dados:/app/dados
+    command: ["python", "codigos/reverso/exportar_alertas.py"]
 
   # Painel analítico (Streamlit) sobre a camada ouro: http://localhost:8501
   # Fica no ar, como o db; lê o que o último transformar_ouro gravou.

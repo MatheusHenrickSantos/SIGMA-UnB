@@ -45,6 +45,12 @@ models:
     ouro:
       +materialized: table
       +schema: ouro
+    reverso:
+      +materialized: table
+      +schema: reverso
+
+on-run-end:
+  - "{{ conceder_leitura_painel() }}"
 
 vars:
   # Janela das compras públicas usadas como referência de preço (Prata).
