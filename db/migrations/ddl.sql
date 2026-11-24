@@ -45,3 +45,13 @@ CREATE TABLE IF NOT EXISTS raw.catmat (
     hash_do_arquivo CHAR(64) UNIQUE NOT NULL,
     data_da_insercao TIMESTAMP NOT NULL DEFAULT now()
 );
+
+-- Snapshot atual e cache persistente do catálogo baixado por completo.
+CREATE TABLE IF NOT EXISTS raw.catmat_coleta (
+    id_coleta SMALLINT PRIMARY KEY CHECK (id_coleta = 1),
+    completa BOOLEAN NOT NULL,
+    total_paginas INTEGER NOT NULL CHECK (total_paginas > 0),
+    total_itens INTEGER NOT NULL CHECK (total_itens >= 0),
+    hash_do_arquivo CHAR(64) NOT NULL,
+    atualizada_em TIMESTAMP NOT NULL DEFAULT now()
+);

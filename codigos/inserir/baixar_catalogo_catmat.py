@@ -9,7 +9,11 @@ from typing import Any
 
 import requests
 
-from codigos.banco_de_dados.gravar_fontes_raw import salvar_catmat, serializar_json
+from codigos.banco_de_dados.gravar_fontes_raw import (
+    catmat_em_cache,
+    salvar_catmat,
+    serializar_json,
+)
 
 URL_API = "https://dadosabertos.compras.gov.br/modulo-material/4_consultarItemMaterial"
 TAMANHO_PADRAO_PAGINA = 500
@@ -61,7 +65,7 @@ def baixar_catalogo(
     tamanho_pagina: int,
     pausa: float,
     max_paginas: int | None,
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], int, int]:
     sessao = requests.Session()
     sessao.headers.update(
         {
@@ -120,7 +124,7 @@ def baixar_catalogo(
                 catalogo_reverso.append(linha)
         linhas = list(reversed(catalogo_reverso))
 
-    return linhas
+    return linhas, total_paginas, paginas_a_baixar
 
 
 def executar() -> int:
@@ -143,6 +147,11 @@ def executar() -> int:
         default=None,
         help="Opcional: limitar para teste; sem isso baixa todas as páginas",
     )
+    parser.add_argument(
+        "--atualizar",
+        action="store_true",
+        help="Ignorar o snapshot completo em raw e baixar o CATMAT novamente",
+    )
     argumentos = parser.parse_args()
 
     if not 10 <= argumentos.tamanho_pagina <= 500:
@@ -150,8 +159,16 @@ def executar() -> int:
     if argumentos.max_paginas is not None and argumentos.max_paginas < 1:
         parser.error("--max-paginas deve ser maior que zero.")
 
+    if (
+        catmat_em_cache()
+        and not argumentos.atualizar
+        and argumentos.max_paginas is None
+    ):
+        print("CATMAT completo já está no cache do banco (raw.catmat); download ignorado.")
+        return 0
+
     try:
-        catalogo = baixar_catalogo(
+        catalogo, total_paginas, paginas_baixadas = baixar_catalogo(
             argumentos.tamanho_pagina,
             argumentos.pausa,
             argumentos.max_paginas,
@@ -164,9 +181,15 @@ def executar() -> int:
         return 130
 
     conteudo = serializar_json(catalogo, indent=2)
-    inserido = salvar_catmat(catalogo, conteudo)
-    situacao = "gravado" if inserido else "já estava no banco"
-    print(f"Catálogo CATMAT com {len(catalogo)} códigos {situacao} em raw.catmat.")
+    completa = paginas_baixadas == total_paginas
+    salvar_catmat(
+        catalogo,
+        conteudo,
+        completa=completa,
+        total_paginas=total_paginas,
+    )
+    situacao = "completo" if completa else "parcial"
+    print(f"Catálogo CATMAT com {len(catalogo)} códigos gravado em raw.catmat ({situacao}).")
     return 0
 
 

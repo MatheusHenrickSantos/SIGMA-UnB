@@ -84,7 +84,14 @@ def teste_salva_catalogo_diretamente_na_raw(modulo, monkeypatch):
 
     gravados = []
     monkeypatch.setattr(modulo.requests, "Session", Sessao)
-    monkeypatch.setattr(modulo, "salvar_catmat", lambda dado, conteudo: gravados.append((dado, conteudo)) or True)
+    monkeypatch.setattr(modulo, "catmat_em_cache", lambda: False)
+    monkeypatch.setattr(
+        modulo,
+        "salvar_catmat",
+        lambda dado, conteudo, **metadados: gravados.append(
+            (dado, conteudo, metadados)
+        ) or True,
+    )
     monkeypatch.setattr(
         "sys.argv", ["baixar_catalogo_catmat.py", "--max-paginas", "1"]
     )
@@ -95,3 +102,4 @@ def teste_salva_catalogo_diretamente_na_raw(modulo, monkeypatch):
         {"codigoItem": 456, "descricao": "Outro item"},
     ]
     assert json.loads(gravados[0][1]) == gravados[0][0]
+    assert gravados[0][2] == {"completa": True, "total_paginas": 1}

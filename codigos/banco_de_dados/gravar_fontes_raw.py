@@ -43,18 +43,52 @@ def salvar_estoque(nome_recurso: str, conteudo: str, dado: list[dict]) -> bool:
         return cursor.fetchone() is not None
 
 
-def salvar_catmat(dado: list[dict], conteudo: str) -> bool:
-    """Grava o catálogo CATMAT completo; devolve False se já existia."""
+def catmat_em_cache() -> bool:
+    """Indica se o banco já contém um snapshot completo do CATMAT."""
     with conectar() as conn:
-        cursor = conn.execute(
-            """
-            INSERT INTO raw.catmat (dado_bruto, hash_do_arquivo)
-            VALUES (%s, %s)
-            ON CONFLICT (hash_do_arquivo) DO NOTHING
-            RETURNING 1
-            """,
-            (Jsonb(dado), calcular_hash(conteudo)),
-        )
+        linha = conn.execute(
+            "SELECT completa FROM raw.catmat_coleta WHERE id_coleta = 1"
+        ).fetchone()
+    return bool(linha and linha[0])
+
+
+def salvar_catmat(
+    dado: list[dict],
+    conteudo: str,
+    *,
+    completa: bool,
+    total_paginas: int,
+) -> bool:
+    """Substitui o snapshot na raw e atualiza o cache persistido no banco."""
+    hash_conteudo = calcular_hash(conteudo)
+    with conectar() as conn:
+        with conn.transaction():
+            # CATMAT é um snapshot do catálogo vigente; manter versões
+            # anteriores juntas duplicaria itens na Bronze.
+            conn.execute("DELETE FROM raw.catmat")
+            cursor = conn.execute(
+                """
+                INSERT INTO raw.catmat (dado_bruto, hash_do_arquivo)
+                VALUES (%s, %s)
+                RETURNING 1
+                """,
+                (Jsonb(dado), hash_conteudo),
+            )
+            conn.execute(
+                """
+                INSERT INTO raw.catmat_coleta
+                    (id_coleta, completa, total_paginas, total_itens,
+                     hash_do_arquivo, atualizada_em)
+                VALUES (1, %s, %s, %s, %s, now())
+                ON CONFLICT (id_coleta) DO UPDATE SET
+                    completa = EXCLUDED.completa,
+                    total_paginas = EXCLUDED.total_paginas,
+                    total_itens = EXCLUDED.total_itens,
+                    hash_do_arquivo = EXCLUDED.hash_do_arquivo,
+                    atualizada_em = EXCLUDED.atualizada_em
+                """,
+                (completa, total_paginas, len(dado), hash_conteudo),
+            )
         return cursor.fetchone() is not None
 
 
@@ -66,8 +100,17 @@ def compras_coletadas(inicio: date, fim: date) -> set[int]:
             SELECT codigo_item_catalogo
             FROM raw.compras_coleta
             WHERE data_inicio = %s AND data_fim = %s
+
+            UNION
+
+            SELECT DISTINCT
+                NULLIF(elemento ->> 'codigoItemCatalogo', '')::INTEGER
+            FROM raw.compras AS compras
+            CROSS JOIN LATERAL jsonb_array_elements(compras.dado_bruto) AS item(elemento)
+            WHERE NULLIF(elemento ->> 'codigoItemCatalogo', '') IS NOT NULL
+              AND NULLIF(elemento ->> 'dataCompra', '')::DATE BETWEEN %s AND %s
             """,
-            (inicio, fim),
+            (inicio, fim, inicio, fim),
         ).fetchall()
     return {linha[0] for linha in linhas}
 
