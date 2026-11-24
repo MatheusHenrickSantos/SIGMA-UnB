@@ -1,0 +1,12 @@
+# Tema fixo (claro) com a paleta da UnB: garante contraste igual em qualquer
+# navegador ou sistema, inclusive na barra lateral.
+[theme]
+base = "light"
+primaryColor = "#003366"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F3F5F7"
+textColor = "#1F2933"
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"

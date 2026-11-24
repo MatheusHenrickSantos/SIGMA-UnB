@@ -24,36 +24,61 @@ import streamlit as st
 # e um âmbar só para o estado "atenção". Confirme os tons no manual de
 # identidade visual da UnB antes de uso oficial.
 AZUL = "#003366"
-AZUL_CLARO = "#4F7CAC"
+AZUL_CLARO = "#6B8FB5"
 VERDE = "#00843D"
 VERMELHO = "#C8102E"
-AMBAR = "#E0A100"
+AMBAR = "#B7791F"  # mais escuro que um amarelo puro, para ter contraste sobre branco
+TEXTO = "#1F2933"
 CINZA = "#5B6770"
-FUNDO = "#F4F6F8"
+LINHA = "#E3E7EB"
+SUPERFICIE = "#F3F5F7"
 SITUACAO = {"ok": VERDE, "atencao": AMBAR, "critico": VERMELHO, "sem_dado": CINZA}
 ROTULO_SITUACAO = {"ok": "OK", "atencao": "Atenção", "critico": "Crítico", "sem_dado": "Sem dado"}
+REVISOR = alt.Scale(domain=["pessoa", "agente", "sem_decisao"], range=[VERDE, AZUL, "#B8C0C8"])
+
+alt.themes.register("unb", lambda: {"config": {
+    "background": "transparent",
+    "view": {"stroke": "transparent"},
+    "font": "sans-serif",
+    "axis": {"gridColor": LINHA, "domainColor": LINHA, "tickColor": LINHA, "labelColor": CINZA,
+             "titleColor": CINZA, "labelFontSize": 12, "titleFontSize": 12, "titleFontWeight": "normal"},
+    "legend": {"labelColor": TEXTO, "titleColor": CINZA, "titleFontWeight": "normal"},
+    "range": {"category": [AZUL, VERDE, AZUL_CLARO, VERMELHO]},
+}})
+alt.themes.enable("unb")
 
 st.set_page_config(page_title="SIGMA-UnB · Preços", page_icon="📊", layout="wide")
 
 st.markdown(
     f"""
     <style>
-      .stApp {{ background: {FUNDO}; }}
-      h1, h2, h3 {{ color: {AZUL}; }}
-      .faixa {{ background: {AZUL}; color: white; padding: 1.1rem 1.4rem; border-radius: 6px;
-                border-bottom: 4px solid {VERDE}; margin-bottom: 1rem; }}
-      .faixa h1 {{ color: white; font-size: 1.6rem; margin: 0; }}
-      .faixa p {{ margin: .25rem 0 0; opacity: .9; font-size: .9rem; }}
-      div[data-testid="stMetric"] {{ background: white; border-left: 5px solid {AZUL};
-                border-radius: 6px; padding: .7rem 1rem; box-shadow: 0 1px 2px rgba(0,0,0,.08); }}
-      div[data-testid="stMetricLabel"] {{ color: {CINZA}; }}
-      .selo {{ display:inline-block; padding:.1rem .6rem; border-radius:999px; color:white;
-               font-size:.75rem; font-weight:600; }}
-      button[data-baseweb="tab"][aria-selected="true"] {{ color: {AZUL}; border-bottom: 3px solid {VERDE}; }}
+      .block-container {{ padding-top: 2rem; max-width: 1200px; }}
+      h1, h2, h3 {{ color: {AZUL}; font-weight: 600; letter-spacing: -.01em; }}
+      h3 {{ font-size: 1.05rem; }}
+      div[data-testid="stMetric"] {{ background: white; border: 1px solid {LINHA};
+                border-radius: 8px; padding: .8rem 1rem; }}
+      div[data-testid="stMetricLabel"] p {{ color: {CINZA}; font-size: .8rem; }}
+      div[data-testid="stMetricValue"] {{ color: {AZUL}; }}
+      .selo {{ display:inline-block; padding:.05rem .55rem; border-radius:999px; font-size:.72rem;
+               font-weight:600; border:1px solid currentColor; background: white; }}
+      .linha-q {{ padding: .6rem 0; border-bottom: 1px solid {LINHA}; }}
+      .linha-q small {{ color: {CINZA}; }}
+      .sub {{ color: {CINZA}; margin-top: -.6rem; }}
+      button[data-baseweb="tab"] {{ color: {CINZA}; }}
+      button[data-baseweb="tab"][aria-selected="true"] {{ color: {AZUL}; }}
+      div[data-baseweb="tab-highlight"] {{ background-color: {VERDE}; }}
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+
+def grafico(chart: alt.Chart) -> None:
+    st.altair_chart(chart, theme=None, use_container_width=True)
+
+
+def selo(situacao: str, texto: str | None = None) -> str:
+    return f'<span class="selo" style="color:{SITUACAO[situacao]}">{texto or ROTULO_SITUACAO[situacao]}</span>'
 
 
 @st.cache_resource
@@ -94,10 +119,10 @@ def numerico(df: pd.DataFrame, colunas: list[str]) -> pd.DataFrame:
     return df
 
 
+st.title("SIGMA-UnB")
 st.markdown(
-    '<div class="faixa"><h1>SIGMA-UnB · Preço do estoque × compras públicas</h1>'
-    "<p>Quais materiais do estoque da UnB têm item CATMAT e compras públicas comparáveis, "
-    "e onde estão as maiores diferenças, por almoxarifado e período.</p></div>",
+    '<p class="sub">Preço do estoque × compras públicas: quais materiais têm item CATMAT e compras '
+    "comparáveis, e onde estão as maiores diferenças.</p>",
     unsafe_allow_html=True,
 )
 
@@ -189,7 +214,7 @@ with aba_geral:
         q = consultar("SELECT situacao, count(*) AS n FROM ouro.qualidade_dados GROUP BY 1")
         contagem = dict(zip(q["situacao"], q["n"]))
         st.markdown("**Confiabilidade:** " + " ".join(
-            f'<span class="selo" style="background:{SITUACAO[s]}">{ROTULO_SITUACAO[s]}: {contagem.get(s, 0)}</span>'
+            selo(s, f"{ROTULO_SITUACAO[s]}: {contagem.get(s, 0)}")
             for s in ("ok", "atencao", "critico", "sem_dado")
         ) + " — detalhes na aba **Qualidade dos dados**.", unsafe_allow_html=True)
 
@@ -201,25 +226,22 @@ with aba_geral:
             "materiais": [len(base), len(com_item), len(com_preco),
                           int((com_preco["compras_publicas"] >= 5).sum())],
         })
-        st.altair_chart(
+        grafico(
             alt.Chart(funil).mark_bar(color=AZUL).encode(
                 y=alt.Y("etapa:N", sort=None, title=None), x=alt.X("materiais:Q", title="Materiais"),
                 tooltip=["etapa", "materiais"],
-            ).properties(height=220),
-            use_container_width=True,
+            ).properties(height=220)
         )
     with dir_:
         st.subheader("Quem decidiu a correspondência")
         quem = base.groupby("tipo_revisor_correspondencia").agg(
             materiais=("identificador_material", "size")).reset_index()
-        st.altair_chart(
+        grafico(
             alt.Chart(quem).mark_arc(innerRadius=55).encode(
                 theta="materiais:Q",
-                color=alt.Color("tipo_revisor_correspondencia:N", title="Revisor", scale=alt.Scale(
-                    domain=["pessoa", "agente", "sem_decisao"], range=[VERDE, AZUL, CINZA])),
+                color=alt.Color("tipo_revisor_correspondencia:N", title="Revisor", scale=REVISOR),
                 tooltip=["tipo_revisor_correspondencia", "materiais"],
-            ).properties(height=220),
-            use_container_width=True,
+            ).properties(height=220)
         )
 
 # --- Maiores diferenças ----------------------------------------------------
@@ -234,17 +256,15 @@ with aba_precos:
     else:
         top = ranking.head(15).copy()
         top["rotulo"] = top["material"].str.slice(0, 40) + " · " + top["almoxarifado"]
-        st.altair_chart(
+        grafico(
             alt.Chart(top).mark_bar(color=AZUL).encode(
                 x=alt.X("diferenca_pct:Q", title="Diferença (%)"),
                 y=alt.Y("rotulo:N", sort="-x", title=None),
                 color=alt.Color("tipo_revisor_correspondencia:N", title="Correspondência por",
-                                scale=alt.Scale(domain=["pessoa", "agente", "sem_decisao"],
-                                                range=[VERDE, AZUL, CINZA])),
+                                scale=REVISOR),
                 tooltip=["descricao", "almoxarifado", "preco_estoque", "preco_publico_mediano",
                          "diferenca_pct", "compras_publicas", "unidade_fornecimento_predominante"],
-            ).properties(height=420),
-            use_container_width=True,
+            ).properties(height=420)
         )
         st.dataframe(
             ranking[[
@@ -274,22 +294,20 @@ with aba_almox:
     esq, dir_ = st.columns(2)
     with esq:
         st.subheader("Valor em estoque")
-        st.altair_chart(
+        grafico(
             alt.Chart(por_almox).mark_bar(color=AZUL).encode(
                 x=alt.X("almoxarifado:N", title=None), y=alt.Y("valor_estoque:Q", title="R$"),
                 tooltip=["almoxarifado", "valor_estoque", "materiais"],
-            ).properties(height=280),
-            use_container_width=True,
+            ).properties(height=280)
         )
     with dir_:
         st.subheader("Cobertura de preço público (%)")
-        st.altair_chart(
+        grafico(
             alt.Chart(por_almox).mark_bar(color=VERDE).encode(
                 x=alt.X("almoxarifado:N", title=None),
                 y=alt.Y("cobertura_pct:Q", title="% dos materiais", scale=alt.Scale(domain=[0, 100])),
                 tooltip=["almoxarifado", "cobertura_pct", "com_preco"],
-            ).properties(height=280),
-            use_container_width=True,
+            ).properties(height=280)
         )
     st.dataframe(
         por_almox.rename(columns={
@@ -319,24 +337,22 @@ with aba_serie:
     st.caption("Só os meses que o portal publicou; os meses sem arquivo aparecem como lacuna, sem interpolação.")
     cores = alt.Scale(range=[AZUL, VERDE, AZUL_CLARO, VERMELHO])
     st.subheader("Valor em estoque por mês")
-    st.altair_chart(
+    grafico(
         alt.Chart(serie).mark_line(point=True).encode(
             x=alt.X("mes_referencia:T", title=None), y=alt.Y("valor_estoque:Q", title="R$"),
             color=alt.Color("almoxarifado:N", title="Almoxarifado", scale=cores),
             tooltip=["mes_referencia", "almoxarifado", "valor_estoque", "materiais"],
-        ).properties(height=300),
-        use_container_width=True,
-    )
+        ).properties(height=300)
+        )
     st.subheader("Mediana da diferença de preço (%)")
     st.caption("Só meses dentro da janela das compras públicas; fora dela não há preço de referência.")
-    st.altair_chart(
+    grafico(
         alt.Chart(serie.dropna(subset=["mediana_diferenca_pct"])).mark_line(point=True).encode(
             x=alt.X("mes_referencia:T", title=None), y=alt.Y("mediana_diferenca_pct:Q", title="%"),
             color=alt.Color("almoxarifado:N", title="Almoxarifado", scale=cores),
             tooltip=["mes_referencia", "almoxarifado", "mediana_diferenca_pct"],
-        ).properties(height=260),
-        use_container_width=True,
-    )
+        ).properties(height=260)
+        )
 
 # --- Qualidade -------------------------------------------------------------
 with aba_qualidade:
@@ -355,17 +371,16 @@ with aba_qualidade:
         colunas = st.columns(4)
         for coluna, situacao in zip(colunas, ("ok", "atencao", "critico", "sem_dado")):
             coluna.metric(ROTULO_SITUACAO[situacao], int((q["situacao"] == situacao).sum()))
-        q["cor"] = q["situacao"].map(SITUACAO)
         for categoria, grupo in q.groupby("categoria"):
             st.subheader(categoria)
             for _, v in grupo.iterrows():
                 valor = "sem dado" if pd.isna(v["valor"]) else f"{v['valor']:g} {v['unidade']}"
                 regra = "≤" if v["sentido"] == "max" else "≥"
                 st.markdown(
-                    f'<span class="selo" style="background:{v["cor"]}">{ROTULO_SITUACAO[v["situacao"]]}</span> '
-                    f'**{v["verificacao"].replace("_", " ")}** — {valor} '
-                    f'(ok {regra} {v["limite_atencao"]:g}, crítico além de {v["limite_critico"]:g})  \n'
-                    f'<span style="color:{CINZA}">{v["descricao"]}</span>',
+                    f'<div class="linha-q">{selo(v["situacao"])} '
+                    f'<b>{v["verificacao"].replace("_", " ")}</b> · {valor} '
+                    f'<small>(ok {regra} {v["limite_atencao"]:g}; crítico além de {v["limite_critico"]:g})</small>'
+                    f'<br><small>{v["descricao"]}</small></div>',
                     unsafe_allow_html=True,
                 )
 
@@ -390,15 +405,13 @@ with aba_revisao:
         c3.metric("Sem correspondente", inteiro(rev["sem_correspondente"].fillna(False).sum()))
         cruz = rev.groupby(["tipo_revisor", rev["confianca"].fillna("sem decisão")]).size().reset_index(name="materiais")
         cruz.columns = ["tipo_revisor", "confianca", "materiais"]
-        st.altair_chart(
+        grafico(
             alt.Chart(cruz).mark_bar().encode(
                 x=alt.X("confianca:N", title="Confiança", sort=["alta", "media", "baixa", "sem decisão"]),
                 y=alt.Y("materiais:Q", title="Materiais"),
-                color=alt.Color("tipo_revisor:N", title="Revisor", scale=alt.Scale(
-                    domain=["pessoa", "agente", "sem_decisao"], range=[VERDE, AZUL, CINZA])),
+                color=alt.Color("tipo_revisor:N", title="Revisor", scale=REVISOR),
                 tooltip=["tipo_revisor", "confianca", "materiais"],
-            ).properties(height=240),
-            use_container_width=True,
+            ).properties(height=240)
         )
         st.subheader("Fila de conferência (maior valor × menor confiança primeiro)")
         fila = rev[rev["pendente_conferencia"]].sort_values("prioridade_revisao", ascending=False).head(100)
