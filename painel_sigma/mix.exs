@@ -73,7 +73,9 @@ defmodule PainelSigma.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
-      {:dotenvy, "~> 1.2"}
+      {:dotenvy, "~> 1.2"},
+      {:lotus, "~> 1.3.2"},
+      {:lotus_web, "~> 1.4.0"}
     ]
   end
 

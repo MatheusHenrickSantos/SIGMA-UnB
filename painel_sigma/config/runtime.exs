@@ -16,6 +16,12 @@ config :painel_sigma, PainelSigma.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+config :lotus,
+  storage_repo: PainelSigma.Repo,
+  default_source: "main",
+  data_sources: %{
+    "main" => PainelSigma.Repo
+  }
 # config/runtime.exs is executed for all environments, including
 # during releases. It is executed after compilation and before the
 # system starts, so it is typically used to load production configuration

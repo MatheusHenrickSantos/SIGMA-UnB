@@ -1,5 +1,6 @@
 defmodule PainelSigmaWeb.Router do
   use PainelSigmaWeb, :router
+  import Lotus.Web.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -24,6 +25,12 @@ defmodule PainelSigmaWeb.Router do
   # scope "/api", PainelSigmaWeb do
   #   pipe_through :api
   # end
+
+  scope "/", PainelSigmaWeb do
+    pipe_through [:browser]
+
+    lotus_dashboard "/painel"
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:painel_sigma, :dev_routes) do
