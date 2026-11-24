@@ -1,192 +1,128 @@
-# Pipeline e arquitetura em camadas
+# Arquitetura em camadas
 
-O SIGMA-UnB organiza os dados em três camadas (arquitetura *medallion*): **Bronze**, **Prata** e **Ouro**. Os dados saem do portal de dados abertos da UnB e das lojas online e terminam em um modelo dimensional que responde à [pergunta de gestão](../projeto/dominio-e-pergunta.md).
+O pipeline atual integra três fontes: estoque mensal da UnB, catálogo CATMAT e
+preços de compras públicas. Os coletores gravam as respostas em JSONB na camada
+`raw`; dbt transforma esses documentos em tabelas Bronze e Prata; o processo de
+correspondência usa o schema técnico `busca` e grava candidatos e decisões na
+Prata; por fim, o dbt materializa o modelo analítico na Ouro.
 
-<div align="center">
-  <p><strong>Figura 1 – Arquitetura do Banco (Versão 1.1)</strong></p>
-  <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/diagramas/Arquitetura do banco.v1.1.png">
-  <p>Fonte: <a href="#/modelagem/diagrama-de-arquitetura">Diagrama de Arquitetura</a>.</p>
-</div>
+O schema `busca` é infraestrutura de recuperação de correspondências. Ele não
+é a camada semântica analítica de consumo que poderá existir depois da Ouro.
 
-## Visão geral
+## Fluxo completo
 
-```text
- FONTES                 BRONZE                     PRATA                       OURO
-┌──────────────────┐   ┌───────────────────────┐   ┌────────────────────────┐   ┌──────────────────────┐
-│ dados.unb.br     │──▶│ dados/bruto/<dataset>/│──▶│ PostgreSQL 16          │──▶│ Parquet + DuckDB     │
-│ (API CKAN)       │   │ + manifesto.json      │   │ esquema Flyway (V1)    │   │ modelo estrela:      │
-│                  │   │                       │   │ material, almoxarifado,│   │ FatoAvaliacaoEstoque │
-│ Lojas online     │──▶│ dados/coletas/        │──▶│ estoque_saldo,         │   │ + DimMaterial        │
-│ (Mercado Livre)  │   │ mercado_livre/*.json  │   │ cotacao_online, ...    │   │ + DimAlmoxarifado    │
-└──────────────────┘   └───────────────────────┘   └────────────────────────┘   │ + DimLoja + DimTempo │
-                         baixar_dados.py             carregar.py                └──────────────────────┘
-                         coletar_precos_...py        (Flyway: migrate)            [E3]
+```mermaid
+flowchart LR
+    E[API de estoque da UnB] --> I[Coletor Python]
+    C[API do CATMAT] --> I
+    I --> R[(raw.estoque<br/>raw.catmat)]
+
+    R --> B[dbt: Bronze<br/>estoque e CATMAT tabulares]
+    B --> N[Python: normaliza descrições<br/>distintas de bronze.estoque]
+    N --> CSV[seeds/materiais_normalizados.csv<br/>versionado no repositório]
+    CSV --> S[dbt seed<br/>bronze.materiais_normalizados]
+    B --> P[dbt: Prata<br/>material, estoque, almoxarifado<br/>e hierarquia CATMAT]
+    S --> P
+
+    P --> M[semantica<br/>sincroniza descrições e vetoriza]
+    M --> Q[(busca<br/>descrições, embeddings,<br/>modelo e execuções)]
+    M --> PC[(prata.candidato_catmat<br/>prata.revisao_*)]
+    PC --> A[prata.v_item_aprovado]
+
+    A --> API[API de pesquisa de preços<br/>Compras.gov.br]
+    API --> RC[(raw.compras<br/>raw.compras_coleta)]
+    RC --> BC[dbt: Bronze e Prata<br/>compras_bronze<br/>compra_publica]
+
+    P --> O[dbt snapshot + Ouro]
+    PC --> O
+    BC --> O
+    O --> OU[(ouro.dim_*<br/>ouro.fato_comparacao_preco<br/>ouro.monitor_atualizacao)]
 ```
 
-## Resumo das camadas
+## O que cada área guarda
 
-| | Bronze | Prata | Ouro |
-|---|---|---|---|
-| **Papel** | Cópia fiel do que veio da fonte | Dados limpos, tipados e relacionados | Dados prontos para responder à pergunta de gestão |
-| **Onde fica** | `dados/bruto/` e `dados/coletas/` | Banco PostgreSQL (`db`) | Arquivos Parquet lidos com DuckDB |
-| **Formato** | Arquivos originais do portal (JSON ou CSV) e JSON da coleta | Tabelas relacionais (3FN) | Modelo estrela (fato + dimensões) |
-| **Quem escreve** | `baixar_dados.py`, `coletar_precos_mercado_livre.py` | `carregar.py` + migrações Flyway | [script/serviço de transformação] |
-| **Pode ser recriada?** | Não: é a fonte da verdade local | Sim, a partir da Bronze | Sim, a partir da Prata |
-| **Situação** | ✅ Estoque e demais datasets · ⏳ cotações | ✅ Esquema e carga · ⏳ `cotacao_online` vazia | ⏳ Planejada para a E3 |
-
----
-
-## Bronze — dados brutos
-
-**Objetivo:** guardar os dados exatamente como vieram da fonte, sem nenhuma transformação, para poder reprocessar tudo se a lógica da carga mudar.
-
-### Portal de dados abertos da UnB
-
-O `codigos/baixar_dados.py` consulta a API CKAN do portal (`https://dados.unb.br/api/3/action`) e baixa os recursos de cada dataset para `dados/bruto/<dataset>/`.
-
-| Dataset | Pasta | Obrigatório |
+| Área | Conteúdo | Como é produzida |
 |---|---|---|
-| Estoque do almoxarifado | `dados/bruto/estoque/` | Sim |
-| Unidades acadêmicas | `dados/bruto/unidades/` | Sim |
-| Gastos por unidade | `dados/bruto/gastos/` | Não |
-| Empenhos | `dados/bruto/empenhos/` | Não |
-| Requisições de serviços | `dados/bruto/requisicoes/` | Não |
+| `raw` | Payloads JSONB originais e hashes de estoque, CATMAT e compras | Coletores Python consultam as APIs e inserem diretamente no PostgreSQL |
+| `bronze` | Estoque e CATMAT expandidos e tipados; compras expandidas quando a etapa de compras é executada; seeds de normalização e exceções de qualidade | `dbt build` usa modelos SQL e os CSVs de `seeds/` |
+| `prata` | Materiais identificados, estoque relacionado, hierarquia CATMAT, preços públicos, candidatos e revisões | Modelos dbt e serviço de correspondência |
+| `busca` | Descrições indexadas, vetores, modelo usado e execuções da busca | Serviço Python `semantica` |
+| `ouro` | Dimensões, snapshot da correspondência, fato de comparação de preços e monitor de atualização | `transformar_ouro` executa dbt depois da coleta de compras |
 
-O `dados/bruto/manifesto.json` registra, para cada arquivo, a URL de origem, a data de modificação no portal, o tamanho e o **sha256**. O sha256 é o que garante a linhagem e evita baixar ou carregar o mesmo conteúdo duas vezes.
+### Raw e Bronze
 
-### Lojas online
+O serviço `ingest` inicializa o esquema raw e chama os coletores do estoque da
+UnB e do CATMAT. Cada payload é validado em memória e gravado como JSONB; o
+SHA-256 torna a inserção idempotente. Não há arquivos de dados locais como
+etapa intermediária.
 
-O `codigos/coletar_precos_mercado_livre.py` busca cada material na API pública do Mercado Livre (`/sites/MLB/search`) e salva a resposta em `dados/coletas/mercado_livre/precos_mercado_livre_<data-hora>.json`. A lista de materiais vem de `dados/processados/almoxarifado_normalizado.json`, gerado pelo `normalizar.py`, que também cria o `termo_busca` de cada material.
+Os modelos `bronze.estoque` e `bronze.catmat` expandem os arrays JSONB, convertem
+os campos tipados e mantêm o hash de origem. Cada item CATMAT vira uma linha em
+`bronze.catmat`; cada registro de estoque conserva mês e ano da publicação.
 
-Para cada material, o arquivo guarda:
+### Normalização e seed
 
-- até 5 anúncios, com título, preço, condição, vendedor e link;
-- um resumo com os preços mínimo, médio, mediano e máximo;
-- a variação da mediana em relação ao preço unitário do estoque.
+As regras compartilhadas ficam em `codigos/normalizar/limpeza.py`. O comando
+`python -m codigos.normalizar` lê as descrições distintas de
+`bronze.estoque`, aplica essas regras e grava o mapeamento original →
+normalizado em `seeds/materiais_normalizados.csv`. Esse CSV é versionado no
+repositório e o dbt o carrega em `bronze.materiais_normalizados`.
 
-Cada execução gera um arquivo novo, então a coleta é *append-only*: nada é sobrescrito.
+O CSV **não vai para `raw`**. Ele é um seed do dbt na Bronze. A Prata usa o seed
+para criar `prata.material` e relacionar as linhas de `prata.estoque` com o
+material normalizado. `seeds/excecoes_qualidade.csv` também é carregado na
+Bronze e fornece exceções revisadas para os testes de qualidade.
 
-### Atributos de linhagem
+Há uma etapa operacional que precisa ficar explícita: o Compose executa
+`dbt build`, mas não chama `python -m codigos.normalizar`. Portanto, se uma
+nova carga Bronze trouxer descrições que ainda não estão no CSV, é necessário
+regenerar o seed antes de reconstruir os modelos Prata. O seed atual tem 2.327
+descrições; `prata.material` tem 2.306 materiais válidos.
 
-O diagrama prevê que cada registro da Bronze carregue de onde veio:
+### Prata e correspondência CATMAT
 
-| Atributo (diagrama) | Como está implementado hoje |
-|---|---|
-| `ArquivoDeOrigem` | Nome do arquivo em `dados/bruto/` + `carga_execucao.arquivo` |
-| `LinhaDoArquivo` | ⏳ Não é guardado por linha (só a linha rejeitada vai para `carga_rejeitado.registro`) |
-| `DataDaInserção` | `carga_execucao.iniciado_em` e `carregado_em` em cada tabela |
-| `TermoDaBusca`, `DataDaBusca`, `Link` | Campos `termo_busca`, `data_coleta` e `url` no JSON da coleta |
+O dbt cria `prata.material`, `prata.almoxarifado`, `prata.estoque` e as tabelas
+da hierarquia CATMAT (`catmat_grupo`, `catmat_classe`, `catmat_pdm` e
+`catmat_item`). As fontes semânticas são `prata.material` e `prata.catmat_item`.
 
----
+O serviço `semantica` mantém no schema `busca` os textos originais e
+normalizados, embeddings pgvector, metadados do modelo e histórico de execução.
+Depois da busca, os candidatos e revisões ficam na Prata:
+`prata.candidato_catmat`, `prata.revisao_correspondencia` e
+`prata.revisao_material`. As views `prata.v_candidato_catmat`,
+`prata.v_fila_revisao` e `prata.v_item_aprovado` servem a revisão e as etapas
+seguintes. Candidato é sugestão; somente itens aprovados entram na consulta de
+preços.
 
-## Prata — dados limpos e relacionados
+### Compras públicas e Ouro
 
-**Objetivo:** dados com tipos corretos, sem duplicatas, com chaves e relacionamentos, prontos para consulta. A Prata corresponde ao [modelo entidade-relacionamento](../modelagem/diagrama-entidade-relacionamento.md) e ao [modelo relacional](../modelagem/modelo-relacional.md).
+O serviço `compras` consulta os códigos aprovados em
+`prata.v_item_aprovado`, na janela `COMPRAS_INICIO`–`COMPRAS_FIM`. As respostas
+com registros são gravadas diretamente em `raw.compras`. A migração V7 cria
+`raw.compras_coleta`, com um checkpoint por código e janela, mesmo quando não
+há resultados. Respostas incompletas por limite de páginas não são marcadas
+como concluídas.
 
-O esquema é criado pelo Flyway a partir de `db/migrations/V1__esquema_inicial.sql`. A carga é feita pelo `codigos/carregar.py`, que usa as funções de limpeza de `normalizar.py`.
+`transformar_ouro` executa dbt para expandir `raw.compras` em
+`bronze.compras`, filtrar os preços válidos na Prata, atualizar o snapshot das
+decisões de correspondência e materializar Ouro. O snapshot preserva a versão
+da decisão usada por cada dimensão/fato. A fato
+`ouro.fato_comparacao_preco` tem grão material × almoxarifado × mês; o preço
+público é calculado a partir dos códigos CATMAT equivalentes vigentes.
 
-### Correspondência com o diagrama
-
-| Entidade / relacionamento (diagrama) | Tabela no PostgreSQL | Tipo de tabela |
-|---|---|---|
-| Material | `material` (`descricao`, `termo_busca`) | Cadastro (CRUD) |
-| Almoxarifado | `almoxarifado` (`nome`, `id_unidade`) | Cadastro (CRUD) |
-| Possui / Estoque (Preço, Quantidade) | `estoque_saldo` (`preco_unitario`, `saldo`, `valor_total`) | Foto mensal *insert-only* |
-| Vende / PrecoOnline (Preço, Data) | `cotacao_online` (`preco`, `data_coleta`) | *Insert-only* |
-| Loja | Coluna `loja` em `cotacao_online` | — |
-
-Tabelas de apoio que também ficam na Prata:
-
-- **Contexto da pergunta:** `unidade`, `gasto`, `empenho`, `natureza_despesa`, `credor` e `requisicao_servico`.
-- **Controle de carga:** `carga_execucao` e `carga_rejeitado`.
-
-### Regras aplicadas na passagem Bronze → Prata
-
-| Regra | Onde |
-|---|---|
-| Limpeza de texto (entidades HTML, espaços repetidos) e conversão de números no formato brasileiro | `normalizar.py` |
-| `termo_busca`: descrição sem acentos, em minúsculas e com unidades separadas, para buscar nas lojas | `normalizar.py` (`gerar_termo_busca`) |
-| Material e almoxarifado viram cadastro com chave substituta (deduplicados pela descrição/nome) | `carregar.py` (`Cadastro`) |
-| Estoque: uma foto por material × almoxarifado × mês (`data_referencia` sempre no dia 1º) | PK + `CHECK` em `estoque_saldo` |
-| `valor_total` ausente é calculado como `saldo × preco_unitario` | `gravar_estoque` |
-| Preço negativo é recusado | `CHECK (preco_unitario >= 0)` |
-| Linha inválida não interrompe a carga: vai para `carga_rejeitado` com o motivo | `carregar.py` |
-| Arquivo com o mesmo sha256 não é carregado de novo (idempotência) | `UNIQUE (dataset, sha256)` em `carga_execucao` |
-
-As decisões de modelagem (cadastros CRUD, fatos *insert-only*) estão justificadas no [ADR 1](../adr/adr-1.md).
-
----
-
-## Ouro — modelo analítico
-
-**Objetivo:** uma tabela fato e quatro dimensões que respondem diretamente quais materiais foram pagos acima do mercado, em quais almoxarifados e quanto se economizaria.
-
-**Formato:** Parquet, lido com DuckDB ([ver ADR 0002](../adr/0002-mecanismo-de-ingestao-e-formato-aberto.md)).
-**Situação:** ⏳ planejada para a E3. Os campos abaixo são a proposta e devem ser confirmados pela squad.
-
-### Modelo estrela
+## Ordem dos serviços no Compose
 
 ```text
-              DimMaterial          DimAlmoxarifado
-                    \                   /
-                     FatoAvaliacaoEstoque
-                    /                   \
-               DimLoja                DimTempo
+db saudável
+  → Flyway (migrações)
+  → ingest (inicializa raw, estoque e CATMAT)
+  → transformar (seeds + dbt Bronze e Prata)
+  → semantica (busca, vetores e candidatos)
+  → compras (API → raw.compras)
+  → transformar_ouro (compras Bronze/Prata, snapshot e Ouro)
 ```
 
-**Grão da fato:** um registro por **material × almoxarifado × mês × loja**.
-
-| Tabela | Colunas propostas | Origem na Prata |
-|---|---|---|
-| `dim_material` | `sk_material`, `id_material`, `descricao`, `termo_busca` | `material` |
-| `dim_almoxarifado` | `sk_almoxarifado`, `id_almoxarifado`, `nome`, `sigla_unidade`, `nome_unidade` | `almoxarifado` + `unidade` |
-| `dim_loja` | `sk_loja`, `loja` | `cotacao_online.loja` (distintos) |
-| `dim_tempo` | `sk_tempo`, `data`, `ano`, `mes`, `trimestre`, `semestre` | `estoque_saldo.data_referencia` |
-| `fato_avaliacao_estoque` | `sk_material`, `sk_almoxarifado`, `sk_loja`, `sk_tempo`, `saldo`, `preco_unitario_unb`, `preco_mercado`, `qtd_cotacoes`, `sobrepreco_unitario`, `sobrepreco_pct`, `economia_potencial` | `estoque_saldo` + `cotacao_online` |
-
-### Regras de cálculo da fato
-
-| Medida | Regra |
-|---|---|
-| `preco_mercado` | Mediana dos preços de `cotacao_online` do material, na loja, no mesmo mês. A mediana reduz o efeito de anúncios muito fora da curva. |
-| `sobrepreco_unitario` | `preco_unitario_unb - preco_mercado` |
-| `sobrepreco_pct` | `(preco_unitario_unb / preco_mercado - 1) × 100` |
-| `economia_potencial` | `sobrepreco_unitario × saldo` quando `sobrepreco_unitario > 0`; senão `0` |
-| Filtros | Só entram registros com `preco_unitario > 0` e com pelo menos 1 cotação no mês |
-
----
-
-## Etapas do pipeline
-
-| # | Etapa | Script / serviço | Entrada | Saída | Idempotente? | Situação |
-|---|---|---|---|---|---|---|
-| 1 | Download dos datasets | `ingest` → `baixar_dados.py` | API CKAN dados.unb.br | `dados/bruto/` + `manifesto.json` | Sim (pula arquivos já baixados) | ✅ |
-| 2 | Criação do esquema | `migrate` (Flyway) | `db/migrations/V*.sql` | Tabelas da Prata | Sim | ✅ |
-| 3 | Carga Bronze → Prata | `ingest` → `carregar.py` | `dados/bruto/` | Tabelas da Prata | Sim (sha256) | ✅ |
-| 4 | Coleta de preços | `coletar_precos_mercado_livre.py` | `dados/processados/almoxarifado_normalizado.json` | `dados/coletas/mercado_livre/*.json` | Append-only | 🔄 Protótipo (limitado a 3 materiais) |
-| 5 | Carga das cotações | [a definir] | `dados/coletas/` | `cotacao_online` | [..] | ⏳ |
-| 6 | Prata → Ouro | [a definir] | PostgreSQL | Parquet (estrela) | [..] | ⏳ E3 |
-
-A ordem 1 → 2 → 3 é garantida pelo `docker-compose.yml`: o `migrate` só começa com o `db` saudável, e o `ingest` só começa se o `migrate` terminar com sucesso.
-
-## Tratamento de falhas
-
-| Situação | Comportamento |
-|---|---|
-| Portal responde 502 ou cai a conexão | Até 5 tentativas por arquivo; o que falhar fica em `falhas` no `manifesto.json` e é baixado na próxima execução |
-| Dataset obrigatório (estoque ou unidades) não baixa | `ingest` termina com código 1 |
-| Linha com erro (sem material, sem saldo, data inválida) | Linha vai para `carga_rejeitado`; o resto do arquivo é carregado |
-| Mesmo arquivo publicado de novo no portal | Ignorado pelo sha256 |
-| API do Mercado Livre falha ou demora | Até 3 tentativas com timeout de 30 s; o resultado de cada material fica registrado no campo `status` do JSON |
-
-## Como executar
-
-Ver [Como executar](../projeto/como-executar.md).
-
----
-
-## Histórico de versões
-
-| Versão | Descrição | Autor(es) | Data |
-|---|---|---|---|
-| `1.0` | Criação do documento | Samara Letícia | 19/10/2026 |
+O banco e o painel Streamlit permanecem ativos; os demais serviços terminam
+depois de concluir sua etapa. Para os volumes e tempos observados, consulte
+[Caracterização da carga](caracterizacao-da-carga.md). Para iniciar o projeto,
+consulte [Como executar](../projeto/como-executar.md).
