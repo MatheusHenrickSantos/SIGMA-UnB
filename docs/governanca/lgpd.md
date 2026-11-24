@@ -38,7 +38,7 @@
 | Dado | Retenção | Descarte |
 |---|---|---|
 | Identificação do fornecedor em `raw.compras` | **Zero após a carga**: removido na mesma execução em que a bronze é construída | `raw.remover_identificacao_fornecedor()` (irreversível; idempotente) |
-| Cache das páginas da API em `dados/compras_cache/` e `dados/compras/` (JSON original, com fornecedor) | Até a carga ser concluída; a pasta `dados/` não é versionada (`.gitignore`) | Apagar a pasta depois da carga: `rm -rf dados/compras_cache dados/compras`. **Hoje isso é manual** (pendência) |
+| Arquivos JSON em `dados/compras_cache/` e `dados/compras/` (só existem em cópias que rodaram o **pipeline anterior**; o atual grava direto em `raw.compras`, ADR 0009) | Enquanto a cópia existir; `dados/` não é versionada (`.gitignore`) | Expurgar com `python codigos/expurgar_cache_compras.py dados/compras dados/compras_cache` (remove fornecedor) ou apagar a pasta. |
 | Nome de revisor e usuários | Duração do projeto acadêmico | Anonimizar `revisor` para `pessoa:<hash>` e remover a linha em `acesso_almoxarifado` ao encerrar o acesso |
 | Estoque, CATMAT, preços públicos | Sem dado pessoal: sem prazo legal; guardados enquanto servirem à série histórica | — |
 
@@ -53,5 +53,4 @@ Duas bases anonimizadas podem reidentificar quem nenhuma identificava sozinha. O
 
 ## Pendências
 
-- Automatizar o descarte do cache em disco (`dados/compras_cache`).
 - Feito em 24/11/2026: a contagem completa achou 11 CPF (gatilho do ADR 0012). O cache de compras e o dump de segurança foram expurgados no mesmo dia (sem ocorrência de fornecedor depois).

@@ -7,7 +7,9 @@ correspondência usa o schema técnico `busca` e grava candidatos e decisões na
 Prata; por fim, o dbt materializa o modelo analítico na Ouro.
 
 O schema `busca` é infraestrutura de recuperação de correspondências. Ele não
-é a camada semântica analítica de consumo que poderá existir depois da Ouro.
+é a camada semântica analítica de consumo. Essa camada existe desde a E4 e vive na
+Ouro: `ouro.metrica_mensal` e `ouro.catalogo_metrica`, com a definição das métricas
+em `macros/metricas.sql` ([ADR 0010](../adr/0010-camada-semantica-de-metricas-em-macros-dbt.md)).
 
 ## Fluxo completo
 
@@ -48,6 +50,7 @@ flowchart LR
 | `prata` | Materiais identificados, estoque relacionado, hierarquia CATMAT, preços públicos, candidatos e revisões | Modelos dbt e serviço de correspondência |
 | `busca` | Descrições indexadas, vetores, modelo usado e execuções da busca | Serviço Python `semantica` |
 | `ouro` | Dimensões, snapshot da correspondência, fato de comparação de preços e monitor de atualização | `transformar_ouro` executa dbt depois da coleta de compras |
+| `reverso` | Alertas de preço para o setor de compras e mapa de acesso por almoxarifado (saída do ETL reverso, com permissão por papel) | `transformar_ouro` (dbt) e serviço `exportar`; ver [ADR 0011](../adr/0011-etl-reverso-por-arquivo-e-tabela-com-destino-que-puxa.md) |
 
 ### Raw e Bronze
 
@@ -120,7 +123,8 @@ db saudável
   → transformar (seeds + dbt Bronze e Prata)
   → semantica (busca, vetores e candidatos)
   → compras (API → raw.compras)
-  → transformar_ouro (compras Bronze/Prata, snapshot e Ouro)
+  → transformar_ouro (compras Bronze/Prata, snapshot, Ouro, métricas e reverso)
+  → exportar (CSV de alertas de preço em dados/saida)
 ```
 
 O banco e o painel Streamlit permanecem ativos; os demais serviços terminam

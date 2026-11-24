@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from datetime import date
 from typing import Any
@@ -13,6 +14,22 @@ from .conectar_com_banco_de_dados import conectar
 from codigos.utilidades import calcular_hash
 
 _ARQUIVO_ESTOQUE = re.compile(r"estoque-do-almoxarifado-(\d{2})-(\d{4})\.json\Z")
+
+# Identificação do fornecedor: a análise de preço não usa (LGPD, ADR 0012). A API devolve
+# CNPJ ou CPF e o nome; o CPF é de pessoa física.
+CAMPOS_FORNECEDOR = ("niFornecedor", "nomeFornecedor")
+
+
+def remover_fornecedor_ativo() -> bool:
+    """Minimização na gravação; desligue com REMOVER_IDENTIFICACAO_FORNECEDOR=false."""
+    return os.environ.get("REMOVER_IDENTIFICACAO_FORNECEDOR", "true").strip().lower() not in (
+        "0", "false", "nao", "não", "no",
+    )
+
+
+def sem_identificacao_do_fornecedor(registros: list[dict]) -> list[dict]:
+    """Cópia dos registros sem os campos do fornecedor (o original não é alterado)."""
+    return [{k: v for k, v in r.items() if k not in CAMPOS_FORNECEDOR} for r in registros]
 
 
 def serializar_json(dado: Any, *, indent: int | None = None) -> str:
@@ -135,7 +152,12 @@ def salvar_compras(
     registros: list[dict],
     conteudo: str,
 ) -> bool:
-    """Grava o resultado e o checkpoint do código na mesma transação."""
+    """Grava o resultado e o checkpoint do código na mesma transação.
+
+    O hash é o do conteúdo ORIGINAL (deduplicação idempotente, ADR 0009); o que vai para a
+    raw já sai sem o fornecedor, então o dado pessoal nunca chega ao banco.
+    """
+    gravar = sem_identificacao_do_fornecedor(registros) if remover_fornecedor_ativo() else registros
     with conectar() as conn:
         with conn.transaction():
             inserido = False
@@ -147,7 +169,7 @@ def salvar_compras(
                     ON CONFLICT (hash_do_arquivo) DO NOTHING
                     RETURNING 1
                     """,
-                    (Jsonb(registros), calcular_hash(conteudo)),
+                    (Jsonb(gravar), calcular_hash(conteudo)),
                 )
                 inserido = cursor.fetchone() is not None
             conn.execute(

@@ -190,6 +190,8 @@ services:
       COMPRAS_FIM: ${COMPRAS_FIM:-2025-12-31}
       # códigos baixados ao mesmo tempo (1 = em sequência; a API responde 429 se exagerar)
       COMPRAS_PARALELISMO: ${COMPRAS_PARALELISMO:-4}
+      # tira CNPJ/CPF e nome do fornecedor antes de gravar em raw.compras (LGPD, ADR 0012)
+      REMOVER_IDENTIFICACAO_FORNECEDOR: ${REMOVER_IDENTIFICACAO_FORNECEDOR:-true}
     command:
       - sh
       - -c

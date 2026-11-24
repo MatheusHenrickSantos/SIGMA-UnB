@@ -17,8 +17,8 @@ tentativas, backfill e histórico.
 ```text
 pipeline_mensal (agenda: dia 20 de cada mês, 06:00, America/Sao_Paulo)
 
-subir_banco → migrar → ingerir → transformar → buscar_correspondencias → baixar_compras → transformar_ouro
-  (db)       (migrate) (ingest)  (transformar)      (semantica)            (compras)     (transformar_ouro)
+subir_banco → migrar → ingerir → transformar → buscar_correspondencias → baixar_compras → transformar_ouro → exportar_alertas
+  (db)       (migrate) (ingest)  (transformar)      (semantica)            (compras)     (transformar_ouro)    (exportar)
 ```
 
 - **Agenda:** `0 6 20 * *`. O portal publica o estoque do mês M no mês

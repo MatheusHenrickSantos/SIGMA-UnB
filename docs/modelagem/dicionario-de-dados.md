@@ -2136,6 +2136,8 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 
 ### Camada ouro
 
+> **Tabelas acrescentadas na E4** (camada semântica de métricas, qualidade, fila de revisão e ETL reverso): `ouro.metrica_mensal`, `ouro.catalogo_metrica`, `ouro.qualidade_dados`, `ouro.resumo_correspondencia`, `reverso.alerta_preco_compras` e `reverso.acesso_almoxarifado`. Ainda não estão descritas neste dicionário no formato das tabelas abaixo; o [catálogo gerado do manifesto do dbt](../governanca/catalogo-gerado.md) lista colunas, testes e linhagem de cada uma.
+
   A camada ouro organiza os dados em um **modelo estrela** que responde à pergunta de gestão: para quais materiais do estoque existe preço de compras públicas comparável e quais têm as maiores diferenças, por almoxarifado e período. A decisão e as alternativas estão na [ADR 7](adr/0007-modelo-estrela-para-comparacao-de-precos.md), e o funcionamento do modelo em [Camada ouro: modelo analítico](dados-e-pipeline/camada-ouro.md). Todas as tabelas são geradas pelo dbt (`models/ouro/` e `snapshots/`) no esquema `ouro`.
 
   A **Tabela 26** descreve o fato `fato_comparacao_preco`, cujo grão é **uma linha por material, por almoxarifado, por mês de referência publicado**. As **Tabelas 27 a 30** descrevem as dimensões: `dim_material`, que guarda a correspondência material × CATMAT como dimensão de variação lenta do tipo 2 (uma linha por versão), `dim_almoxarifado`, `dim_tempo` e `dim_item_catmat`. A **Tabela 31** descreve `monitor_atualizacao`, que mede o atraso (freshness) das tabelas de consumo diante do SLA declarado.

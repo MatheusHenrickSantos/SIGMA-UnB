@@ -22,7 +22,7 @@ Simples de fazer. O controle morre fora do painel: quem conecta ao banco vê tud
 
 ### C. Minimização na raw + papéis no banco, com recorte de coluna e de linha (RLS) — escolhida
 
-A função `raw.remover_identificacao_fornecedor()` (V12) apaga os dois campos do JSON depois da bronze; `sigma_painel`, `sigma_compras` e `sigma_almoxarifado` (V11) só têm o que precisam; `GRANT` por coluna esconde `justificativa_agente`; RLS limita as chefias aos seus almoxarifados. Um teste do dbt impede coluna de fornecedor nas camadas analíticas.
+A minimização tem duas camadas. **(1) Na gravação:** `salvar_compras` (`codigos/banco_de_dados/gravar_fontes_raw.py`) tira `niFornecedor` e `nomeFornecedor` antes do `INSERT`, então o dado pessoal nunca chega ao banco; o hash continua sendo o do conteúdo original, para a deduplicação do ADR 0009 seguir igual (desliga com `REMOVER_IDENTIFICACAO_FORNECEDOR=false`). **(2) Rede de segurança no dbt:** a função `raw.remover_identificacao_fornecedor()` (V12) apaga os dois campos do que já estivesse na raw (cargas feitas antes da camada 1) depois da bronze; `sigma_painel`, `sigma_compras` e `sigma_almoxarifado` (V11) só têm o que precisam; `GRANT` por coluna esconde `justificativa_agente`; RLS limita as chefias aos seus almoxarifados. Um teste do dbt impede coluna de fornecedor nas camadas analíticas.
 
 ### D. Mascarar na leitura (views com hash do fornecedor)
 
