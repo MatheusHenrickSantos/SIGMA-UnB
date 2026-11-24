@@ -135,3 +135,34 @@ models:
           - accepted_values:
               arguments:
                 values: ['dentro do SLA', 'fora do SLA']
+
+  - name: qualidade_dados
+    description: >
+      Registro de confiabilidade: uma linha por verificação (estoque, compras
+      públicas, comparação e correspondência CATMAT) com valor medido, limites
+      e situação (ok, atencao, critico, sem_dado). Não derruba o build; mede o
+      quanto se pode confiar na comparação de preços.
+    columns:
+      - name: verificacao
+        data_tests: [not_null, unique]
+      - name: sentido
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['max', 'min']}
+      - name: situacao
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['ok', 'atencao', 'critico', 'sem_dado']}
+
+  - name: resumo_correspondencia
+    description: >
+      Uma linha por material (versão vigente): tipo de revisor, confiança,
+      itens CATMAT, melhor candidato da busca, valor em estoque e prioridade
+      de revisão.
+    columns:
+      - name: identificador_material
+        data_tests: [not_null, unique]
+      - name: tipo_revisor
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['pessoa', 'agente', 'sem_decisao']}

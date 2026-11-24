@@ -24,6 +24,7 @@
   - [Modelo relacional](modelagem/modelo-relacional.md)
 - Dados e pipeline
   - [Caracterização da carga](dados-e-pipeline/caracterizacao-da-carga.md)
+  - [Confiabilidade dos dados](dados-e-pipeline/confiabilidade.md)
   - [Pipeline e camadas](dados-e-pipeline/arquitetura-em-camadas.md)
   - [Consultas](dados-e-pipeline/consultas.md)
   - [Busca semântica (CATMAT)](dados-e-pipeline/semantica.md)
