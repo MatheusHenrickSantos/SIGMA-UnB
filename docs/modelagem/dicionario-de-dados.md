@@ -2,8 +2,8 @@
 
 ## Convenções
 
-- **Tipo ID**: O tipo de dados "ID" será uma composição única entre o nome abreviado da tabela, com três letras, e um serial, com três dígitos.  
-  - *Exemplo: "est001" representa o primeiro item cadastrado na tabela `estoque`.*
+- **Tipo ID**: O tipo de dados "ID" será uma composição única entre o nome abreviado da tabela, com duas letras, e um serial, com quatro dígitos.  
+  - *Exemplo: "es0001" representa o primeiro item cadastrado na tabela `estoque`.*
 
 
 
@@ -284,12 +284,12 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
         </tr>
         <tr>
           <td><code>descricaoItem</code></td>
-          <td>Descrição do item do catálogo CATMAT.</td>
+          <td>Descrição detalhada do item CATMAT, sem limite físico fixo.</td>
           <td>TEXT</td>
           <td>-</td>
           <td>-</td>
           <td>-</td>
-          <td>-</td>
+          <td>Not NULL</td>
         </tr>
         <tr>
           <td><code>codigoGrupo</code></td>
@@ -645,11 +645,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
         <tr>
           <td><code>descricao</code></td>
           <td>Descrição do material.</td>
-          <td>CHAR</td>
-          <td>100</td>
-          <td>A-Z, 0-9</td>
+          <td>TEXT</td>
           <td>-</td>
-          <td>Not NULL / CHECK</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
         </tr>
         <tr>
           <td><code>preco</code></td>
@@ -957,8 +957,8 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
         <tr>
           <td><code>descricaoItem</code></td>
           <td>Descrição do item CATMAT.</td>
-          <td>CHAR</td>
-          <td>200</td>
+          <td>TEXT</td>
+          <td>-</td>
           <td>-</td>
           <td>-</td>
           <td>Not NULL</td>
@@ -2632,7 +2632,7 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
         </tr>
         <tr>
           <td><code>nome_pdm</code></td>
-          <td>Nome do PDM.</td>
+          <td>Nome do Padrão Descritivo de Materiais (PDM).</td>
           <td>TEXT</td>
           <td>-</td>
           <td>-</td>

@@ -78,7 +78,7 @@ SELECT
             ''
         ),
         descricao_normalizada
-    )::CHAR(200) AS descricao,
+    )::TEXT AS descricao,
 
     descricao_normalizada
 
