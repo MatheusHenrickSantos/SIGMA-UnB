@@ -142,8 +142,13 @@ almoxarifados = consultar("SELECT identificador_almoxarifado, nome FROM ouro.dim
 with st.sidebar:
     st.header("Filtros")
     ano_mes = st.selectbox("Mês de referência", meses["ano_mes"].tolist(), index=0)
-    escolhidos = st.multiselect("Almoxarifado", almoxarifados["nome"].tolist(),
-                                default=almoxarifados["nome"].tolist())
+    st.markdown("**Almoxarifado**")
+    escolhidos = [
+        nome for nome in almoxarifados["nome"].tolist()
+        if st.checkbox(nome, value=True, key=f"almox_{nome}")
+    ]
+    if not escolhidos:
+        st.caption("Marque ao menos um almoxarifado.")
     minimo_compras = st.slider("Mínimo de compras públicas na referência", 1, 50, 5)
     so_pessoa = st.checkbox("Só correspondências conferidas por pessoa", value=False)
     st.caption(
