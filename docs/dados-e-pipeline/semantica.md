@@ -45,7 +45,8 @@ sozinha e é segura para repetir.
 | `sincronizar` | `prata.material` (`descricao_normalizada`), `prata.catmat_item` (ativos) | `busca.descricao` | Linhas sem mudança não são tocadas |
 | `embeddings` | descrições válidas sem vetor atual | `busca.embedding` | Texto já vetorizado (mesmo hash) não volta ao modelo |
 | `corresponder` | vetores e textos normalizados do estoque e do CATMAT | `busca.execucao_correspondencia`, `prata.candidato_catmat` | — (cada execução é uma fotografia completa) |
-| `tudo` | as três acima, em ordem | | |
+| `validar` | busca e prata inteiras | nada (erro = saída 1) | Confere a ordem das etapas e a coerência das decisões (`validacao.py`) |
+| `tudo` | a cadeia, nesta ordem: `sincronizar` → `embeddings` → `corresponder` → `importar` (só com `--arquivo`) → `validar` | | |
 | `revisar` | um par material × item CATMAT | `prata.revisao_correspondencia` | |
 | `importar` | CSV de decisões (agentes ou planilha da squad) | `prata.revisao_correspondencia`, `prata.revisao_material` | Reimportar substitui, não duplica |
 | `fila` | `prata.v_fila_revisao` | CSV em `dados/semantica/` | |

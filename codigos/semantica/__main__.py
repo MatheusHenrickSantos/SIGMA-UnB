@@ -5,9 +5,13 @@ Etapas (cada uma pode rodar sozinha e é segura para repetir):
   sincronizar   lê prata.material e prata.catmat_item e atualiza busca.descricao
   embeddings    gera vetores só das descrições novas ou alteradas
   corresponder  busca os top-K itens CATMAT de cada material e grava uma execução
-  tudo          as três acima, em ordem (padrão)
-  revisar       registra a decisão humana sobre um par material x item CATMAT
   importar      carrega decisões em lote de um CSV (ver semantica/decisoes.py)
+  validar       confere se as etapas anteriores rodaram na ordem e se as decisões
+                são coerentes (ver semantica/validacao.py); erro = saída 1
+  tudo          a cadeia inteira, nesta ordem (padrão):
+                sincronizar -> embeddings -> corresponder -> importar -> validar
+                (importar só roda se --arquivo for informado)
+  revisar       registra a decisão humana sobre um par material x item CATMAT
   fila          exporta a fila de revisão (prata.v_fila_revisao) para CSV
 
 Banco: variáveis HOST_DO_BANCO, PORTA_DO_BANCO, NOME_DO_BANCO,
@@ -25,7 +29,7 @@ from pathlib import Path
 
 import psycopg
 
-from . import correspondencia, decisoes, fontes, processamento
+from . import correspondencia, decisoes, fontes, processamento, validacao
 from .correspondencia import ParametrosBusca
 from .embeddings import MODELO_PADRAO, ErroEmbedding
 from .repositorio import ErroOrigem
@@ -167,12 +171,25 @@ def _importar(conn, args) -> int:
     return 0
 
 
+def _validar(conn, args, id_modelo: int) -> int:
+    verificacoes = validacao.validar(conn, id_modelo)
+    for v in verificacoes:
+        marca = "ok" if v.passou else ("ERRO" if v.gravidade == "erro" else "aviso")
+        print(f"[validar] {marca:5} {v.nome}: {v.quantidade}")
+        if not v.passou:
+            print(f"          {v.descricao}")
+    if validacao.tem_erro(verificacoes):
+        print("ERRO: a camada semântica não está consistente; veja as verificações acima.", file=sys.stderr)
+        return 1
+    return 0
+
+
 def _argumentos(argv: list[str] | None) -> argparse.Namespace:
     analisador = argparse.ArgumentParser(prog="python -m semantica", description=__doc__,
                                          formatter_class=argparse.RawDescriptionHelpFormatter)
     analisador.add_argument("etapa", nargs="?", default="tudo",
-                            choices=["sincronizar", "embeddings", "corresponder", "tudo", "revisar", "importar",
-                                     "fila"])
+                            choices=["sincronizar", "embeddings", "corresponder", "importar", "validar", "tudo",
+                                     "revisar", "fila"])
 
     modelo = analisador.add_argument_group("modelo")
     modelo.add_argument("--modelo", default=_ambiente("SEMANTICA_MODELO", MODELO_PADRAO),
@@ -230,6 +247,8 @@ def _argumentos(argv: list[str] | None) -> argparse.Namespace:
         analisador.error("revisar exige --material, --codigo, --decisao e --revisor")
     if args.etapa == "importar" and not (args.arquivo and args.revisor):
         analisador.error("importar exige --arquivo e --revisor")
+    if args.etapa == "tudo" and args.arquivo and not args.revisor:
+        analisador.error("--arquivo em 'tudo' exige --revisor")
     return args
 
 
@@ -251,10 +270,16 @@ def main(argv: list[str] | None = None) -> int:
                 id_modelo = _embeddings(conn, args, _codificador(args))
             if args.etapa in ("corresponder", "tudo"):
                 _corresponder(conn, args, id_modelo or _id_modelo_registrado(conn, args))
+            if args.etapa == "importar" or (args.etapa == "tudo" and args.arquivo):
+                codigo = _importar(conn, args)
+                if codigo or args.etapa == "importar":
+                    return codigo
+            if args.etapa in ("validar", "tudo"):
+                codigo = _validar(conn, args, id_modelo or _id_modelo_registrado(conn, args))
+                if codigo or args.etapa == "validar":
+                    return codigo
             if args.etapa == "revisar":
                 _revisar(conn, args)
-            if args.etapa == "importar":
-                return _importar(conn, args)
             if args.etapa == "fila":
                 _fila(conn, args)
     except (ErroOrigem, ErroEmbedding, fontes.ErroFonte,

@@ -41,7 +41,7 @@ Um único comando sobe estes serviços, nesta ordem:
 | `db` | PostgreSQL 16 com a extensão pgvector (imagem construída em `db/Dockerfile`). | Não, fica rodando |
 | `migrate` | Flyway: aplica os arquivos `db/migrations/V*.sql` em ordem, a partir do banco vazio. | Sim |
 | `ingest` | Python: baixa o estoque e o catálogo CATMAT e grava no schema `raw`. | Sim |
-| `transformar` | dbt: `raw` → `bronze` → `prata`, com os testes de dados (`dbt build`). | Sim |
+| `transformar` | dbt: `raw` → `bronze` → `prata` do estoque e do CATMAT, com os testes de dados (`dbt build`). Compras ficam para o `transformar_ouro`, pois `raw.compras` só é carregada depois. | Sim |
 | `semantica` | Python: calcula embeddings e candidatos; vetores e execuções ficam em `busca`, candidatos e decisões ficam em `prata` ([detalhes](docs/dados-e-pipeline/semantica.md)). | Sim |
 | `compras` | Python: baixa as compras públicas (Compras.gov.br) dos itens CATMAT aprovados e grava em `raw.compras`. | Sim |
 | `transformar_ouro` | dbt: compras (`bronze.compras`, `prata.compra_publica`), snapshot da correspondência (SCD tipo 2) e camada ouro (fato e dimensões). | Sim |
