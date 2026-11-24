@@ -228,7 +228,7 @@ with aba_geral:
         d1, d2, d3, d4 = st.columns(4)
         kpi(d1, "Valor em estoque", "valor_estoque", reais)
         kpi(d2, "Economia potencial", "economia_potencial", reais)
-        kpi(d3, "Materiais acima do limiar", "materiais_acima_do_limiar", inteiro)
+        kpi(d3, "Materiais alertados", "materiais_alertados", inteiro)
         kpi(d4, "Diferença mediana", "diferenca_pct_mediana", lambda v: f"{v:+.1f}%")
         with st.expander("Como cada métrica é definida"):
             st.caption("Definições versionadas em macros/metricas.sql; este painel, o registro de qualidade "

@@ -22,6 +22,17 @@
 ({{ tem_preco }} AND {{ compras }} >= {{ minimo_compras() }})
 {%- endmacro %}
 
+{# Correspondência utilizável: conferida por pessoa, ou do agente com confiança alta/média (palpite = baixa fica fora). #}
+{% macro correspondencia_confiavel(tipo_revisor, confianca) -%}
+({{ tipo_revisor }} = 'pessoa' OR COALESCE({{ confianca }}, 'baixa') <> 'baixa')
+{%- endmacro %}
+
+{# Alerta de preço: referência robusta + diferença >= limiar + correspondência utilizável. Métricas e ETL reverso usam esta condição. #}
+{% macro condicao_alerta(compras, tem_preco, diferenca_pct, tipo_revisor, confianca) -%}
+({{ referencia_robusta(compras, tem_preco) }} AND {{ diferenca_pct }} >= {{ limiar_diferenca() }}
+ AND {{ correspondencia_confiavel(tipo_revisor, confianca) }})
+{%- endmacro %}
+
 {% macro metricas_base() %}
   {% set lista = [
     {'nome': 'valor_estoque', 'unidade': 'R$', 'versao': 1,
@@ -42,12 +53,12 @@
     {'nome': 'materiais_referencia_robusta', 'unidade': 'materiais', 'versao': 1,
      'descricao': 'Materiais cuja mediana pública vem de pelo menos o mínimo de compras (minimo_compras_referencia).',
      'expressao': 'COUNT(*) FILTER (WHERE ' ~ referencia_robusta('f.compras_publicas', 'f.tem_preco_publico') ~ ')'},
-    {'nome': 'materiais_acima_do_limiar', 'unidade': 'materiais', 'versao': 1,
-     'descricao': 'Materiais de referência robusta com preço do estoque acima da mediana pública em pelo menos limiar_diferenca_pct.',
-     'expressao': 'COUNT(*) FILTER (WHERE ' ~ referencia_robusta('f.compras_publicas', 'f.tem_preco_publico') ~ ' AND f.diferenca_pct >= ' ~ limiar_diferenca() ~ ')'},
+    {'nome': 'materiais_alertados', 'unidade': 'materiais', 'versao': 1,
+     'descricao': 'Materiais que viram alerta de preço: referência robusta, preço do estoque pelo menos limiar_diferenca_pct acima da mediana pública e correspondência CATMAT utilizável (de pessoa, ou de agente com confiança alta ou média). É o que o ETL reverso entrega.',
+     'expressao': 'COUNT(*) FILTER (WHERE ' ~ condicao_alerta('f.compras_publicas', 'f.tem_preco_publico', 'f.diferenca_pct', 'd.tipo_revisor', 'd.confianca') ~ ')'},
     {'nome': 'economia_potencial', 'unidade': 'R$', 'versao': 1,
-     'descricao': 'Quanto o estoque custaria a menos se cada material de referência robusta fosse avaliado pela mediana pública: soma de max(preço - mediana, 0) x saldo. Sinal para investigar, não sobrepreço comprovado (a unidade de fornecimento pode diferir).',
-     'expressao': 'COALESCE(SUM(GREATEST(f.preco_estoque - f.preco_publico_mediano, 0) * f.quantidade) FILTER (WHERE ' ~ referencia_robusta('f.compras_publicas', 'f.tem_preco_publico') ~ '), 0)'},
+     'descricao': 'Quanto o estoque custaria a menos se os materiais alertados fossem avaliados pela mediana pública: soma de (preço - mediana) x saldo nos alertas. Sinal para investigar, não sobrepreço comprovado (a unidade de fornecimento pode diferir).',
+     'expressao': 'COALESCE(SUM(GREATEST(f.preco_estoque - f.preco_publico_mediano, 0) * f.quantidade) FILTER (WHERE ' ~ condicao_alerta('f.compras_publicas', 'f.tem_preco_publico', 'f.diferenca_pct', 'd.tipo_revisor', 'd.confianca') ~ '), 0)'},
     {'nome': 'diferenca_pct_mediana', 'unidade': '%', 'versao': 1,
      'descricao': 'Mediana da diferença percentual entre o preço do estoque e a mediana pública, nos materiais de referência robusta.',
      'expressao': 'PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY f.diferenca_pct) FILTER (WHERE ' ~ referencia_robusta('f.compras_publicas', 'f.tem_preco_publico') ~ ')'},
@@ -78,5 +89,6 @@
 {% macro historico_metricas() %}
   {{ return([
     {'metrica': '*', 'versao': 1, 'data': '2026-11-24', 'mudanca': 'Primeira definição centralizada; cobertura_preco_publico_pct = com preço ÷ com item CATMAT (antes o painel usava ÷ materiais em estoque).'},
+    {'metrica': 'materiais_alertados, economia_potencial', 'versao': 1, 'data': '2026-11-24', 'mudanca': 'Passam a usar a mesma condição do ETL reverso (condicao_alerta), com a correspondência de confiança baixa fora; testado em tests/consistencia_metricas_e_alertas.sql.'},
   ]) }}
 {% endmacro %}

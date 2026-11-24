@@ -22,12 +22,9 @@
     compra e, se confirmado, renegociar ou trocar de fornecedor. É um sinal
     para investigar, não prova de sobrepreço.
 
-    Regras (as mesmas das métricas, via macros/metricas.sql):
-      - último mês publicado do fato;
-      - referência robusta (compras >= minimo_compras_referencia);
-      - diferenca_pct >= limiar_diferenca_pct;
-      - fora os materiais cuja correspondência CATMAT o agente marcou com
-        confiança baixa (palpite): só entra correspondência alta, média ou de pessoa.
+    Regra: macro condicao_alerta (macros/metricas.sql), a MESMA das métricas
+    materiais_alertados e economia_potencial; tests/consistencia_metricas_e_alertas.sql
+    confere que os números batem. Último mês publicado do fato.
 
     Recortes de acesso (migração V11):
       - coluna: justificativa_agente (texto livre do agente) NÃO é concedida
@@ -70,7 +67,5 @@ INNER JOIN ultimo ON ultimo.mes = f.mes_referencia
 INNER JOIN {{ ref('dim_almoxarifado') }} AS a USING (identificador_almoxarifado)
 INNER JOIN {{ ref('resumo_correspondencia') }} AS r USING (identificador_material)
 CROSS JOIN versao
-WHERE {{ referencia_robusta('f.compras_publicas', 'f.tem_preco_publico') }}
-  AND f.diferenca_pct >= {{ limiar_diferenca() }}
-  AND (r.tipo_revisor = 'pessoa' OR COALESCE(r.confianca, 'baixa') <> 'baixa')
+WHERE {{ condicao_alerta('f.compras_publicas', 'f.tem_preco_publico', 'f.diferenca_pct', 'r.tipo_revisor', 'r.confianca') }}
 ORDER BY economia_potencial DESC
