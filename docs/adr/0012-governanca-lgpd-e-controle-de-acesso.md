@@ -1,6 +1,6 @@
 # 0012 — Minimizar dado pessoal na raw e controlar acesso por papéis com recorte de coluna e de linha
 
-- **Status:** proposto (falta a revisão da Squad e a confirmação da base legal com o encarregado de dados da UnB)
+- **Status:** proposto (falta a revisão da Squad)
 - **Data:** 2026-11-24
 - **Decisores:** [a definir pela Squad] — proposta preparada com assistente de IA (ver [Uso de IA](../gestao/ai-usage.md))
 
@@ -61,8 +61,7 @@ Escolhemos C. A minimização liga por padrão (`remover_identificacao_fornecedo
 
 ## Gatilho de revisão
 
-- Aparecer **qualquer** `niFornecedor` com 11 dígitos (CPF) na raw antes da minimização: tratar como dado pessoal identificado, revisar a base legal e o prazo com o DPO. **Disparou em 24/11/2026** (11 compras com CPF). Efeito: a minimização deixa de ser só preventiva. As cópias que ainda guardavam o dado foram expurgadas no mesmo dia: o cache `dados/compras_cache` (`codigos/expurgar_cache_compras.py`: 2.462 de 3.531 páginas alteradas, depois 0 ocorrências) e o dump de segurança (restaurado, passado pela função da V12 e gerado de novo; 0 ocorrências de `niFornecedor`/`nomeFornecedor` no texto do dump, e o dump com o dado foi apagado). Falta o DPO confirmar a base legal e o prazo.
+- Aparecer **qualquer** `niFornecedor` com 11 dígitos (CPF) na raw antes da minimização: tratar como dado pessoal identificado. **Disparou em 24/11/2026** (11 compras com CPF). Efeito: a minimização deixa de ser só preventiva. As cópias que ainda guardavam o dado foram expurgadas no mesmo dia: o cache `dados/compras_cache` (`codigos/expurgar_cache_compras.py`: 2.462 de 3.531 páginas alteradas, depois 0 ocorrências) e o dump de segurança (restaurado, passado pela função da V12 e gerado de novo; 0 ocorrências de `niFornecedor`/`nomeFornecedor` no texto do dump, e o dump com o dado foi apagado).
 - A pergunta de gestão passar a exigir o fornecedor (RF-03): reabrir a minimização (reter só o CNPJ de pessoa jurídica, com acesso restrito).
 - O painel for exposto **fora da rede da UnB** ou ganhar login por usuário: mapear linhas por usuário e a conexão do painel já usa `sigma_painel_app` (V13).
 - Mais de **20 usuários** com mapeamento por almoxarifado: sair da semente CSV para uma tabela gerida.
-- O encarregado de dados da UnB discordar da base legal ou do prazo: revisar a retenção.

@@ -63,10 +63,8 @@ Veja o quadro completo em [Revisão dos gatilhos](adr/revisao-dos-gatilhos.md). 
 
 - [ ] Revisão da Squad dos ADRs 0005, 0006, 0007, 0010, 0011 e 0012 (mudar de "proposto") — [a definir]
 - [ ] Conferir por pessoas as correspondências de confiança baixa e de maior valor — [a definir]
-- [ ] Confirmar base legal e prazos com o encarregado de dados da UnB — [a definir]
 - [ ] Preencher ou marcar como substituído o ADR 0002; completar 0008 e 0009 — [a definir]
 - [x] Painel conectado como `sigma_painel_app` (V13), testado.
 - [x] Cache de compras e dump de segurança expurgados do fornecedor (24/11/2026); o dump com o dado foi apagado.
-- [ ] DPO confirmar base legal e prazo do que foi coletado — [a definir]
 - [ ] Combinar com compras um retorno do alerta (conferido, descartado, renegociado) — [a definir]
 - [ ] Integrar a branch `feat/prata-correspondencias-busca-tecnica` com as desta rodada (conflito conhecido em `models/fontes.yml`; as fontes do dbt passam de `semantica` para `busca` e `prata`) — [a definir]

@@ -1,6 +1,6 @@
 # Análise de LGPD
 
-> Análise técnica da Squad sobre o que foi construído. **Não é parecer jurídico**: as bases legais e os prazos abaixo devem ser confirmados com o encarregado de dados (DPO) da UnB antes de qualquer uso fora do projeto acadêmico.
+> Análise técnica da Squad sobre o que foi construído. **Não é parecer jurídico**: as bases legais e os prazos abaixo são hipóteses da Squad para um projeto acadêmico e de aprendizado, sem validação jurídica; reveja-os se o projeto sair desse âmbito.
 
 ## Inventário: onde há dado pessoal
 
@@ -18,7 +18,7 @@
 
 ## Base legal, finalidade e minimização
 
-| Tratamento | Finalidade | Base legal (a confirmar com o DPO) |
+| Tratamento | Finalidade | Base legal (hipótese da Squad) |
 |---|---|---|
 | Ler `niFornecedor`/`nomeFornecedor` da API pública e guardar na raw | Nenhuma além de poder reprocessar; a análise de preço **não usa** | Art. 7º, III e §3º da LGPD (tratamento pela administração pública de dado de acesso público, respeitada a finalidade) e Lei de Acesso à Informação. Como a finalidade não exige o campo, vale o **princípio da necessidade** (art. 6º, III): não guardar |
 | Registrar quem revisou | Responsabilização e auditoria da decisão | Art. 7º, III e V (execução das atividades da instituição / do projeto) |
@@ -53,6 +53,5 @@ Duas bases anonimizadas podem reidentificar quem nenhuma identificava sozinha. O
 
 ## Pendências
 
-- Confirmar a base legal e os prazos com o DPO da UnB.
 - Automatizar o descarte do cache em disco (`dados/compras_cache`).
-- Feito em 24/11/2026: a contagem completa achou 11 CPF (gatilho do ADR 0012). O cache de compras e o dump de segurança foram expurgados no mesmo dia (sem ocorrência de fornecedor depois). Falta o DPO confirmar a base legal e o prazo.
+- Feito em 24/11/2026: a contagem completa achou 11 CPF (gatilho do ADR 0012). O cache de compras e o dump de segurança foram expurgados no mesmo dia (sem ocorrência de fornecedor depois).
