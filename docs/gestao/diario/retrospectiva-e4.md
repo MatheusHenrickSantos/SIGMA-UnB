@@ -26,7 +26,7 @@ Segue o formato do [diário de bordo](gestao/diario-de-bordo.md): o que foi medi
 ## O que surpreendeu
 
 1. **Uma métrica com duas definições no mesmo repositório.** "Cobertura de preço público" estava ÷ materiais em estoque no painel e ÷ materiais com item CATMAT no registro de qualidade. Só apareceu ao montar a camada de métricas.
-2. **A ordem do pipeline estava errada.** `transformar` construía `compras_bronze` antes de `raw.compras` existir; passava porque a tabela vazia não derruba nenhum teste.
+2. **A ordem do pipeline estava errada.** `transformar` construía `compras_bronze` antes de `raw.compras` existir; os testes rodavam sobre uma tabela vazia e passavam.
 3. **A validação da correspondência era circular.** Os 150 rótulos de referência coincidem em 98,7% com as decisões dos agentes: medir um contra o outro não é validação independente.
 4. **O dado pessoal estava na raw sem ninguém ter decidido isso.** O fornecedor vinha no JSON da API e foi guardado por inércia.
 5. **Dois nomes para "semântica".** O schema `semantica` (busca vetorial) e a camada semântica de métricas da E4 são coisas diferentes; a branch de Matheus renomeia o schema para `busca` (ADR 0008).
@@ -54,9 +54,9 @@ Veja o quadro completo em [Revisão dos gatilhos](adr/revisao-dos-gatilhos.md). 
 
 ## O que deixaríamos diferente
 
-- **Começar a E4 antes.** Governança (LGPD, acesso, linhagem) depende de decisões da raw e da prata; fazê-la no fim custou reescrever a ingestão do fornecedor.
+- **Começar a governança antes.** LGPD, acesso e linhagem dependem de decisões da raw: o fornecedor ficou lá sem decisão explícita, e a minimização de agora é irreversível. Decidir na E3 evitaria isso.
 - **Rotular uma amostra por pessoas na E3**, não por IA. Sem isso, os gatilhos do 0006 não são avaliáveis e a correspondência fica em "palpite revisado por palpite".
-- **Um ADR por decisão, no dia.** Três ADRs foram escritos depois, de memória (0005 a 0007), e dois (0008 e 0009) sem opção nula, medição nem gatilho.
+- **Um ADR por decisão, no dia, com a medição.** Hoje 0005, 0006 e 0007 seguem "propostos" e 0008 e 0009 não têm opção nula, medição nem gatilho.
 - **Integrar a `e2-entrega` ou descartá-la com um ADR**, em vez de deixá-la como branch paralela por um mês.
 
 ## Pendências
