@@ -36,16 +36,17 @@ SITUACAO = {"ok": VERDE, "atencao": AMBAR, "critico": VERMELHO, "sem_dado": CINZ
 ROTULO_SITUACAO = {"ok": "OK", "atencao": "Atenção", "critico": "Crítico", "sem_dado": "Sem dado"}
 REVISOR = alt.Scale(domain=["pessoa", "agente", "sem_decisao"], range=[VERDE, AZUL, "#B8C0C8"])
 
-alt.themes.register("unb", lambda: {"config": {
-    "background": "transparent",
-    "view": {"stroke": "transparent"},
-    "font": "sans-serif",
-    "axis": {"gridColor": LINHA, "domainColor": LINHA, "tickColor": LINHA, "labelColor": CINZA,
-             "titleColor": CINZA, "labelFontSize": 12, "titleFontSize": 12, "titleFontWeight": "normal"},
-    "legend": {"labelColor": TEXTO, "titleColor": CINZA, "titleFontWeight": "normal"},
-    "range": {"category": [AZUL, VERDE, AZUL_CLARO, VERMELHO]},
-}})
-alt.themes.enable("unb")
+@alt.theme.register("unb", enable=True)
+def _tema_unb() -> alt.theme.ThemeConfig:
+    return {"config": {
+        "background": "transparent",
+        "view": {"stroke": "transparent"},
+        "font": "sans-serif",
+        "axis": {"gridColor": LINHA, "domainColor": LINHA, "tickColor": LINHA, "labelColor": CINZA,
+                 "titleColor": CINZA, "labelFontSize": 12, "titleFontSize": 12, "titleFontWeight": "normal"},
+        "legend": {"labelColor": TEXTO, "titleColor": CINZA, "titleFontWeight": "normal"},
+        "range": {"category": [AZUL, VERDE, AZUL_CLARO, VERMELHO]},
+    }}
 
 st.set_page_config(page_title="SIGMA-UnB · Preços", page_icon="📊", layout="wide")
 
@@ -198,9 +199,9 @@ if so_pessoa:
     ranking = ranking[ranking["tipo_revisor_correspondencia"] == "pessoa"]
 ranking = ranking.sort_values("diferenca_pct", ascending=False)
 
-aba_geral, aba_precos, aba_almox, aba_serie, aba_qualidade, aba_revisao = st.tabs(
-    ["Visão geral", "Maiores diferenças", "Almoxarifados", "Série mensal", "Qualidade dos dados",
-     "Revisão CATMAT"]
+aba_geral, aba_precos, aba_busca, aba_almox, aba_serie, aba_qualidade, aba_revisao = st.tabs(
+    ["Visão geral", "Maiores diferenças", "Buscar produto", "Almoxarifados", "Série mensal",
+     "Qualidade dos dados", "Revisão CATMAT"]
 )
 
 # --- Visão geral -----------------------------------------------------------
@@ -285,6 +286,79 @@ with aba_precos:
             }),
             hide_index=True, width="stretch",
         )
+
+# --- Buscar produto --------------------------------------------------------
+with aba_busca:
+    todos = consultar(
+        "SELECT identificador_material, descricao, codigos_equivalentes, tipo_revisor, confianca "
+        "FROM ouro.dim_material WHERE atual ORDER BY descricao"
+    )
+    st.caption(f"{inteiro(len(todos))} materiais cadastrados. Busque por palavras da descrição "
+               "(todas precisam aparecer) ou pelo código do material, como ma0123.")
+    termo = st.text_input("Produto", placeholder="ex.: papel a4, luva procedimento, ma0123",
+                          label_visibility="collapsed")
+    achados = todos
+    for palavra in termo.split():
+        achados = achados[achados["descricao"].str.contains(palavra, case=False, regex=False)
+                          | achados["identificador_material"].str.contains(palavra, case=False, regex=False)]
+    if not termo.strip():
+        st.info("Digite parte do nome do produto para começar.")
+    elif achados.empty:
+        st.warning("Nenhum material encontrado. Tente menos palavras ou outra grafia (com acento, em maiúsculas).")
+    else:
+        st.write(f"{inteiro(len(achados))} material(is) encontrado(s)"
+                 + (" — mostrando os 200 primeiros." if len(achados) > 200 else "."))
+        opcoes = achados.head(200)
+        escolha = st.selectbox(
+            "Resultado", opcoes["identificador_material"].tolist(), label_visibility="collapsed",
+            format_func=lambda i: f"{i} · {opcoes.loc[opcoes['identificador_material'] == i, 'descricao'].iloc[0]}",
+        )
+        item = opcoes[opcoes["identificador_material"] == escolha].iloc[0]
+        revisor = {"pessoa": "conferida por pessoa", "agente": "sugerida por agente de IA",
+                   "sem_decisao": "sem decisão"}[item["tipo_revisor"]]
+        st.subheader(item["descricao"])
+        st.markdown(
+            f"Itens CATMAT: **{item['codigos_equivalentes'] or 'nenhum'}** · correspondência {revisor}"
+            + (f" · confiança {item['confianca']}" if item["confianca"] else "")
+        )
+        hist = numerico(consultar(
+            """
+            SELECT f.mes_referencia, a.nome AS almoxarifado, f.quantidade, f.preco_estoque,
+                   f.valor_estoque, f.preco_publico_mediano, f.compras_publicas, f.diferenca_pct
+            FROM ouro.fato_comparacao_preco f
+            JOIN ouro.dim_almoxarifado a USING (identificador_almoxarifado)
+            WHERE f.identificador_material = %s ORDER BY f.mes_referencia
+            """,
+            (escolha,),
+        ), ["quantidade", "preco_estoque", "valor_estoque", "preco_publico_mediano", "diferenca_pct"])
+        if hist.empty:
+            st.info("Este material está no cadastro, mas não tem registro de estoque com preço positivo.")
+        else:
+            ultimo = hist[hist["mes_referencia"] == hist["mes_referencia"].max()]
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Preço no estoque (último mês)", f"R$ {ultimo['preco_estoque'].mean():,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+            pub = ultimo["preco_publico_mediano"].dropna()
+            c2.metric("Mediana pública", "sem compras" if pub.empty else
+                      f"R$ {pub.iloc[0]:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+            dif = ultimo["diferenca_pct"].dropna()
+            c3.metric("Diferença", "-" if dif.empty else f"{dif.iloc[0]:+.1f}%")
+            linhas = alt.Chart(hist).mark_line(point=True).encode(
+                x=alt.X("mes_referencia:T", title=None), y=alt.Y("preco_estoque:Q", title="Preço unitário (R$)"),
+                color=alt.Color("almoxarifado:N", title="Almoxarifado"),
+                tooltip=["mes_referencia", "almoxarifado", "preco_estoque", "quantidade", "preco_publico_mediano"],
+            )
+            publico = alt.Chart(hist.dropna(subset=["preco_publico_mediano"])).mark_rule(
+                color=VERMELHO, strokeDash=[4, 4]).encode(y="mean(preco_publico_mediano):Q")
+            grafico((linhas + publico).properties(height=280))
+            st.caption("Linha tracejada vermelha: mediana do preço das compras públicas (quando há).")
+            st.dataframe(
+                hist.sort_values("mes_referencia", ascending=False).rename(columns={
+                    "mes_referencia": "Mês", "almoxarifado": "Almoxarifado", "quantidade": "Saldo",
+                    "preco_estoque": "Preço estoque (R$)", "valor_estoque": "Valor (R$)",
+                    "preco_publico_mediano": "Mediana pública (R$)", "compras_publicas": "Compras",
+                    "diferenca_pct": "Diferença (%)"}),
+                hide_index=True, width="stretch",
+            )
 
 # --- Almoxarifados ---------------------------------------------------------
 with aba_almox:
