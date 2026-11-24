@@ -49,7 +49,9 @@ services:
       PGTZ: America/Sao_Paulo
     ports:
       # Porta do host configurável: útil se já houver um Postgres local na 5432.
-      - "${PORTA_DO_BANCO:-5432}:5432"
+      # Só no loopback: o banco tem dados do almoxarifado e senha padrão. Para abrir
+      # a outra máquina, defina INTERFACE_DO_BANCO (e troque as senhas do .env).
+      - "${INTERFACE_DO_BANCO:-127.0.0.1}:${PORTA_DO_BANCO:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -234,7 +236,8 @@ services:
       USUARIO_DO_BANCO: sigma_painel_app
       SENHA_DO_BANCO: ${SENHA_DO_PAINEL:-sigma_painel}
     ports:
-      - "${PORTA_DO_PAINEL:-8501}:8501"
+      # Só no loopback até haver login no painel; INTERFACE_DO_PAINEL=0.0.0.0 abre à rede.
+      - "${INTERFACE_DO_PAINEL:-127.0.0.1}:${PORTA_DO_PAINEL:-8501}:8501"
 
 volumes:
   pgdata:
