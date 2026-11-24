@@ -55,4 +55,4 @@ Duas bases anonimizadas podem reidentificar quem nenhuma identificava sozinha. O
 
 - Confirmar a base legal e os prazos com o DPO da UnB.
 - Automatizar o descarte do cache em disco (`dados/compras_cache`).
-- Feito em 24/11/2026: a contagem completa achou 11 CPF (gatilho do ADR 0012). Falta o DPO confirmar a base legal e decidir o destino do dump de segurança que ainda guarda esses dados.
+- Feito em 24/11/2026: a contagem completa achou 11 CPF (gatilho do ADR 0012). O cache de compras e o dump de segurança foram expurgados no mesmo dia (sem ocorrência de fornecedor depois). Falta o DPO confirmar a base legal e o prazo.

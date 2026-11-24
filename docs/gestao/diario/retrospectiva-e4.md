@@ -66,6 +66,7 @@ Veja o quadro completo em [Revisão dos gatilhos](adr/revisao-dos-gatilhos.md). 
 - [ ] Confirmar base legal e prazos com o encarregado de dados da UnB — [a definir]
 - [ ] Preencher ou marcar como substituído o ADR 0002; completar 0008 e 0009 — [a definir]
 - [x] Painel conectado como `sigma_painel_app` (V13), testado.
-- [ ] Apagar `dados/compras_cache` (páginas brutas da API, com CNPJ/CPF do fornecedor) e o dump de segurança em `~/sigma-backups/` depois de confirmar com o DPO — [a definir]
+- [x] Cache de compras e dump de segurança expurgados do fornecedor (24/11/2026); o dump com o dado foi apagado.
+- [ ] DPO confirmar base legal e prazo do que foi coletado — [a definir]
 - [ ] Combinar com compras um retorno do alerta (conferido, descartado, renegociado) — [a definir]
 - [ ] Integrar a branch `feat/prata-correspondencias-busca-tecnica` com as desta rodada (conflito conhecido em `models/fontes.yml`; as fontes do dbt passam de `semantica` para `busca` e `prata`) — [a definir]

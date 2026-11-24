@@ -61,7 +61,7 @@ Escolhemos C. A minimização liga por padrão (`remover_identificacao_fornecedo
 
 ## Gatilho de revisão
 
-- Aparecer **qualquer** `niFornecedor` com 11 dígitos (CPF) na raw antes da minimização: tratar como dado pessoal identificado, revisar a base legal e o prazo com o DPO. **Disparou em 24/11/2026** (11 compras com CPF). Efeito: a minimização deixa de ser só preventiva; o DPO precisa confirmar que a remoção feita já na raw é suficiente e se o dump `~/sigma-backups/sigma-real-pre-integracao.dump`, que guarda esses dados, deve ser apagado.
+- Aparecer **qualquer** `niFornecedor` com 11 dígitos (CPF) na raw antes da minimização: tratar como dado pessoal identificado, revisar a base legal e o prazo com o DPO. **Disparou em 24/11/2026** (11 compras com CPF). Efeito: a minimização deixa de ser só preventiva. As cópias que ainda guardavam o dado foram expurgadas no mesmo dia: o cache `dados/compras_cache` (`codigos/expurgar_cache_compras.py`: 2.462 de 3.531 páginas alteradas, depois 0 ocorrências) e o dump de segurança (restaurado, passado pela função da V12 e gerado de novo; 0 ocorrências de `niFornecedor`/`nomeFornecedor` no texto do dump, e o dump com o dado foi apagado). Falta o DPO confirmar a base legal e o prazo.
 - A pergunta de gestão passar a exigir o fornecedor (RF-03): reabrir a minimização (reter só o CNPJ de pessoa jurídica, com acesso restrito).
 - O painel for exposto **fora da rede da UnB** ou ganhar login por usuário: mapear linhas por usuário e a conexão do painel já usa `sigma_painel_app` (V13).
 - Mais de **20 usuários** com mapeamento por almoxarifado: sair da semente CSV para uma tabela gerida.
