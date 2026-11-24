@@ -235,6 +235,8 @@ services:
       <<: *conexao-banco
       USUARIO_DO_BANCO: sigma_painel_app
       SENHA_DO_BANCO: ${SENHA_DO_PAINEL:-sigma_painel}
+      # vazio = painel sem senha (aceitável só no loopback)
+      SENHA_DE_ACESSO_DO_PAINEL: ${SENHA_DE_ACESSO_DO_PAINEL:-}
     ports:
       # Só no loopback até haver login no painel; INTERFACE_DO_PAINEL=0.0.0.0 abre à rede.
       - "${INTERFACE_DO_PAINEL:-127.0.0.1}:${PORTA_DO_PAINEL:-8501}:8501"

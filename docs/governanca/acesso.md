@@ -62,5 +62,5 @@ PGPASSWORD=troque psql -h localhost -U joao_prc -d sigma -c "SELECT almoxarifado
 ## Exposição na rede e senhas padrão
 
 - O banco e o painel são publicados só em `127.0.0.1` (`INTERFACE_DO_BANCO`, `INTERFACE_DO_PAINEL` no `docker-compose.yml`). Abrir para a rede exige decisão explícita.
-- As senhas padrão (`sigma`, `sigma_painel`) existem para o ambiente local. **Troque-as no `.env` antes de qualquer uso fora da máquina de desenvolvimento**; o painel ainda não tem login por usuário.
+- As senhas padrão (`sigma`, `sigma_painel`) existem para o ambiente local. **Troque-as no `.env` antes de qualquer uso fora da máquina de desenvolvimento**. O painel tem uma **senha de acesso única** (`SENHA_DE_ACESSO_DO_PAINEL`, testada com senha ausente, errada e certa); ainda não há login por usuário nem recorte de linhas por pessoa. Defina a senha sempre que abrir o painel à rede.
 - Cópias do banco (dumps) e `dados/compras_cache` guardam o JSON bruto das compras, com CNPJ/CPF do fornecedor: mantenha com permissão restrita (`chmod 600`) e apague depois de confirmar com o DPO (ver `lgpd.md`).

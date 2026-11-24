@@ -13,6 +13,7 @@ Rodar: docker compose up painel  (http://localhost:8501)
 
 from __future__ import annotations
 
+import hmac
 import os
 
 import altair as alt
@@ -49,6 +50,25 @@ def _tema_unb() -> alt.theme.ThemeConfig:
     }}
 
 st.set_page_config(page_title="SIGMA-UnB · Preços", page_icon="📊", layout="wide")
+
+
+def exigir_senha() -> None:
+    """Senha de acesso ao painel (SENHA_DE_ACESSO_DO_PAINEL). Sem a variável, o painel
+    fica aberto; o compose só o publica no loopback nesse caso (ver docs/governanca/acesso.md)."""
+    esperada = os.environ.get("SENHA_DE_ACESSO_DO_PAINEL", "")
+    if not esperada or st.session_state.get("autenticado"):
+        return
+    st.title("SIGMA-UnB")
+    digitada = st.text_input("Senha de acesso", type="password")
+    if digitada and hmac.compare_digest(digitada.encode(), esperada.encode()):
+        st.session_state["autenticado"] = True
+        st.rerun()
+    elif digitada:
+        st.error("Senha incorreta.")
+    st.stop()
+
+
+exigir_senha()
 
 st.markdown(
     f"""
