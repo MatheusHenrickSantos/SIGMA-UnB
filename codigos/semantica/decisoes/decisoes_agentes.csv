@@ -1,7 +1,7 @@
 material;codigos_equivalentes;sem_correspondente;confianca;justificativa;revisor
-"ABRACADEIRA, 2"", INOX, 5/8X2.1/2""";;sim;baixa;"Descrição ambígua (2"" vs 5/8x2.1/2"") e nenhum item inox com essas medidas";agente:ia
-ABRACADEIRA, ACO, GALVANIZADO, COPO, 1⁄2 POLEGADA;386605;nao;alta;Abraçadeira aço galvanizado tipo copo 1/2 pol confere.;agente:ia
-ABRACADEIRA, ACO, GALVANIZADO, COPO, 3⁄4 POLEGADA;386606;nao;alta;Abraçadeira aço galvanizado tipo copo 3/4 pol confere.;agente:ia
+"ABRACADEIRA, 2"", INOX, 5/8 X 2.1/2""";;sim;baixa;"Descrição ambígua (2"" vs 5/8x2.1/2"") e nenhum item inox com essas medidas";agente:ia
+ABRACADEIRA, ACO, GALVANIZADO, COPO, 1/2 POLEGADA;386605;nao;alta;Abraçadeira aço galvanizado tipo copo 1/2 pol confere.;agente:ia
+ABRACADEIRA, ACO, GALVANIZADO, COPO, 3/4 POLEGADA;386606;nao;alta;Abraçadeira aço galvanizado tipo copo 3/4 pol confere.;agente:ia
 ABRACADEIRA, METAL, GALVANIZADO, COPO, 2 1/2 POLEGADA;383728;nao;alta;Abracadeira copo galvanizada 2 1/2 pol exata.;agente:ia
 ABRACADEIRA, METAL, GALVANIZADO, COPO, 2 1/2, POLEGADA;383728;nao;alta;Abraçadeira copo galvanizada 2 1/2 pol idêntica.;agente:ia
 ABRACADEIRA, METAL, GALVANIZADO, COPO, ESPESSURA 2 POLEGADAS;607151;nao;alta;"Abraçadeira copo galvanizada 2 pol sem extras; 267610 é 2 mm.";agente:ia
@@ -12,7 +12,7 @@ ABRACADEIRA, PRESSAO, 2 POLEGADAS;437995;nao;baixa;"Abraçadeira metal galvaniza
 ABRACADEIRA, PRESSAO, 2, POLEGADAS;437995;nao;baixa;"Abraçadeira metal galvanizado 2 pol; tipo pressão não confirmado no CATMAT.";agente:ia
 ABRACADEIRA, PRESSAO, 3 POLEGADAS;;sim;media;Abracadeiras de 3 pol no CATMAT sao tipo U, nao de pressao;agente:ia
 ABRACADEIRA, PRESSAO, 3, POLEGADAS;;sim;media;Abraçadeira de pressão 3 pol não existe entre candidatos (3/4 e 4 pol divergem).;agente:ia
-ACABAMENTO, REGISTRO, PRESSAO, 3⁄4, C50, METAL, CROMADO;399103;nao;media;Canopla C 50 Deca cromada com bitola 3/4 incluída.;agente:ia
+ACABAMENTO, REGISTRO, PRESSAO, 3/4, C50, METAL, CROMADO;399103;nao;media;Canopla C 50 Deca cromada com bitola 3/4 incluída.;agente:ia
 ACABAMENTO, TESTEIRA, VINILICA, CINZA;;sim;baixa;"Testeira/acabamento vinílico cinza; nenhum item equivalente (rodapé e tintas são outros produtos).";agente:ia
 ACABAMENTO, TESTEIRA, VINILICA, MARFIM;;sim;media;Testeira vinílica marfim sem item equivalente no CATMAT.;agente:ia
 ACETATO, ETILA, 1 L;382139|633781;nao;media;"Acetato de etila (estoque inverte a ordem); 382139 é o grau 99,5%; 633781 é padrão analítico. 470871 é bromoacetato, excluído.";agente:ia
@@ -49,11 +49,11 @@ ACO, SEXTAVADO, 5/8;;sim;media;Barra de aço sextavada 5/8 pol não encontrada (
 ACO, SEXTAVADO, 7/8;;sim;baixa;"Aço sextavado 7/8 sem forma de produto; CATMAT só tem latão ou outros itens.";agente:ia
 ACO, SEXTAVADO, 9/16;;sim;media;"Sem barra de aco sextavada 9/16; os itens sao latao ou chave allen.";agente:ia
 ACUCAR, CRISTAL, 5 KG;395794|463988|463989|603269;nao;alta;"Açúcar cristal; o orgânico (463990) foi excluído.";agente:ia
-ACUCAREIRO, ACO INOXIDAVEL, 330 GR;218748|260873;nao;alta;Açucareiro aço inox 330 g.;agente:ia
-ADAPTADOR, HIDRAULICO, PVC, 20 MM X 1⁄2;373920|373933|380961;nao;media;"Adaptador PVC 20 mm x 1/2 pol; variantes só diferem em tipo/aplicação.";agente:ia
-ADAPTADOR, HIDRAULICO, PVC, 20MMX1⁄2;373933;nao;media;Adaptador PVC curto soldável/roscável 20 mm x 1/2 pol.;agente:ia
-ADAPTADOR, HIDRAULICO, PVC, 25 MM X 3⁄4;233958|236656|243442|324187|333258|373932|626239;nao;media;"Adaptador PVC 25 mm x 3/4 sem flange/irrigação; atributos livres aceitos";agente:ia
-ADAPTADOR, HIDRAULICO, PVC, 25MMX3⁄4;373932|453144|626239;nao;media;Adaptador curto PVC 25 mm x 3/4 soldável e roscável;agente:ia
+ACUCAREIRO, ACO INOXIDAVEL, 330GR;218748|260873;nao;alta;Açucareiro aço inox 330 g.;agente:ia
+ADAPTADOR, HIDRAULICO, PVC, 20 MM X 1/2;373920|373933|380961;nao;media;"Adaptador PVC 20 mm x 1/2 pol; variantes só diferem em tipo/aplicação.";agente:ia
+ADAPTADOR, HIDRAULICO, PVC, 20MMX1/2;373933;nao;media;Adaptador PVC curto soldável/roscável 20 mm x 1/2 pol.;agente:ia
+ADAPTADOR, HIDRAULICO, PVC, 25 MM X 3/4;233958|236656|243442|324187|333258|373932|626239;nao;media;"Adaptador PVC 25 mm x 3/4 sem flange/irrigação; atributos livres aceitos";agente:ia
+ADAPTADOR, HIDRAULICO, PVC, 25MMX3/4;373932|453144|626239;nao;media;Adaptador curto PVC 25 mm x 3/4 soldável e roscável;agente:ia
 ADAPTADOR, HIDRAULICO, PVC, 32 MM X 1;324189|328087|373934|453143;nao;media;"Adaptador PVC curto 32 mm x 1 pol; stock não especifica aplicação/cor.";agente:ia
 ADAPTADOR, HIDRAULICO, PVC, 32MMX1;233961|242810|324189|328087|333256|373934|453143;nao;media;"Adaptador PVC soldável 32 mm x rosca 1 pol; variam só aplicação/cor/comprimento.";agente:ia
 ADAPTADOR, HIDRAULICO, PVC, 40 MM X 1.1/4;297945|333254|373930|379569;nao;media;"Adaptador PVC 40 mm x 1 1/4 pol; tipo/cor não informados no estoque.";agente:ia
@@ -80,13 +80,13 @@ ADESIVO, EPOXI, CINZA;254278|431437|479124;nao;media;Adesivos epóxi cinza (tons
 ADESIVO, GERAL, COLA, PLASTICO, PVC, 175 G;265158|265288;nao;media;"Cola adesivo para tubos e conexões de PVC; apresentação frasco/pote livre (unidade_diferente).";agente:ia
 ADESIVO, GERAL, COLA, PLASTICO, PVC, 850 G;238337|265158|265288;nao;media;"Adesivo para tubos e conexoes de PVC; embalagem de 850 g livre";agente:ia
 ADESIVO, JUNTA, COLA, MONOADESIVA, 3,6 L;;sim;baixa;"Descrição vaga (cola monoadesiva junta 3,6L); sem item equivalente.";agente:ia
-ADESIVO, JUNTA, MOTOR, 3M;224866|224867|298359|320170|367294|485647|605356;nao;media;"Adesivo para junta de motor; estoque não informa tipo/composição, marca 3M livre.";agente:ia
+ADESIVO, JUNTA, MOTOR, 3 M;224866|224867|298359|320170|367294|485647|605356;nao;media;"Adesivo para junta de motor; estoque não informa tipo/composição, marca 3M livre.";agente:ia
 ADESIVO, JUNTAS, MOTORES, AUTOMOTIVO;605356;nao;media;Adesivo para juntas de motor;agente:ia
 ADOCANTE, ESTEVIA, MESA, LIQUIDO, 65 ML;236197|295546;nao;alta;Adoçante líquido de estévia.;agente:ia
 ADOCANTE, MESA, LIQUIDO, ESTEVIA, 65 ML;236197|295546;nao;media;"Adoçante líquido de estévia; volume não consta no CATMAT.";agente:ia
 AGUA, MINERAL, SEM GAS, GARRAFAO, 20 LT;332485;nao;media;Água mineral sem gás em garrafão;agente:ia
 AGUA, SANITARIA, 1 LITRO;226699|226700|226701|292730|299605|310507|624677;nao;media;"Água sanitária comum; 1 L não contradiz / Água sanitária. [mesclada de 2 descrições do estoque que a normalização uniu]";agente:ia
-AGULHAS, COLETA, SANGUE, VACUO, 21 G X 1';399980;nao;media;Agulha coleta a vácuo 21G x 1 pol (1' interpretado como polegada).;agente:ia
+AGULHAS, COLETA, SANGUE, VACUO, 21 G X 1'.;399980;nao;media;Agulha coleta a vácuo 21G x 1 pol (1' interpretado como polegada).;agente:ia
 ALAVANCA, RETA, FERRO, GRANDE, 14,5 CM, VIDRO;;sim;baixa;"Descrição incoerente (alavanca ferro com vidro); nenhum candidato serve.";agente:ia
 ALCOOL, ETILICO, 92,8 INPM, 1 LITRO;390766;nao;alta;Álcool etílico hidratado 92,8 INPM, concentração igual. / Álcool etílico hidratado 92,8 INPM. [mesclada de 2 descrições do estoque que a normalização uniu];agente:ia
 ALCOOL, ETILICO, GEL, 70%, 1 L;269943|380018|429225;nao;alta;Alcool etilico gel 70%.;agente:ia
@@ -99,8 +99,8 @@ ALICATE, ELETRODO, 500 A;255833;nao;media;Alicate porta-eletrodo de solda 500 A;
 ALMOFADA, CARIMBO, AZUL;203295|251047|301744|301746|382454|427254|427256|427258|432799|432800|432801;nao;media;"Almofada de carimbo azul entintada; tamanho não informado";agente:ia
 ALMOFADA, CARIMBO, PRETA;379724|382455|427255|427257|427259;nao;alta;"Almofada para carimbo preta; tamanho não especificado no estoque.";agente:ia
 ALUMINIO, CHAPA 16, 1,20MX2,00M;;sim;baixa;Nenhuma chapa de alumínio 1,20x2,00 m (nº 16) no CATMAT.;agente:ia
-ALUMINIO, CHAPA, 1,20 M X 2,00 M, CHAPA 16,;;sim;baixa;"Chapa 16 (~1,3 mm) 1,20x2,00 m sem item; os existentes têm outra espessura.";agente:ia
-ALUMINIO, CHAPA, 1,20MX2,00M, CHAPA 16,;;sim;baixa;Chapa aluminio 1,20x2,00 m calibre 16 sem item compativel nas dimensoes.;agente:ia
+ALUMINIO, CHAPA, 1,20 M X 2,00 M, CHAPA 16;;sim;baixa;"Chapa 16 (~1,3 mm) 1,20x2,00 m sem item; os existentes têm outra espessura.";agente:ia
+ALUMINIO, CHAPA, 1,20MX2,00M, CHAPA 16;;sim;baixa;Chapa aluminio 1,20x2,00 m calibre 16 sem item compativel nas dimensoes.;agente:ia
 "ALUMINIO, QUADRADO, 1""X1""";430975;nao;media;"Barra alumínio quadrada 25,40 mm = 1 pol; comprimento diferente (unidade_diferente).";agente:ia
 ANEL, BORRACHA, 100 MM;216494|216499|216500|216505|302272|398461|615146|615147;nao;media;"Anel de borracha DN 100 mm; tipo/aplicação não informados no estoque, aceitos todos os de 100 mm.";agente:ia
 ANEL, BORRACHA, 150 MM;216495|216501|216507|302273|465395|615148;nao;media;"Anel de borracha DN 150 mm; tipo não informado";agente:ia
@@ -108,7 +108,7 @@ ANEL, BORRACHA, 40 MM;216491;nao;media;Anel borracha DN 40 mm;agente:ia
 ANEL, BORRACHA, 50 MM;216492|216496|251583;nao;media;"Anel de borracha 50 mm; aplicação não informada, aceitos os três de 50 mm.";agente:ia
 ANEL, BORRACHA, 75 MM;216493|216498|251582|302271;nao;media;"Anel de borracha DN 75 mm; aplicação não informada no estoque";agente:ia
 ANEL, BORRACHA, VEDACAO, BACIA, SANITARIA;367406|480616;nao;baixa;"Anel vedação de vaso sanitário; medidas não informadas";agente:ia
-ANEL, ORING, 1,5X11MM;;sim;media;"Nenhum o-ring de 1,5x11 mm no catálogo; candidatos são peças de equipamentos específicos";agente:ia
+ANEL, ORING, 1,5 X 11 MM;;sim;media;"Nenhum o-ring de 1,5x11 mm no catálogo; candidatos são peças de equipamentos específicos";agente:ia
 ANTICORROSIVO, ADITIVO, RADIADORES, DIESEL;262513|404776|442500|472239|474425;nao;media;"Aditivo de radiador anticorrosivo; aplicação diesel não contradita";agente:ia
 ANTICORROSIVO, WD 40, LUBRIFICANTE;301619|349296;nao;media;Anticorrosivo/lubrificante WD-40;agente:ia
 APAGADOR, QUADRO, GIZ;203501|203502|203503|234635|262708|343996|409616|420336|430044;nao;media;"Apagador de quadro negro/giz; estoque não informa material nem dimensões.";agente:ia
@@ -124,7 +124,7 @@ ARRUELA, ELETRODUTO, 1.1/4;236049|392989|426982;nao;alta;"Arruela de eletroduto 
 ARRUELA, ELETRODUTO, 2;236819|306030;nao;media;"Arruela de eletroduto 2 pol; material não informado, aceitos alumínio e aço galvanizado.";agente:ia
 ARRUELA, ELETRODUTO, 2.1/2;236818|352142;nao;media;"Arruela eletroduto 2.1/2 pol; material não informado no estoque.";agente:ia
 ARRUELA, ELETRODUTO, 3;406937;nao;media;Arruela eletroduto 3 pol alumínio, único de 3 pol.;agente:ia
-ARRUELA, ELETRODUTO, 3⁄4;231553|319652|327625;nao;media;"Arruela de eletroduto 3/4 sem material informado; aceitos PVC, aço galvanizado e alumínio.";agente:ia
+ARRUELA, ELETRODUTO, 3/4;231553|319652|327625;nao;media;"Arruela de eletroduto 3/4 sem material informado; aceitos PVC, aço galvanizado e alumínio.";agente:ia
 ARRUELA, ELETRODUTO, 4;415385|428053;nao;media;Arruela eletroduto 4 pol (assumido polegadas), material livre.;agente:ia
 ARRUELA, LISA, 1/4;259693|262557|262574|283468|316287|316313|387336|390865|392394|406270|485980|630006;nao;media;"Arruela lisa 1/4 pol; material nao informado, aceitos todos.";agente:ia
 ARRUELA, LISA, 3/16 POLEGADA;262556|262575|283467|292071|316284|316311|485977|630005;nao;media;"Arruela lisa 3/16 pol; material livre";agente:ia
@@ -133,13 +133,13 @@ ARRUELA, LISA, 5/16 POLEGADA;262570|262571|275035|281725|316291|365562|365564|63
 ARRUELA, LISA, 5/16, POLEGADA;262570|262571|275035|281725|316291|365562|365564|630082;nao;media;"Arruela lisa diâmetro 5/16 pol; material/acabamento livres";agente:ia
 ARRUELA, LISA, 5/32 POLEGADA;262558|262576|392395|472053;nao;media;"Arruela lisa 5/32 pol; material livre (latão, inox, ferro galvanizado).";agente:ia
 ARRUELA, LISA, 5/32, POLEGADA;262558|262576|392395|472053;nao;media;Arruela lisa 5/32 sem material informado;agente:ia
-ARRUELA, LISA, GALVANIZADA, 1⁄2 POLEGADA;281726|316288|390317|485984;nao;media;"Arruela lisa galvanizada 1/2 pol; ferro/aço carbono.";agente:ia
-ARRUELA, LISA, GALVANIZADA, 1⁄2, POLEGADA;262568|281726|316288|390317|485984;nao;media;"Arruela lisa galvanizada 1/2 pol; apenas itens galvanizados de 1/2 pol.";agente:ia
+ARRUELA, LISA, GALVANIZADA, 1/2 POLEGADA;281726|316288|390317|485984;nao;media;"Arruela lisa galvanizada 1/2 pol; ferro/aço carbono.";agente:ia
+ARRUELA, LISA, GALVANIZADA, 1/2, POLEGADA;262568|281726|316288|390317|485984;nao;media;"Arruela lisa galvanizada 1/2 pol; apenas itens galvanizados de 1/2 pol.";agente:ia
 ARRUELA, LISA, GALVANIZADA, 3/8 POLEGADA;262567|262569|277912|316285|486495;nao;media;Arruela lisa galvanizada 3/8;agente:ia
 ARRUELA, LISA, GALVANIZADA, 3/8, POLEGADA;262567|262569|277912|316285|486495;nao;media;Arruela lisa 3/8 pol galvanizada;agente:ia
 "ASPERSOR, ROTOR, IRRIGACAO, 3/4""";;sim;media;"Rotor nao ha; candidato 3/4 e aspersor de impacto";agente:ia
-AVENTAL, HOSPITALAR, CAPOTE CIRURGICO, TAM UNICO, MANGA LONGA;;sim;baixa;"Candidatos são tamanho G e gramatura específica; estoque diz tamanho único, sem item compatível.";agente:ia
-AVENTAL, HOSPITALAR, CAPOTE, CIRURGICO, TAM, UNICO, MANGA, LONGA;422231|481363|481513|604923|642179;nao;baixa;"Estoque não informa esterilidade/barreira; candidatos são todos estéreis SMS específicos. / Avental/capote descartável manga longa; CATMAT não tem 'capote cirúrgico' com esses atributos.; corrigido após calibração: avental cirúrgico (capote) incluído [mesclada de 2 descrições do estoque que a normalização uniu]";agente:ia
+AVENTAL, HOSPITALAR, CAPOTE CIRURGICO, TAMANHO UNICO, MANGA LONGA.;;sim;baixa;"Candidatos são tamanho G e gramatura específica; estoque diz tamanho único, sem item compatível.";agente:ia
+AVENTAL, HOSPITALAR, CAPOTE, CIRURGICO, TAMANHO, UNICO, MANGA, LONGA.;422231|481363|481513|604923|642179;nao;baixa;"Estoque não informa esterilidade/barreira; candidatos são todos estéreis SMS específicos. / Avental/capote descartável manga longa; CATMAT não tem 'capote cirúrgico' com esses atributos.; corrigido após calibração: avental cirúrgico (capote) incluído [mesclada de 2 descrições do estoque que a normalização uniu]";agente:ia
 BACIA, SANITARIA, COMUM, RAVENA, BRANCA;;sim;media;"Bacia sanitaria ceramica nao existe; candidatos sao bacias plasticas.";agente:ia
 BACIA, SANITARIA, LOUCA, CAIXA, ACOPLADA, BRANCA;264236|618198;nao;media;Vaso sanitário louça branco com caixa acoplada.;agente:ia
 BANDEJA, ACO, INOXIDAVEL, REDONDA, 35 CM;241371;nao;alta;Bandeja redonda aço inox 35 cm.;agente:ia
@@ -156,22 +156,22 @@ BATEDOR, PORTAO, ELETRONICO, 55 MM X 35 MM, CHAPA 18;;sim;media;"Batedor de port
 BATENTE, PREDIAL, GRANITO, MARMORE, 20 MM;72060;nao;baixa;"Apenas item genérico de batente para uso predial; sem item específico de granito/mármore 20 mm.";agente:ia
 BATERIA, 9 V;293028|300473|322757|333185;nao;media;Bateria/pilha 9V, tipo nao informado;agente:ia
 BATERIA, LANTERNA, LAZER, 6 V;259707|269642;nao;media;Bateria não recarregável 6 V para lanterna comum.;agente:ia
-BATERIA, NO BREAK, 12X100AH;410632;nao;media;Bateria selada VRLA no break 12 V 100 AH.;agente:ia
-BATERIA, NO BREAK, 12X12AH;375196|378945;nao;media;Bateria selada 12 V 12 Ah;agente:ia
-BATERIA, NO BREAK, 12X18AH;394696|420001;nao;media;"Bateria selada 12V 18Ah; interpretado 12X18AH como 12V 18Ah";agente:ia
-BATERIA, NO BREAK, 12X200AH;247677;nao;baixa;"Bateria selada 12 V 200 Ah; item é automotivo e a aplicação no-break não consta.";agente:ia
-BATERIA, NO BREAK, 12X7AH;302260|315404|322701|356340;nao;alta;Bateria 12 V 7 Ah para no-break.;agente:ia
-BATERIA, NOBREAK, 12X12AH;483858;nao;media;Bateria chumbo-ácido selada 12 V 12 Ah interpretado de 12X12AH.;agente:ia
-BATERIA, NOBREAK, 12X18AH;425944|457719|483857;nao;media;"Bateria chumbo-ácido 12 V 18 Ah; 457719/425944 não explicitam 12 V.";agente:ia
-BATERIA, NOBREAK, 12X200AH;;sim;baixa;"Banco 12x200 Ah para nobreak; sem item equivalente claro.";agente:ia
-BATERIA, NOBREAK, 12X5AH;302258;nao;media;Bateria selada 12 V 5 Ah para no-break;agente:ia
-BATERIA, NOBREAK, 12X7AH;302260|315404|322701|356340;nao;media;Bateria 12 V 7 Ah nobreak.;agente:ia
+BATERIA, NO BREAK, 12 X 100AH;410632;nao;media;Bateria selada VRLA no break 12 V 100 AH.;agente:ia
+BATERIA, NO BREAK, 12 X 12AH;375196|378945;nao;media;Bateria selada 12 V 12 Ah;agente:ia
+BATERIA, NO BREAK, 12 X 18AH;394696|420001;nao;media;"Bateria selada 12V 18Ah; interpretado 12X18AH como 12V 18Ah";agente:ia
+BATERIA, NO BREAK, 12 X 200AH;247677;nao;baixa;"Bateria selada 12 V 200 Ah; item é automotivo e a aplicação no-break não consta.";agente:ia
+BATERIA, NO BREAK, 12 X 7AH;302260|315404|322701|356340;nao;alta;Bateria 12 V 7 Ah para no-break.;agente:ia
+BATERIA, NOBREAK, 12 X 12AH;483858;nao;media;Bateria chumbo-ácido selada 12 V 12 Ah interpretado de 12X12AH.;agente:ia
+BATERIA, NOBREAK, 12 X 18AH;425944|457719|483857;nao;media;"Bateria chumbo-ácido 12 V 18 Ah; 457719/425944 não explicitam 12 V.";agente:ia
+BATERIA, NOBREAK, 12 X 200AH;;sim;baixa;"Banco 12x200 Ah para nobreak; sem item equivalente claro.";agente:ia
+BATERIA, NOBREAK, 12 X 5AH;302258;nao;media;Bateria selada 12 V 5 Ah para no-break;agente:ia
+BATERIA, NOBREAK, 12 X 7AH;302260|315404|322701|356340;nao;media;Bateria 12 V 7 Ah nobreak.;agente:ia
 BATERIA, RECARREGAVEL, 9 V;274047|333185|341410;nao;media;"Bateria recarregável 9 V; tipo e aplicação não informados.";agente:ia
-BLOCO, RECADO, AUTOADESIVO, 38X50 MM, 4 BLOCOS;229171|284665|353256|355194|355195|462282;nao;media;"Bloco recado 38x50 autoadesivo; cor livre; unidade_diferente";agente:ia
-BLOCO, RECADO, AUTOADESIVO, 76X102 MM, 1 BLOCO;228875|229395|263613|265979|626162;nao;media;"Bloco de recado 76x102 mm autoadesivo; cor livre.";agente:ia
-BLOCO, RECADO, AUTOADESIVO, AMARELO, 38 MM X 50 MM, C/4 BLOCOS;229171|263616|284665|285472|355194;nao;alta;Bloco de recado autoadesivo amarelo 38x50 mm.;agente:ia
+BLOCO, RECADO, AUTOADESIVO, 38 X 50 MM, 4 BLOCOS;229171|284665|353256|355194|355195|462282;nao;media;"Bloco recado 38x50 autoadesivo; cor livre; unidade_diferente";agente:ia
+BLOCO, RECADO, AUTOADESIVO, 76 X 102 MM, 1 BLOCO;228875|229395|263613|265979|626162;nao;media;"Bloco de recado 76x102 mm autoadesivo; cor livre.";agente:ia
+BLOCO, RECADO, AUTOADESIVO, AMARELO, 38 MM X 50 MM, COM 4 BLOCOS;229171|263616|284665|285472|355194;nao;alta;Bloco de recado autoadesivo amarelo 38x50 mm.;agente:ia
 BLOCO, RECADO, AUTOADESIVO, AMARELO, 76MMX102 MM, 1 BLOCO;229395|263613|335328;nao;alta;"Bloco de recado amarelo autoadesivo 76x102 mm; variam só folhas/marca.";agente:ia
-BLOCO, RECADOS, AUTOADESIVO, 38 MM X 50 MM, C/4 BLOCOS;229171|284665|355194|355195|377912|462282;nao;media;"Bloco de recados autoadesivo 38x50 mm; unidade_diferente (qtd de folhas/cores)";agente:ia
+BLOCO, RECADOS, AUTOADESIVO, 38 MM X 50 MM, COM 4 BLOCOS;229171|284665|355194|355195|377912|462282;nao;media;"Bloco de recados autoadesivo 38x50 mm; unidade_diferente (qtd de folhas/cores)";agente:ia
 BLOCO, RECADOS, AUTOADESIVO, PAPEL, AMARELO, 76MMX102 MM, 1 BLOCO;229395|263613|335328;nao;media;Bloco de recado amarelo 76x102 mm autoadesivo;agente:ia
 BOBINA, 3TF48, 380 V;;sim;media;"Único 3TF48 é 110 V; os de 380 V são de outros modelos";agente:ia
 BOCAL, LAMPADA, FLUORESCENTE;373355|414605;nao;baixa;"Bocal = soquete de lâmpada fluorescente; tipo vago.";agente:ia
@@ -190,12 +190,12 @@ BORRACHA, ESCOLAR, VERDE;200715|234492|265880|289450;nao;media;"Borracha apagado
 BORRACHA, PERFIL, REDONDO, 3 MM;327108|359326;nao;media;Perfil de borracha redondo 3 mm = cordão de vedação circular 3 mm.;agente:ia
 BOTOEIRA, COMANDO, DISTANCIA;;sim;media;Botoeira de comando à distância sem item equivalente (botão comando genérico/outros).;agente:ia
 BOTOEIRA, COMANDO, LIGA, DESLIGA, MONOFASICO, 220 V X 20A;;sim;media;Botoeira liga/desliga 220 V 20 A sem item compativel.;agente:ia
-BOX, CURVO, 3⁄4;368424|413822;nao;media;Box curvo para eletroduto 3/4 pol.;agente:ia
+BOX, CURVO, 3/4;368424|413822;nao;media;Box curvo para eletroduto 3/4 pol.;agente:ia
 BOX, RETO, 1;389707|436243|443464|618469;nao;media;"Box reto para eletroduto 1 pol; material livre.";agente:ia
 BOX, RETO, 1.1/2;443463;nao;media;Box reto eletroduto 1 1/2 pol.;agente:ia
 BOX, RETO, 2 POLEGADAS;300066|424898;nao;media;"Box reto de eletroduto 2 pol; material livre";agente:ia
 BOX, RETO, 2, POLEGADAS;300066|424898;nao;media;Box reto eletroduto 2 pol;agente:ia
-BOX, RETO, 3⁄4;368423|413823|427504;nao;media;Box reto eletroduto 3/4 pol.;agente:ia
+BOX, RETO, 3/4;368423|413823|427504;nao;media;Box reto eletroduto 3/4 pol.;agente:ia
 BRITA, NUMERO 1;216957;nao;alta;Brita número 1.;agente:ia
 BRITA, NUMERO, 1;216957;nao;alta;Brita número 1 corresponde a BRITA 1.;agente:ia
 BROCA, ACO, 1/8 POLEGADA;227308|227309|227310|232671|232672|232673|302397;nao;media;"Broca aço rápido 1/8 pol; tamanho não informado";agente:ia
@@ -205,14 +205,14 @@ BROCA, ACO, 3/32, POLEGADA;229140|255359|313111|313461|322458;nao;media;"Broca a
 BROCA, ACO, 5/32 POLEGADA;227323|227324|227325|252246|255358|313460|393450;nao;media;Broca aço rápido 5/32 pol, comprimento livre;agente:ia
 BROCA, ACO, 5/32, POLEGADA;227323|227324|227325|252246|255358|313460|393450;nao;media;Broca aço rápido 5/32 pol, comprimento livre;agente:ia
 BROCA, ACO, RAPIDO, 1/16 POLEGADA;229136|255357|289980;nao;media;"Broca aço rápido 1/16 pol; excluída a broca de centrar.";agente:ia
-BROCA, ACO, RAPIDO, 1⁄2 POLEGADA;227320|227321|227322|302396|322012;nao;alta;"Broca aço rápido 1/2 pol; tamanho não informado.";agente:ia
-BROCA, ACO, RAPIDO, 1⁄4 POLEGADA;227305|227306|227307|266357;nao;alta;"Broca aço rápido 1/4 pol; tamanho (curto/médio/longo) não informado.";agente:ia
+BROCA, ACO, RAPIDO, 1/2 POLEGADA;227320|227321|227322|302396|322012;nao;alta;"Broca aço rápido 1/2 pol; tamanho não informado.";agente:ia
+BROCA, ACO, RAPIDO, 1/4 POLEGADA;227305|227306|227307|266357;nao;alta;"Broca aço rápido 1/4 pol; tamanho (curto/médio/longo) não informado.";agente:ia
 BROCA, ACO, RAPIDO, 3/16 POLEGADA;227332|227333|227334|266356;nao;alta;"Broca aço rápido 3/16 pol; tamanho livre";agente:ia
 BROCA, ACO, RAPIDO, 3/8 POLEGADA;227326|227327|227328|302395|335378;nao;alta;"Broca aço rápido 3/8 pol; tamanho não informado.";agente:ia
 BROCA, ACO, RAPIDO, 5/16 POLEGADA;227311|227312|227313|266358|335380;nao;media;"Broca aço rápido 5/16 pol; comprimento livre";agente:ia
 BROCA, ACO, RAPIDO, 5/8 POLEGADA;229133|313110;nao;alta;Broca aço rápido 5/8 pol;agente:ia
 BROCA, ACO, RAPIDO, 7/8 POLEGADA;229132;nao;alta;Broca aço rápido 7/8 pol.;agente:ia
-BROCA, CHATA, ACO, MADEIRA, 3⁄4 POLEGADA;252670|367299|367301;nao;alta;Broca chata madeira 3/4 pol;agente:ia
+BROCA, CHATA, ACO, MADEIRA, 3/4 POLEGADA;252670|367299|367301;nao;alta;Broca chata madeira 3/4 pol;agente:ia
 BROCA, CHATA, ACO, MADEIRA, 5/8 POLEGADA;252669;nao;alta;Broca chata 5/8 madeira;agente:ia
 BROCA, DIAMANTADA, 6 MM, GRANITO;;sim;baixa;Broca diamantada 6 mm para granito sem item compatível.;agente:ia
 BROCA, DIAMANTADA, 8 MM, GRANITO;;sim;media;Broca diamantada 8 mm para granito não existe no catálogo ativo.;agente:ia
@@ -223,8 +223,8 @@ BROCA, SDS, PLUS, 12 MM;332875|340039;nao;media;"Broca SDS Plus 12 mm; comprimen
 BROCA, SDS, PLUS, 6 MM;340038|342341|473242;nao;media;"Broca SDS Plus 6 mm; comprimento não informado (473242 tem 110 cm, provável erro).";agente:ia
 BROCA, SDS, PLUS, 8 MM;340040|610000;nao;media;"Broca widia SDS Plus 8 mm; comprimento livre, excluída a de aplicação madeira.";agente:ia
 BROCA, WIDIA, LONGA, VIDEA, 6 MM;;sim;baixa;"Nenhuma broca widia longa 6 mm; os itens de 6 mm são média/SDS.";agente:ia
-BROCA, WIDIA, PONTA, VIDEA, 1⁄2;249562|322462|335402;nao;media;Broca widia de 1/2 pol;agente:ia
-BROCA, WIDIA, PONTA, VIDEA, 1⁄4;229157|322461;nao;alta;Broca widia 1/4 pol;agente:ia
+BROCA, WIDIA, PONTA, VIDEA, 1/2;249562|322462|335402;nao;media;Broca widia de 1/2 pol;agente:ia
+BROCA, WIDIA, PONTA, VIDEA, 1/4;229157|322461;nao;alta;Broca widia 1/4 pol;agente:ia
 BROCA, WIDIA, PONTA, VIDEA, 3/16;229155;nao;alta;Broca widia 3/16 pol.;agente:ia
 BROCA, WIDIA, PONTA, VIDEA, 3/8;229156|335401;nao;media;Broca widia 3/8 pol.;agente:ia
 BROCA, WIDIA, PONTA, VIDEA, 5/16;229158|335403;nao;alta;Broca widia 5/16 pol;agente:ia
@@ -238,14 +238,14 @@ BROCA, WIDIA, PONTA, VIDEA, 5/32;399126|601296;nao;media;Broca widia 5/32 pol;ag
 "BRONZE, MACICO, 1"".1/2";252809;nao;media;Barra de bronze redonda 1 1/2 pol trefilada.;agente:ia
 "BRONZE, MACICO, 1"".1/4";366094;nao;media;Bronze maciço 1 1/4 interpretado como tarugo cilíndrico de bronze 1 1/4 pol.;agente:ia
 "BRONZE, MACICO, 2""";224507|252811;nao;media;Barra de bronze redonda maciça de 2 pol.;agente:ia
-"BRONZE, OCO, 1"".3/4X1""";;sim;baixa;Bronze oco 1 3/4 x 1 sem item equivalente;agente:ia
-"BRONZE, OCO, 1""X1/2X7/8";;sim;baixa;Bucha oca de bronze 1x1/2x7/8 sem item com essas dimensões.;agente:ia
+"BRONZE, OCO, 1"".3/4 X 1""";;sim;baixa;Bronze oco 1 3/4 x 1 sem item equivalente;agente:ia
+"BRONZE, OCO, 1""X1/2 X 7/8";;sim;baixa;Bucha oca de bronze 1x1/2x7/8 sem item com essas dimensões.;agente:ia
 "BRONZE, OCO, 1""X5/8";;sim;baixa;Bronze oco 1x5/8 não encontrado;agente:ia
-BRONZE, OCO, 1X3/4;;sim;baixa;"Bronze oco 1x3/4 sem forma definida; sem item compatível.";agente:ia
-"BRONZE, OCO, 2"".1/2X1""";;sim;baixa;'Bronze oco 2 1/2 x 1' (bucha/tubo de bronze) sem item equivalente claro no CATMAT ativo.;agente:ia
-"BRONZE, OCO, 2"".1/2X1/4";;sim;baixa;Bronze oco 2.1/2x1/4 sem item correspondente.;agente:ia
-"BRONZE, OCO, 2X1""";;sim;baixa;Bronze oco 2x1 sem item;agente:ia
-"BRONZE, OCO, 2X1"".7/16";;sim;baixa;Bronze oco 2x1 7/16 sem item compatível (provável bucha).;agente:ia
+BRONZE, OCO, 1 X 3/4;;sim;baixa;"Bronze oco 1x3/4 sem forma definida; sem item compatível.";agente:ia
+"BRONZE, OCO, 2"".1/2 X 1""";;sim;baixa;'Bronze oco 2 1/2 x 1' (bucha/tubo de bronze) sem item equivalente claro no CATMAT ativo.;agente:ia
+"BRONZE, OCO, 2"".1/2 X 1/4";;sim;baixa;Bronze oco 2.1/2x1/4 sem item correspondente.;agente:ia
+"BRONZE, OCO, 2 X 1""";;sim;baixa;Bronze oco 2x1 sem item;agente:ia
+"BRONZE, OCO, 2 X 1"".7/16";;sim;baixa;Bronze oco 2x1 7/16 sem item compatível (provável bucha).;agente:ia
 BROXA, PINTURA, CAIACAO, REDONDA, FIBRA, VEGETAL;239650|319659|364707|364708;nao;media;Broxa redonda de caiação com cerdas de fibra de coco;agente:ia
 BUCHA, ELETRODUTO, 1;231552|236785|245200|331716;nao;media;"Bucha de eletroduto 1 pol; material não informado";agente:ia
 BUCHA, ELETRODUTO, 1.1/2;237016|355143|418876;nao;media;Bucha eletroduto 1 1/2 material nao informado;agente:ia
@@ -264,54 +264,54 @@ BUCHA, PARAFUSO, S6;249217|318018;nao;alta;Bucha parafuso S-6;agente:ia
 BUCHA, PLASTICA, NYLON, S-5, 5 MM;249216;nao;alta;Bucha parafuso náilon S-5 (626241 inclui parafuso).;agente:ia
 BUCHA, PLASTICA, NYLON, S5, 5 MM;249216;nao;alta;Bucha de nailon S-5;agente:ia
 BUCHA, PLASTICA, NYLON, S8;359440;nao;media;Bucha plástica S8 corresponde a bucha parafuso plástico S-8.;agente:ia
-BUCHA, REDUCAO, 1 X 3⁄4, ELETRODUTO;408281;nao;media;"Bucha reducao de eletroduto 1"" x 3/4"".";agente:ia
-BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1 X 1⁄2;233963|454701;nao;alta;Bucha de redução ferro galvanizado 1 x 1/2;agente:ia
-BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1 X 3⁄4;242306|352520|389380;nao;media;Bucha reducao ferro galvanizado 1 x 3/4 pol.;agente:ia
+BUCHA, REDUCAO, 1 X 3/4, ELETRODUTO;408281;nao;media;"Bucha reducao de eletroduto 1"" x 3/4"".";agente:ia
+BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1 X 1/2;233963|454701;nao;alta;Bucha de redução ferro galvanizado 1 x 1/2;agente:ia
+BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1 X 3/4;242306|352520|389380;nao;media;Bucha reducao ferro galvanizado 1 x 3/4 pol.;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 1;232542|610464;nao;media;"Bucha reducao 1 1/2 x 1 galvanizada; ferro maleavel ou aco galvanizado";agente:ia
-BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 1⁄2;365840;nao;alta;Bucha de redução ferro galvanizado roscável 1 1/2 x 1/2 pol.;agente:ia
+BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 1/2;365840;nao;alta;Bucha de redução ferro galvanizado roscável 1 1/2 x 1/2 pol.;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 2;454700;nao;alta;Bucha de redução ferro galvanizado 2 x 1 1/2.;agente:ia
-BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 3⁄4;242271|352522;nao;media;Bucha de redução ferro galvanizado 1 1/2 x 3/4.;agente:ia
+BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 3/4;242271|352522;nao;media;Bucha de redução ferro galvanizado 1 1/2 x 3/4.;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/4 X 1;242275;nao;alta;Bucha de redução ferro galvanizado 1 1/4 x 1;agente:ia
-BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/4 X 1⁄2;242273;nao;alta;Bucha de redução ferro galvanizado 1 1/4 x 1/2;agente:ia
-BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/4 X 3⁄4;242274|352521;nao;alta;Bucha reducao ferro galvanizado 1 1/4x3/4;agente:ia
+BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/4 X 1/2;242273;nao;alta;Bucha de redução ferro galvanizado 1 1/4 x 1/2;agente:ia
+BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/4 X 3/4;242274|352521;nao;alta;Bucha reducao ferro galvanizado 1 1/4x3/4;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 2 X 1;341654;nao;alta;Bucha reducao ferro galvanizado 2 x 1 pol;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 2 X 1.1/4;242309|639090;nao;alta;Bucha de redução ferro galvanizado 2 x 1 1/4;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 2 X 1/2;;sim;alta;"Bucha de redução ferro galvanizado 2x1/2 não existe; só 2x1.1/2 e 1.1/2x1/2.";agente:ia
-BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 2 X 3⁄4;302092;nao;alta;Bucha reducao ferro galvanizado 2 x 3/4 pol;agente:ia
+BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 2 X 3/4;302092;nao;alta;Bucha reducao ferro galvanizado 2 x 3/4 pol;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 2.1/2 X 1.1/2;302093|639088;nao;alta;Bucha redução ferro galvanizado 2 1/2 x 1 1/2.;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 2.1/2 X 1.1/4;639087;nao;alta;Bucha de redução ferro galvanizado 2.1/2 x 1.1/4 exata.;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 3 X 1.1/2;351767|365853;nao;media;"Bucha de redução galvanizada 3 x 1 1/2; 351767 é aço.";agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 3 X 2;640407;nao;media;Bucha reducao ferro maleavel galvanizado 3 x 2 pol.;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 4 X 2.1/2;365859|416104;nao;alta;Bucha de redução ferro galvanizado 4 x 2 1/2 pol;agente:ia
 BUCHA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 4 X 3;237005;nao;alta;Bucha de redução ferro galvanizado 4 x 3 pol.;agente:ia
-BUCHA, REDUCAO, PVC, ROSCAVEL, 3/4X1/2;301938|343951|631873;nao;alta;Bucha de redução PVC roscável 3/4 x 1/2;agente:ia
+BUCHA, REDUCAO, PVC, ROSCAVEL, 3/4 X 1/2;301938|343951|631873;nao;alta;Bucha de redução PVC roscável 3/4 x 1/2;agente:ia
 CABO, ACO, AF, 3/32 POLEGADAS;354050|379323;nao;media;"Cabo de aço alma de fibra 3/32 pol; segundo item tem cobertura plástica.";agente:ia
 CABO, EXTENSOR, ROLO, PINTURA;344993|462369|471090|625335;nao;media;"Cabo extensor de rolo sem tamanho informado; aceitos todos os extensores.";agente:ia
-CABO, HDMI 1.4, 2M;448716|472341;nao;media;"Cabo HDMI macho-macho 2 m; versao 1.4 inferida.";agente:ia
-CABO, HDMI 1.4, 5M;430399|434364|448721;nao;baixa;"Cabo HDMI macho x macho 5 m; versão 1.4 não informada nos itens.";agente:ia
-CABO, HDMI 2.0, 10M;447093;nao;media;Cabo HDMI 2.0 de 10 m macho/macho;agente:ia
-CABO, HDMI 2.0, 20M;606882;nao;media;Cabo HDMI 2.0 20m;agente:ia
-CABO, HDMI, 1.4, 2M;448716|472341|628061;nao;baixa;"Cabo HDMI 2 m macho-macho; versão 1.4 não confirmada.";agente:ia
-CABO, HDMI, 1.4, 5M;448721;nao;media;"Cabo HDMI 5 m; o item não especifica versão, 2.0 descartado por contradizer 1.4.";agente:ia
-CABO, HDMI, 2.0, 10M;447093;nao;media;Cabo HDMI 2.0 de 10 m.;agente:ia
-CABO, HDMI, 2.0, 20M;606882;nao;media;Cabo HDMI 2.0 20m;agente:ia
+CABO, HDMI 1.4, 2 M;448716|472341;nao;media;"Cabo HDMI macho-macho 2 m; versao 1.4 inferida.";agente:ia
+CABO, HDMI 1.4, 5 M;430399|434364|448721;nao;baixa;"Cabo HDMI macho x macho 5 m; versão 1.4 não informada nos itens.";agente:ia
+CABO, HDMI 2.0, 10 M;447093;nao;media;Cabo HDMI 2.0 de 10 m macho/macho;agente:ia
+CABO, HDMI 2.0, 20 M;606882;nao;media;Cabo HDMI 2.0 20m;agente:ia
+CABO, HDMI, 1.4, 2 M;448716|472341|628061;nao;baixa;"Cabo HDMI 2 m macho-macho; versão 1.4 não confirmada.";agente:ia
+CABO, HDMI, 1.4, 5 M;448721;nao;media;"Cabo HDMI 5 m; o item não especifica versão, 2.0 descartado por contradizer 1.4.";agente:ia
+CABO, HDMI, 2.0, 10 M;447093;nao;media;Cabo HDMI 2.0 de 10 m.;agente:ia
+CABO, HDMI, 2.0, 20 M;606882;nao;media;Cabo HDMI 2.0 20m;agente:ia
 CABO, MICROFONE, AUDIO;327203|327276|366185|366427|382960|414182|635690|635691;nao;media;"Cabo de áudio para microfone; sem especificação, aceitos os de microfone.";agente:ia
-CABO, RCA, P2, 5M;383048|394445;nao;media;Cabo P2 para 2 RCA de 5 m.;agente:ia
-CABO, RCA-P2, 5M;383048|394445;nao;media;Cabo P2-RCA 5 m;agente:ia
-CABO, VGA, 10M;397949|398872|401068|410339|434750;nao;media;"Cabo VGA de 10 m; gênero não informado";agente:ia
-CABO, VGA, 20M;415189|430441;nao;media;"Cabo extensor VGA (HD15) 20 m; 415189 é DVI/VGA 20 m.";agente:ia
-CABO, VGA, 5M;416852;nao;media;Cabo VGA 5 m macho-macho.;agente:ia
+CABO, RCA, P2, 5 M;383048|394445;nao;media;Cabo P2 para 2 RCA de 5 m.;agente:ia
+CABO, RCA-P2, 5 M;383048|394445;nao;media;Cabo P2-RCA 5 m;agente:ia
+CABO, VGA, 10 M;397949|398872|401068|410339|434750;nao;media;"Cabo VGA de 10 m; gênero não informado";agente:ia
+CABO, VGA, 20 M;415189|430441;nao;media;"Cabo extensor VGA (HD15) 20 m; 415189 é DVI/VGA 20 m.";agente:ia
+CABO, VGA, 5 M;416852;nao;media;Cabo VGA 5 m macho-macho.;agente:ia
 CADEADO, LATAO, TAMANHO, 20 MM;290095;nao;baixa;"Cadeado de latão genérico sem tamanho; palpite.";agente:ia
 CADEADO, LATAO, TAMANHO, 70 MM;256538|270301|290622;nao;baixa;"Cadeado de latão; 70 mm interpretado como largura ou altura";agente:ia
 CADEIRA, ESCAMOTEAVEL, ACO, PINTADO, PRETO;291303|399715;nao;media;"Cadeira de aço pintada com prancheta escamoteável; 291303 preta.";agente:ia
 CADEIRINHA, CONSTRUCAO, 100 X 30, ABERTA, CHAPA 18;;sim;baixa;Dimensões 100x30 chapa 18 sem item compatível;agente:ia
-CADEIRINHA, CONSTRUCAO, 100X30, ABERTA, CHAPA, 18;;sim;baixa;Cadeirinha 100x30 chapa 18 aberta sem item com essas dimensoes.;agente:ia
+CADEIRINHA, CONSTRUCAO, 100 X 30, ABERTA, CHAPA, 18;;sim;baixa;Cadeirinha 100x30 chapa 18 aberta sem item com essas dimensoes.;agente:ia
 CADEIRINHA, CONSTRUCAO, ABERTA, 40 X 25, CHAPA 18;;sim;media;"Cadeirinha 40x25 chapa 18; candidato tem largura 45 mm, não bate.";agente:ia
-CADEIRINHA, CONSTRUCAO, ABERTA, 40X25, CHAPA, 18;;sim;baixa;"Perfil cadeirinha 40x25 aberto não encontrado; 371197 tem largura 45 mm";agente:ia
+CADEIRINHA, CONSTRUCAO, ABERTA, 40 X 25, CHAPA, 18;;sim;baixa;"Perfil cadeirinha 40x25 aberto não encontrado; 371197 tem largura 45 mm";agente:ia
 CADEIRINHA, CONSTRUCAO, ABERTA, 50 X 30, CHAPA 18;;sim;media;Cadeirinha aberta 50x30 chapa 18 sem item com dimensões compatíveis.;agente:ia
-CADEIRINHA, CONSTRUCAO, ABERTA, 50X30, CHAPA, 18;;sim;baixa;Cadeirinha aberta 50x30 chapa 18 sem equivalente com essas medidas.;agente:ia
+CADEIRINHA, CONSTRUCAO, ABERTA, 50 X 30, CHAPA, 18;;sim;baixa;Cadeirinha aberta 50x30 chapa 18 sem equivalente com essas medidas.;agente:ia
 CADEIRINHA, CONSTRUCAO, ABERTA, 60 X 30, CHAPA 18;;sim;media;Cadeirinha 60x30 chapa 18 sem item com essas medidas.;agente:ia
-CADEIRINHA, CONSTRUCAO, ABERTA, 60X30, CHAPA, 18;;sim;baixa;"Cadeirinha chapa 18 60x30 aberta; candidato 371197 tem largura 45 mm.";agente:ia
+CADEIRINHA, CONSTRUCAO, ABERTA, 60 X 30, CHAPA, 18;;sim;baixa;"Cadeirinha chapa 18 60x30 aberta; candidato 371197 tem largura 45 mm.";agente:ia
 CAFE, TORRADO, MOIDO, 500 GR;217366|232173|463576|463583|606523|606524;nao;alta;"Café torrado e moído; embalagem não discrimina item.";agente:ia
 CAFE, TORRADO, MOIDO, 500 GR, EXCLUSIVO, ME/EPP;217366|232173|463579|463583;nao;media;Cafe torrado moido, tipo nao informado;agente:ia
 CAIBRO, MADEIRA, CHAPA, 5 M X 5 M;;sim;baixa;"Descrição incoerente (caibro em chapa 5 m x 5 m); sem item compatível.";agente:ia
@@ -355,13 +355,13 @@ CAPACITOR, 22MF, 35 V;271020|600838;nao;media;Capacitor 22uF 35V tipo livre;agen
 CAPACITOR, 340/408MF, 110 V;;sim;baixa;Nenhum capacitor de partida 340-408 uF 110 V no CATMAT;agente:ia
 CAPACITOR, 4,7MF, 50 V;238758|270951|614143;nao;media;Capacitor eletrolítico 4,7 uF 50 V.;agente:ia
 CAPACITOR, 680MF, 250 V;614145;nao;alta;Eletrolítico 680 uF 250 V;agente:ia
-CAPACITOR, CERAMICO, 4,7PF, 100 V;;sim;media;"Capacitor cerâmico 4,7 pF 100 V: itens de 4,7 pF têm 50, 250 ou 500 V; tensão contradiz.";agente:ia
+CAPACITOR, CERAMICO, 4,7 PF, 100 V;;sim;media;"Capacitor cerâmico 4,7 pF 100 V: itens de 4,7 pF têm 50, 250 ou 500 V; tensão contradiz.";agente:ia
 CAPACITOR, ELETRICO, 100MF, 10 V;;sim;media;Capacitor 100uF 10V inexistente;agente:ia
 CAPACITOR, ELETRICO, 100MF, 40 V;;sim;media;Nenhum capacitor eletrolítico 100 MF 40 V no catálogo.;agente:ia
 CAPACITOR, ELETRICO, 4,7MF, 40 V;;sim;media;Nenhum capacitor 4,7 uF com 40 V;agente:ia
 CAPACITOR, ELETRICO, 47MF, 10 V;;sim;media;Capacitor 47 uF 10 V: itens de 47 uF têm tensão 16 V ou superior, contradiz 10 V.;agente:ia
 CAPACITOR, ELETROLITICO, 10MF, 40 V;472560;nao;alta;Capacitor eletrolítico 10 MF 40 V exato.;agente:ia
-CAPACITOR, ELETROLITICO, 161,/193, 220 V;;sim;baixa;Capacitor 161/193 uF só existe em 110 V (237801), estoque pede 220 V.;agente:ia
+CAPACITOR, ELETROLITICO, 161, /193, 220 V;;sim;baixa;Capacitor 161/193 uF só existe em 110 V (237801), estoque pede 220 V.;agente:ia
 CAPACITOR, ELETROLITICO, 3300MF, 50 V;;sim;media;Nenhum capacitor 3300 uF com 50 V no CATMAT.;agente:ia
 CAPACITOR, FASE, 10MF;235019;nao;media;"Capacitor de fase 10 uF; tensão não informada";agente:ia
 CAPACITOR, FASE, 12MF;;sim;media;Capacitor fase 12 uF inexistente;agente:ia
@@ -387,8 +387,8 @@ CAPACITOR, FASE, 50+5MF;;sim;media;"Capacitor duplo 50+5 µF não encontrado; os
 CAPACITOR, FASE, 50MF;343199|357572|400053|410608|410609|474310;nao;baixa;"Capacitor 50 uF sem tensão informada; aceitos 50 MICROF de fase/motor, excluídos duplos e eletrônico 100V.";agente:ia
 CAPACITOR, FASE, 5MF;235017|283822|326401|333210;nao;media;"Capacitor de fase 5 uF; tensão livre";agente:ia
 CAPACITOR, FASE, 8MF;;sim;media;Não há capacitor de fase de 8 microF.;agente:ia
-CARRAPETA, BRONZE, VEDACAO, BORRACHA, BOLEADA, 1⁄2;242665|257824;nao;media;"Carrapeta/vedante de torneira 1/2 pol; material bronze/borracha aceito nas duas variantes.";agente:ia
-CARRAPETA, BRONZE, VEDACAO, BORRACHA, BOLEADA, 3⁄4;257825;nao;media;Vedante torneira borracha e latao 3/4;agente:ia
+CARRAPETA, BRONZE, VEDACAO, BORRACHA, BOLEADA, 1/2;242665|257824;nao;media;"Carrapeta/vedante de torneira 1/2 pol; material bronze/borracha aceito nas duas variantes.";agente:ia
+CARRAPETA, BRONZE, VEDACAO, BORRACHA, BOLEADA, 3/4;257825;nao;media;Vedante torneira borracha e latao 3/4;agente:ia
 CARTOLINA, DESENHO, AZUL;229125|326144|327341|398740;nao;baixa;"Cartolina azul; formato e gramatura nao informados.";agente:ia
 CARTOLINA, DESENHO, VERDE;245267|254659|258460|259728|277320|288909|398741;nao;media;"Cartolina verde; gramatura e tamanho não especificados no estoque.";agente:ia
 CARTOLINA, DESENHO, VERMELHA;319523|373692|380884|399204|432413|432824;nao;media;"Cartolina vermelha comum; dimensões e gramatura não informadas.";agente:ia
@@ -462,9 +462,9 @@ CIRCUITO, INTEGRADO, 4N33, TIL, 113;;sim;alta;"Optoacoplador 4N33/TIL113 sem ite
 CIRCUITO, INTEGRADO, 7805;349146|349814;nao;media;"CI regulador 7805 TO-220 de 3 pinos; excluído o de 14 pinos.";agente:ia
 CIRCUITO, INTEGRADO, LM19AB;;sim;media;LM19 (sensor de temperatura) não encontrado no CATMAT ativo.;agente:ia
 CIRCUITO, INTEGRADO, LM318N, AMPLIFICADOR, OPERACIONAL;433766;nao;alta;Amplificador operacional LM318N DIP encontrado em busca.;agente:ia
-CIRCUITO, INTEGRADO, LM324;260773|274117;nao;alta;CI LM324 referência bate.;agente:ia
-CIRCUITO, INTEGRADO, LM339;257297|633356;nao;alta;CI LM339, pinos livres;agente:ia
-CIRCUITO, INTEGRADO, LM358;257553|363130;nao;alta;CI LM358.;agente:ia
+CIRCUITO, INTEGRADO, LM324.;260773|274117;nao;alta;CI LM324 referência bate.;agente:ia
+CIRCUITO, INTEGRADO, LM339.;257297|633356;nao;alta;CI LM339, pinos livres;agente:ia
+CIRCUITO, INTEGRADO, LM358.;257553|363130;nao;alta;CI LM358.;agente:ia
 CIRCUITO, INTEGRADO, LM556;;sim;media;LM556 sem referência correspondente;agente:ia
 CIRCUITO, INTEGRADO, LM567;;sim;media;CI LM567 sem item com essa referência.;agente:ia
 CIRCUITO, INTEGRADO, LM741;248206|318715|349252;nao;media;CI LM741 (741, 8 pinos).;agente:ia
@@ -513,7 +513,7 @@ COMPRESSOR, TECUNSEH, 1.1/4, R22;370940;nao;baixa;Compressor 1 1/4 HP 220 V, mar
 COMPRESSOR, TECUNSEH, 1HP, 220 V, R22;284846|350786;nao;media;Compressor Tecumseh 220V R22 RG-5512;agente:ia
 CONDENSADOR, ILUMINADOR, COMPLETO, OTICA;;sim;media;Condensador iluminador completo de óptica sem equivalente (candidatos são outros produtos).;agente:ia
 CONDENSADOR/ILUMINADOR, COMPLETO, OTICA;;sim;baixa;"Condensador/iluminador óptico completo; sem item compatível.";agente:ia
-CONDULETE, ALUMINIO, POLY, 4 SAIDAS, 3⁄4 POLEGADA;426128;nao;baixa;Condulete alumínio 3/4 com 4 saídas equivale ao tipo X;agente:ia
+CONDULETE, ALUMINIO, POLY, 4 SAIDAS, 3/4 POLEGADA;426128;nao;baixa;Condulete alumínio 3/4 com 4 saídas equivale ao tipo X;agente:ia
 CONDULETE, ALUMINIO, ROSCA, E, 1.1/2 POLEGADA;;sim;media;Condulete alumínio tipo E de 1 1/2 pol não existe (E só em 3/4 e 1 pol).;agente:ia
 CONDULETE, ALUMINIO, ROSCA, E, 3 POLEGADAS;;sim;media;"Condulete alumínio tipo E de 3 pol não existe; só 3/4.";agente:ia
 CONDULETE, ALUMINIO, ROSCA, LR, 1.1/2 POLEGADA;333779|354703;nao;media;Conduleta alumínio LR 1 1/2 pol.;agente:ia
@@ -539,8 +539,8 @@ CONTACTORA, CJX109B, 380 V, 20A;;sim;baixa;Modelo CJX109B nao encontrado;agente:
 CONTACTORA, CJX122B, 220 V, 32A;;sim;baixa;Contatora CJX122B sem referência igual no CATMAT.;agente:ia
 CONTACTORA, CJX122B, 380 V, 32A;;sim;media;"Contatora CJX122B 380V 32A exige modelo específico; candidatos são peças ou outros modelos.";agente:ia
 CONTACTORA, CWM, 32A;;sim;media;"Contator CWM 32A WEG não encontrado; CWM do catálogo são de 180 A.";agente:ia
-CONTACTORA, QCX2-09, 380 V, 2,5 A;;sim;media;Contator QCX2-09 não encontrado;agente:ia
-CONTACTORA, QCX209, 380 V, 2,5 A;;sim;media;Contactora QCX209 não encontrada;agente:ia
+CONTACTORA, QCX2-09, 380 V, 2,5A;;sim;media;Contator QCX2-09 não encontrado;agente:ia
+CONTACTORA, QCX209, 380 V, 2,5A;;sim;media;Contactora QCX209 não encontrada;agente:ia
 CONTROLADOR, COEL, TLY29B, 90A, 240 V;;sim;alta;Controlador COEL TLY29B sem item com essa referência.;agente:ia
 CONTROLADOR, FREQUENCIMETRO, 556;;sim;baixa;Controlador/frequencímetro 556 sem item equivalente.;agente:ia
 CONTROLADOR, MICROPROCESSADO, TEH-CD901;;sim;media;"Controlador TEH-CD901 exige referência do fabricante; nenhum candidato confere.";agente:ia
@@ -548,15 +548,15 @@ CONTROLADOR, MICROPROCESSADO, TEHCD901;;sim;baixa;"Controlador microprocessado T
 CONTROLADOR, PRESSAO, PCT-400;;sim;media;Controlador de pressão PCT-400 sem equivalente no CATMAT.;agente:ia
 CONTROLADOR, PRESSAO, PCT400;;sim;media;Controlador de pressão PCT400 sem item com referência equivalente.;agente:ia
 CONTROLADOR, PROGRAMADOR, ATUADOR, VALVULA, IRRIGACAO, BATERIA, SIMPLES;;sim;baixa;Nenhum programador de irrigação a bateria compatível.;agente:ia
-CONTROLADOR, PROGRAMADOR, IRRIGACAO, 4 ESTACOES, 230 VCA, 50/60 HZ;;sim;baixa;"Controlador de irrigação 4 estações 230 VCA; candidatos são 24 VAC wifi ou timers genéricos.";agente:ia
+CONTROLADOR, PROGRAMADOR, IRRIGACAO, 4 ESTACOES, 230 VCA,50/60 HZ;;sim;baixa;"Controlador de irrigação 4 estações 230 VCA; candidatos são 24 VAC wifi ou timers genéricos.";agente:ia
 CONTROLADOR, PROGRAMADOR, IRRIGACAO, PLASTICO, RIGIDO, METAL, 50/60 HZ, DISPLAY, LCD, WI-FI, 12 ESTACOES;456474;nao;baixa;"Controlador de irrigação wifi; número de estações não informado no CATMAT.";agente:ia
 CONTROLADOR, PROGRAMADOR, IRRIGACAO, PLASTICO, RIGIDO, METAL, 50/60 HZ, DISPLAY, LCD, WIFI, 12, ESTACOES;;sim;media;Programador de irrigação 12 estações wifi sem item compatível.;agente:ia
 CONTROLADOR, TEMPERATURA, TLK-49, XMT904;;sim;baixa;Modelos TLK-49/XMT904 nao encontrados;agente:ia
 CONTROLADOR, TEMPERATURA, TLK49, XMT904;;sim;media;Controlador com referência TLK49/XMT904 sem equivalente no CATMAT.;agente:ia
 CONTROLE ELETRICO, MAQ. LAVAR, 220 V, 60 HZ;;sim;baixa;Controle elétrico de máquina de lavar sem item compatível.;agente:ia
 CONTROLE, ELETRICO, MAQUINA, LAVAR, 220 V, 60 HZ;;sim;baixa;"Controle elétrico de máquina de lavar sem modelo; as placas existentes são de modelos específicos.";agente:ia
-CONTROLE, UNIVERSAL, AR CONDICIONADO;390407;nao;alta;Controle remoto universal sem fio para ar condicionado.;agente:ia
-CONTROLE, UNIVERSAL, AR, CONDICIONADO;390407;nao;alta;Controle remoto universal para ar-condicionado.;agente:ia
+CONTROLE, UNIVERSAL, AR CONDICIONADO.;390407;nao;alta;Controle remoto universal sem fio para ar condicionado.;agente:ia
+CONTROLE, UNIVERSAL, AR, CONDICIONADO.;390407;nao;alta;Controle remoto universal para ar-condicionado.;agente:ia
 COPO, DESCARTAVEL, 200 ML;226345|264517|269615|283331|310999|314080|397762|401607|435019|481295|618310;nao;media;"Copo descartável 200 ml; material livre";agente:ia
 COPO, DESCARTAVEL, 200 ML, BIODEGRADAVEL - ME/EPP;413887|421447|433262|435019|625407;nao;alta;"Copo descartável 200 ml biodegradável; material livre.";agente:ia
 COPO, DESCARTAVEL, 50 ML;226342|250692|252435|254007|328352|397713|397763|407784|419714|444991|612246|618311;nao;media;"Copo descartável 50 ml; material/aplicação livres";agente:ia
@@ -569,7 +569,7 @@ CORREDICA, TELESCOPIA, GAVETA, MOVEIS, 40 CM;312614|340719|454499;nao;media;Corr
 CORREDICA, TELESCOPIA, GAVETA, MOVEIS, 45 CM;327322|369331;nao;media;Corrediça telescópica 45 cm para gaveta/móveis.;agente:ia
 CORRENTE, GALVANIZADA, 3/16 POLEGADA;295568;nao;media;Corrente soldada galvanizada 3/16 pol.;agente:ia
 CORRETIVO, FITA;201146|201149|236478|240710|266819|291098|301921|302880|333267|353160|356695|361356;nao;media;"Corretivo em fita sem especificacao; unidade_diferente";agente:ia
-CORRETIVO, FITA, 8M;266819|301921|331359;nao;alta;"Fita corretiva 8 m; as de 8,5 m foram excluídas.";agente:ia
+CORRETIVO, FITA, 8 M;266819|301921|331359;nao;alta;"Fita corretiva 8 m; as de 8,5 m foram excluídas.";agente:ia
 CORTADOR, TUBO, COBRE;32638;nao;baixa;Apenas item genérico de cortador manual de tubo;agente:ia
 CUBA, ACO, INOXIDAVEL, PIA, EMBUTIR, OVAL;;sim;media;"Nao ha cuba inox oval; itens inox sao redondos ou retangulares.";agente:ia
 CURVA, COBRE, 3/4, 90O;252239|274207;nao;media;Curva de cobre 90 graus 3/4 pol soldável.;agente:ia
@@ -586,7 +586,7 @@ CURVA, ELETROCALHA, VERTICAL, PERFURADA, 50 X 50 X 45O;;sim;media;"Curva vertica
 CURVA, ELETRODUTO, PVC, 1 POLEGADA, ENCAIXE, CINZA;629012;nao;media;"Curva eletroduto PVC 1 pol encaixe; cor não informada no item";agente:ia
 CURVA, ELETRODUTO, PVC, 1.1/2 X 90O;237921|629014;nao;media;Curva eletroduto PVC 1 1/2 pol 90 graus;agente:ia
 CURVA, ELETRODUTO, PVC, 1.1/4 X 90O;237922|329912|629029;nao;media;Curva eletroduto PVC 1 1/4 pol 90 graus.;agente:ia
-CURVA, ELETRODUTO, PVC, 1⁄2 POLEGADA;242734|273075|298619|317941|329910;nao;media;Curva eletroduto PVC 1/2 pol;agente:ia
+CURVA, ELETRODUTO, PVC, 1/2 POLEGADA;242734|273075|298619|317941|329910;nao;media;Curva eletroduto PVC 1/2 pol;agente:ia
 CURVA, ELETRODUTO, PVC, 2 X 90O;241424|261638|627482;nao;media;"Curva de eletroduto PVC 90 graus 2 pol; tipo de fixação não informado.";agente:ia
 CURVA, ELETRODUTO, PVC, 2.1/2 POLEGADAS;250504;nao;media;"Curva de eletroduto PVC 2 1/2 pol; único com bitola 2 1/2 (roscável, preto).";agente:ia
 CURVA, ELETRODUTO, PVC, 3 POLEGADAS;311932;nao;media;Curva eletroduto PVC 3 pol 90 graus;agente:ia
@@ -644,10 +644,10 @@ DISCO RIGIDO, HD, 1.0 TB;402601|424057|442122|472694;nao;media;HD interno 1 TB.;
 DISCO RIGIDO, HD, 500 GB;347574|359606;nao;alta;"HD 500 GB SATA; interface livre entre os dois itens.";agente:ia
 DISCO, CORTE, DIAMANTADO, ACO, 110MMX20MM;438793|438794|633760;nao;media;"Disco diamantado 110 mm furo 20 mm; aceitos corte úmido, seco e misto.";agente:ia
 DISCO, CORTE, FERRO, 7 X 1/8 X 7/8 POLEGADAS;640663;nao;media;"Disco de corte de ferro 7 pol com furo 7/8; espessura não contradita.";agente:ia
-DISCO, CORTE, FERRO, C/DEPRESSAO, 7 X 1/8 X 7/8 POLEGADAS;640663;nao;alta;Disco de corte ferro 7 pol, 1/8, furo 7/8;agente:ia
+DISCO, CORTE, FERRO, COM DEPRESSAO, 7 X 1/8 X 7/8 POLEGADAS;640663;nao;alta;Disco de corte ferro 7 pol, 1/8, furo 7/8;agente:ia
 DISCO, CORTE, GRANITEIRO, 7 X 1/8 X 7/8 POLEGADAS;;sim;baixa;Disco graniteiro 7 pol sem item equivalente;agente:ia
 DISCO, CORTE, POLICORTE, 10 MM X 1/8 X 5/8;270676|380334;nao;baixa;"Provável disco policorte 10 pol furo 5/8 (estoque diz 10MM); espessura não confirmada.";agente:ia
-DISCO, CORTE, POLICORTE, 10 X 1/8 X 3⁄4 POLEGADAS;312485|375967;nao;baixa;"Disco policorte 10 pol; atributos 1/8 e 3/4 ambíguos nos itens.";agente:ia
+DISCO, CORTE, POLICORTE, 10 X 1/8 X 3/4 POLEGADAS;312485|375967;nao;baixa;"Disco policorte 10 pol; atributos 1/8 e 3/4 ambíguos nos itens.";agente:ia
 DISCO, CORTE, POLICORTE, 12 X 1/8 X 5/8 POLEGADAS;339493;nao;media;Disco policorte 12 pol furo 5/8;agente:ia
 DISCO, RIGIDO, HD, 1.0 TB;402601|424057|442122|472694;nao;media;"HD interno 1 TB; interface e cache não informados.";agente:ia
 DISCO, RIGIDO, HD, 500 GB;359606;nao;media;"HD 500 GB SATA; único item rígido de 500 GB entre os candidatos.";agente:ia
@@ -686,10 +686,10 @@ DISJUNTOR, UNIPOLAR, 70 A, DIN;375010;nao;media;Disjuntor unipolar termomagnéti
 DISJUNTOR, UNIPOLAR, 80 A, DIN;;sim;media;Sem disjuntor unipolar 80 A DIN no CATMAT.;agente:ia
 DISJUNTOR, UNIPOLAR, MONO, NEMA, 10 A;323704|323705;nao;alta;Disjuntor NEMA unipolar 10 A;agente:ia
 DOBRADICA, CACHIMBO, 1/2 POLEGADA;307208;nao;alta;Dobradiça cachimbo 1/2 pol;agente:ia
-DOBRADICA, CACHIMBO, 1⁄2 POLEGADA, ABAS;307208;nao;media;Dobradiça cachimbo 1/2 pol;agente:ia
+DOBRADICA, CACHIMBO, 1/2 POLEGADA, ABAS;307208;nao;media;Dobradiça cachimbo 1/2 pol;agente:ia
 DOBRADICA, CACHIMBO, 3/8 POLEGADAS;;sim;media;"Dobradiça cachimbo só existe em 3/4, 5/8, 1/2 pol; 3/8 não existe.";agente:ia
 DOBRADICA, CACHIMBO, 3/8 POLEGADAS, ABAS;;sim;media;"Dobradiça cachimbo 3/8 não existe; candidatos são 3/4";agente:ia
-DOBRADICA, CACHIMBO, 3⁄4 POLEGADA, ABAS;383445|383446;nao;media;"Dobradiça cachimbo 3/4 pol com abas; 383446 não cita abas.";agente:ia
+DOBRADICA, CACHIMBO, 3/4 POLEGADA, ABAS;383445|383446;nao;media;"Dobradiça cachimbo 3/4 pol com abas; 383446 não cita abas.";agente:ia
 DOBRADICA, CACHIMBO, 5/16 POLEGADAS, ABAS;;sim;alta;"Dobradiça cachimbo 5/16 pol inexistente; só 1/2, 5/8 e 3/4.";agente:ia
 DOBRADICA, CACHIMBO, 5/8 POLEGADAS, ABAS;318040;nao;baixa;"Dobradiça cachimbo 5/8 pol; abas não confirmadas.";agente:ia
 DOBRADICA, CROMADA, ANEL, 3 X 2.1/2 POLEGADAS;327379;nao;alta;Dobradiça cromada com anel 3 x 2 1/2 pol;agente:ia
@@ -716,20 +716,20 @@ ELETROCALHA, PERFURADA, GALVANIZADA, 200 X 50 MM, 3 M;428097;nao;alta;Eletrocalh
 ELETROCALHA, PERFURADA, GALVANIZADA, 50MMX50MMX3M;315800|324578;nao;alta;Eletrocalha perfurada galvanizada 50x50 mm;agente:ia
 ELETRODO, SOLDAGEM, 2,5 MM;262685;nao;media;Eletrodo de solda ferro vareta 2,5 mm;agente:ia
 ELETRODO, SOLDAGEM, 3,5 MM;289170|289292;nao;baixa;"Eletrodo de soldagem aço carbono 3,5 mm; tipo não informado";agente:ia
-ELETRODUTO, PVC, CORRUGADO, FLEXIVEL, 3⁄4;240032|254622|321045|384302|614373|622527;nao;media;"Eletroduto PVC corrugado flexível 3/4 pol (25 mm); cor livre.";agente:ia
+ELETRODUTO, PVC, CORRUGADO, FLEXIVEL, 3/4;240032|254622|321045|384302|614373|622527;nao;media;"Eletroduto PVC corrugado flexível 3/4 pol (25 mm); cor livre.";agente:ia
 EMBOLO, VALVULA, DESCARGA, ORIENTE, 40 MM;241394|386238;nao;media;Êmbolo de válvula de descarga 40 mm Oriente.;agente:ia
 ENGATE, LIGACAO, FLEXIVEL, ACO, INOX, 60 CM;485193;nao;alta;Engate flexível aço inox 60 cm.;agente:ia
-ENVELOPE, CORRESPONDENCIA, BRANCO, COM TIMBRE, 114X230 MM;293877|361264;nao;media;Envelope timbrado branco 229x114 mm;agente:ia
-ENVELOPE, CORRESPONDENCIA, BRANCO, TIMBRE, 114X230 MM;242425|306760|306772;nao;media;"Envelope branco 114x230 mm; 306760 é com timbre.";agente:ia
-ENVELOPE, CORRESPONDENCIA, PARDO, 18X25 CM;246605|467336;nao;media;Envelope kraft pardo 250x180 mm;agente:ia
-ENVELOPE, CORRESPONDENCIA, PARDO, 260X3 60 MM, 90 G/M;357420;nao;alta;Envelope kraft pardo 260x360 mm 90 g/m2 sem timbre.;agente:ia
-ENVELOPE, CORRESPONDENCIA, PARDO, COM TIMBRE, 260X360 MM, 90 G/M;381546;nao;alta;Envelope kraft pardo 90 g 360x260 com timbre.;agente:ia
+ENVELOPE, CORRESPONDENCIA, BRANCO, COM TIMBRE, 114 X 230 MM;293877|361264;nao;media;Envelope timbrado branco 229x114 mm;agente:ia
+ENVELOPE, CORRESPONDENCIA, BRANCO, TIMBRE, 114 X 230 MM;242425|306760|306772;nao;media;"Envelope branco 114x230 mm; 306760 é com timbre.";agente:ia
+ENVELOPE, CORRESPONDENCIA, PARDO, 18 X 25 CM;246605|467336;nao;media;Envelope kraft pardo 250x180 mm;agente:ia
+ENVELOPE, CORRESPONDENCIA, PARDO, 260 X 3 60 MM, 90 G/M;357420;nao;alta;Envelope kraft pardo 260x360 mm 90 g/m2 sem timbre.;agente:ia
+ENVELOPE, CORRESPONDENCIA, PARDO, COM TIMBRE, 260 X 360 MM, 90 G/M;381546;nao;alta;Envelope kraft pardo 90 g 360x260 com timbre.;agente:ia
 ENVELOPE, CORRESPONDENCIA, PARDO, COM TIMBRE, 360 MM X 260 MM, 80 G/M;467091;nao;baixa;"Envelope kraft pardo 360x260 80 g/m2; item não informa timbre.";agente:ia
-ENVELOPE, CORRESPONDENCIA, PARDO, SEM TIMBRE, 18X25 CM;246605|467336;nao;media;Envelope pardo sem timbre 18x25 cm (250x180 mm) encontrado em busca.;agente:ia
-ENVELOPE, CORRESPONDENCIA, PARDO, SEM TIMBRE, 260X3 60 MM, 90 G/M;357420;nao;alta;Envelope kraft pardo 360x260 90g sem timbre;agente:ia
+ENVELOPE, CORRESPONDENCIA, PARDO, SEM TIMBRE, 18 X 25 CM;246605|467336;nao;media;Envelope pardo sem timbre 18x25 cm (250x180 mm) encontrado em busca.;agente:ia
+ENVELOPE, CORRESPONDENCIA, PARDO, SEM TIMBRE, 260 X 3 60 MM, 90 G/M;357420;nao;alta;Envelope kraft pardo 360x260 90g sem timbre;agente:ia
 ENVELOPE, CORRESPONDENCIA, PARDO, SEM TIMBRE, 360 MM X 260 MM, 80 G/M;467091;nao;media;Envelope kraft pardo 360x260 80 g/m2 saco padrão.;agente:ia
-ENVELOPE, CORRESPONDENCIA, PARDO, SEM TIMBRE, 360X260MM;429889|430987|467091|473178;nao;media;Envelope kraft pardo 360x260 mm sem timbre.;agente:ia
-ENVELOPE, CORRESPONDENCIA, PARDO, TIMBRE, 260X360 MM, 90 G/M;381546;nao;alta;Envelope pardo 90 g 360x260 com timbre.;agente:ia
+ENVELOPE, CORRESPONDENCIA, PARDO, SEM TIMBRE, 360 X 260 MM;429889|430987|467091|473178;nao;media;Envelope kraft pardo 360x260 mm sem timbre.;agente:ia
+ENVELOPE, CORRESPONDENCIA, PARDO, TIMBRE, 260 X 360 MM, 90 G/M;381546;nao;alta;Envelope pardo 90 g 360x260 com timbre.;agente:ia
 ENXADA, CABO, MADEIRA;246966|314583|317027|321669|436575|438645|452370|468616|471020|640360|640361;nao;media;"Enxada com cabo de madeira; largura não informada";agente:ia
 ESCOVA, ACO, CABO, MADEIRA, 19 X 6 X 5 CM;297195|344996|482920;nao;baixa;"Escova de aço cabo de madeira; dimensões 19x6x5 não conferíveis";agente:ia
 ESPACADOR, PLASTICO, JUNTA, CERAMICA, 8 MM;;sim;media;"Espaçador de junta cerâmica 8 mm; candidatos têm outras larguras.";agente:ia
@@ -753,7 +753,7 @@ ESPONJOSO, 1/4;;sim;baixa;Descricao vaga;agente:ia
 ESPONJOSO, 3/4;361973;nao;baixa;Tubo esponjoso de ar condicionado diâmetro interno 3/4 pol.;agente:ia
 ESPONJOSO, 3/8;428159;nao;media;Tubo esponjoso 3/8 pol para ar condicionado inferido.;agente:ia
 ESPONJOSO, 5/8;400195;nao;media;Tubo esponjoso 5/8 pol para ar-condicionado.;agente:ia
-ESTANHO, SOLDA, ROLO, 60X40MM;219173|219176|314013|314014|319882|361478|370650|370651|393352|393913|416697;nao;baixa;"Interpretado como solda estanho 60/40 em rolo; diâmetro não informado.";agente:ia
+ESTANHO, SOLDA, ROLO, 60 X 40 MM;219173|219176|314013|314014|319882|361478|370650|370651|393352|393913|416697;nao;baixa;"Interpretado como solda estanho 60/40 em rolo; diâmetro não informado.";agente:ia
 ESTILETE, ESCRITORIO, 18 MM;238683|248060;nao;alta;Estilete de escritório 18 mm.;agente:ia
 ESTOPA, ALGODAO, BRANCA;243579|277505|300146;nao;alta;Estopa de algodão branca;agente:ia
 EXAUSTOR, BANHEIRO, 220 V;282591|326641|367657|386999;nao;media;Exaustor de banheiro compatível com 220 V.;agente:ia
@@ -774,16 +774,16 @@ FECHADURA, TRAVA, SEGURANCA, 4 VOLTAS, TETRA;341929|395433;nao;media;Fechadura t
 FECHO, JANELA, MAX, AR;626383;nao;media;Fecho/tranca de alavanca para janela maxim-ar.;agente:ia
 FECHO, PINO, CROMADO;;sim;baixa;Fecho de pino cromado sem item compatível (fecho chato/deslizante diferem).;agente:ia
 FELTRO, SINTETICO, VERDE;397814;nao;media;"Feltro verde; material sintético não contradito";agente:ia
-FERRO, CANTONEIRA, 1⁄2 X 1/8, BARRA, 6 M;266575|292065;nao;media;Cantoneira ferro abas 1/2 x 1/8 6 m;agente:ia
+FERRO, CANTONEIRA, 1/2 X 1/8, BARRA, 6 M;266575|292065;nao;media;Cantoneira ferro abas 1/2 x 1/8 6 m;agente:ia
 FERRO, CANTONEIRA, 3/4 X 1/8, BARRA, 6 M;266338|449422;nao;media;"Cantoneira ferro 3/4 x 1/8 pol, 6 m; 449422 galvanizada.";agente:ia
 FERRO, CANTONEIRA, 5/8 X 1/8, BARRA, 6 M;449423;nao;media;Cantoneira ferro abas 5/8 pol, espessura 1/8, 6 m (galvanizado não contradiz).;agente:ia
 FERRO, CHATO, 1 X 1/8, BARRA, 6 M;240047;nao;alta;"Barra chata 1"" x 1/8"" 6 m.";agente:ia
 FERRO, CHATO, 1/2 X 1/8, BARRA, 6 M;240044|264736;nao;alta;Barra chata 1/2 x 1/8 pol, 6 m.;agente:ia
 FERRO, CHATO, 2 X 1/8, BARRA, 6 M;372665|613701;nao;alta;Barra chata 2 x 1/8 pol de 6 m.;agente:ia
-FERRO, CHATO, 3⁄4 X 1/8, BARRA, 6 M;240045|253444|264743;nao;alta;Ferro chato 3/4 x 1/8 barra 6 m;agente:ia
-FERRO, REDONDO, MACICO, 1⁄4 POLEGADA, BARRA, 6 M;316822;nao;media;Barra ferro redonda 1/4 pol 6 m.;agente:ia
+FERRO, CHATO, 3/4 X 1/8, BARRA, 6 M;240045|253444|264743;nao;alta;Ferro chato 3/4 x 1/8 barra 6 m;agente:ia
+FERRO, REDONDO, MACICO, 1/4 POLEGADA, BARRA, 6 M;316822;nao;media;Barra ferro redonda 1/4 pol 6 m.;agente:ia
 FERRO, REDONDO, MACICO, 5/8 POLEGADA, BARRA, 6 M;325380|373045;nao;alta;Barra redonda de ferro 5/8 pol 6 m;agente:ia
-FERROLHO, CHATO, 2 X1/2 POLEGADAS;632733;nao;baixa;"Fecho ferrolho 2 pol; largura 1/2 não confirmada";agente:ia
+FERROLHO, CHATO, 2 X 1/2 POLEGADAS;632733;nao;baixa;"Fecho ferrolho 2 pol; largura 1/2 não confirmada";agente:ia
 FERROLHO, CHATO, 3 POLEGADAS;632144;nao;baixa;"Ferrolho 3 pol; tipo chato não especificado no CATMAT.";agente:ia
 FERROLHO, CHATO, BICROMATIZADO, 100 MM;10260;nao;baixa;"Apenas item genérico FERROLHO; bicromatizado e 100 mm não verificáveis.";agente:ia
 FERROLHO, CHATO, BICROMATIZADO, 51 MM;;sim;media;Ferrolho chato bicromatizado 51 mm não encontrado (candidatos são parafusos).;agente:ia
@@ -860,12 +860,12 @@ FIO, COBRE, ESMALTADO, AWG, N45;;sim;media;Não existe fio esmaltado 45 AWG no C
 FITA, ADESIVA, CREPE, 19MMX50M;279989;nao;media;"Fita crepe 19 mm; comprimento diverge";agente:ia
 FITA, ADESIVA, CREPE, 48MMX50M;391988|455088|601347|626828;nao;media;"Fita crepe 48 mm x 50 m; cor não especificada no estoque.";agente:ia
 FITA, ADESIVA, CREPE, 50MMX50M;289014|455088|626828;nao;media;"Fita crepe 50 mm; 48 mm tratado como equivalente.";agente:ia
-FITA, ADESIVA, TRANSPARENTE, 19 MM X 50M;300586|621186;nao;media;"Fita adesiva transparente celofane 19 mm; 300586 sem comprimento.";agente:ia
+FITA, ADESIVA, TRANSPARENTE, 19 MM X 50 M;300586|621186;nao;media;"Fita adesiva transparente celofane 19 mm; 300586 sem comprimento.";agente:ia
 FITA, ADESIVA, TRANSPARENTE, 19 MM X50M;300586|621186;nao;media;Fita adesiva transparente 19 mm x 50 m;agente:ia
-FITA, ADESIVA, TRANSPARENTE, 50 MM X 50M;279106|387683|445375|626117;nao;media;"Fita adesiva transparente 50 mm x 50 m; material livre.";agente:ia
+FITA, ADESIVA, TRANSPARENTE, 50 MM X 50 M;279106|387683|445375|626117;nao;media;"Fita adesiva transparente 50 mm x 50 m; material livre.";agente:ia
 FITA, ADESIVA, TRANSPARENTE, 50 MM X50M;279106|387683|445375;nao;alta;Fita adesiva transparente 50 mm x 50 m monoface;agente:ia
 FITA, ANTIDERRAPANTE, ADESIVA, BRANCA;;sim;media;Sem fita antiderrapante branca;agente:ia
-FITA, ANTIDERRAPANTE, PRETA, 50 MM X 5M;238773|310252|331527;nao;media;"Fita antiderrapante preta 5 cm; comprimento 5 m";agente:ia
+FITA, ANTIDERRAPANTE, PRETA, 50 MM X 5 M;238773|310252|331527;nao;media;"Fita antiderrapante preta 5 cm; comprimento 5 m";agente:ia
 FITA, BORDA, 22 MM X 50 M, BRANCA;358403|406322;nao;alta;"Fita de borda PVC branca 22 mm x 50 m; espessura livre.";agente:ia
 FITA, BORDA, 22 MM, MARFIM;372108|475586|616030;nao;media;Fita de borda PVC marfim 22 mm.;agente:ia
 FITA, BORDA, 35 MM, BRANCA;337999|358404|625757;nao;alta;"Fita de borda PVC branca 35 mm; espessura livre";agente:ia
@@ -900,14 +900,14 @@ FUSIVEL, ELO, DISTRIBUICAO, 15 KV, K, 30A;259428;nao;media;"Elo fusível K 30 A 
 FUSIVEL, ELO, DISTRIBUICAO, 15 KV, K, 40A;259426|354067;nao;media;Elo fusível distribuição tipo K 40 A.;agente:ia
 FUSIVEL, ELO, DISTRIBUICAO, 15 KV, K, 80A;353914;nao;media;Elo fusivel K 80 A distribuicao;agente:ia
 FUSIVEL, HH, 40A, 15 KV;623920;nao;alta;Fusivel limitador HH 15 kV 40 A.;agente:ia
-FUSIVEL, MINI, 0,2 A;424505|611351;nao;baixa;"Fusível 0,2 A de vidro pequeno; ""mini"" interpretado como 5x20";agente:ia
-FUSIVEL, MINI, 0,4 A;;sim;media;Fusível mini 0,4 A não encontrado.;agente:ia
-FUSIVEL, MINI, 0,5 A;380086;nao;baixa;"Fusível 0,5 A de vidro 5x20; ""mini"" interpretado";agente:ia
-FUSIVEL, MINI, 1,5 A;;sim;media;"Fusível mini 1,5 A; candidatos mini lâmina automotivos são 5 A ou maiores.";agente:ia
+FUSIVEL, MINI, 0,2A;424505|611351;nao;baixa;"Fusível 0,2 A de vidro pequeno; ""mini"" interpretado como 5x20";agente:ia
+FUSIVEL, MINI, 0,4A;;sim;media;Fusível mini 0,4 A não encontrado.;agente:ia
+FUSIVEL, MINI, 0,5A;380086;nao;baixa;"Fusível 0,5 A de vidro 5x20; ""mini"" interpretado";agente:ia
+FUSIVEL, MINI, 1,5A;;sim;media;"Fusível mini 1,5 A; candidatos mini lâmina automotivos são 5 A ou maiores.";agente:ia
 FUSIVEL, MINI, 100MA;424337;nao;baixa;"Fusível de vidro 100 mA; ""mini"" interpretado";agente:ia
 FUSIVEL, MINI, 10A;449207|479494;nao;media;Fusível mini 10 A automotivo.;agente:ia
 FUSIVEL, MINI, 1A;;sim;baixa;Mini fusivel 1 A: itens mini sao automotivos de 5 A ou mais.;agente:ia
-FUSIVEL, MINI, 2,5 A;472605;nao;baixa;"Fusível pequeno 2,5 A; mini inferido como pequeno";agente:ia
+FUSIVEL, MINI, 2,5A;472605;nao;baixa;"Fusível pequeno 2,5 A; mini inferido como pequeno";agente:ia
 FUSIVEL, MINI, 20A;479495;nao;media;Fusível mini lâmina 20 A.;agente:ia
 FUSIVEL, MINI, 2A;;sim;baixa;Não há fusível mini de 2 A.;agente:ia
 FUSIVEL, MINI, 4A;;sim;media;"Fusível mini 4 A; mini lâmina só tem 5 A ou mais.";agente:ia
@@ -928,7 +928,7 @@ FUSIVEL, NH, TAMANHO 01, 50 A X 500 V;426249;nao;alta;Fusivel NH tamanho 01 50 A
 FUSIVEL, NH, TAMANHO 02, 350 A X 600 V;244686;nao;media;"Fusível NH tamanho 02 350 A; item informa 500 V contra 600 V do estoque.";agente:ia
 FUSIVEL, NH, TAMANHO 02, 400 A X 500 V;368434|388451;nao;alta;Fusível NH tamanho 02 400 A 500 V.;agente:ia
 FUSIVEL, NH, TAMANHO 03, 500 A X 500 V;306513|388453;nao;alta;Fusível NH tamanho 03, 500 A, 500 V.;agente:ia
-FUSIVEL, VIDRO, 3,15A250V;291426;nao;alta;Fusível de vidro 3,15 A 250 V;agente:ia
+FUSIVEL, VIDRO, 3,15A250V.;291426;nao;alta;Fusível de vidro 3,15 A 250 V;agente:ia
 FUSIVEL, VIDRO, 31 MM, GRANDE, 10A;;sim;baixa;Fusível vidro 31 mm 10 A sem item compatível (5AG tem 38 mm);agente:ia
 FUSIVEL, VIDRO, 31 MM, GRANDE, 1A;472613;nao;media;Fusível de vidro grande 1 A.;agente:ia
 FUSIVEL, VIDRO, 31 MM, GRANDE, 1A, RETARDADO;472613;nao;baixa;"Fusível vidro grande 1 A; retardado não confirmado.";agente:ia
@@ -937,7 +937,7 @@ FUSIVEL, VIDRO, 31 MM, GRANDE, 2A;346482|472610;nao;media;Fusível de vidro gran
 FUSIVEL, VIDRO, 31 MM, GRANDE, 2A, RETARDO;346482|472610;nao;media;"Fusivel vidro grande 2A; retardo nao especificado";agente:ia
 FUSIVEL, VIDRO, 31 MM, GRANDE, 3A;378719|472614;nao;media;Fusível de vidro 3 A.;agente:ia
 FUSIVEL, VIDRO, 31 MM, GRANDE, 4A;346483;nao;alta;Fusível vidro grande 4 A.;agente:ia
-FUSIVEL, VIDRO, 5A250V;336919;nao;media;Fusível vidro 5 A;agente:ia
+FUSIVEL, VIDRO, 5A250V.;336919;nao;media;Fusível vidro 5 A;agente:ia
 FUSIVEL, VIDRO, GRANDE, 15A;322485|336028;nao;baixa;"Fusível de vidro grande 15 A; 3AG (grande) e 5x30 mm são os mais prováveis.";agente:ia
 FUSOR, XEROX, WORKCENTRE, 109R00752;387691;nao;alta;Fusor Xerox 109R00752 (código exato).;agente:ia
 GANCHO, CARGA, FIXACAO, TELHA, COMPLETO;;sim;media;"Gancho de fixação de telha completo não existe; só gancho de carga genérico ou de embarcação.";agente:ia
@@ -947,7 +947,7 @@ GARRAFA, TERMICA, PRESSAO, INOX, 1,8 LITROS;270250|288915|296174|311751|334033;n
 GARRAFA, TERMICA, PRESSAO, INOX, 2 LITROS;468442;nao;alta;Garrafa térmica inox 2 L tampa pressão;agente:ia
 GARRAFA, TERMICA, PRESSAO, PLASTICO, 1 LITRO;246535|311398|355591;nao;media;Garrafa térmica plástica 1 L com pressão;agente:ia
 GARRAFAO, ACONDICIONAMENTO, AGUA MINERAL, 20 LT;260928|402921;nao;media;Garrafao plastico 20 L para agua mineral;agente:ia
-GAS, 401 A/MP39;330624|338168|377652;nao;media;Gás refrigerante R-401A (MP39);agente:ia
+GAS, 401A/MP39;330624|338168|377652;nao;media;Gás refrigerante R-401A (MP39);agente:ia
 GAS, 404A;250436|463676;nao;alta;Gás refrigerante 404A.;agente:ia
 GAS, GLP, 13 KG;461652;nao;media;"GLP botijão 13 kg; uso doméstico, sem peso no item.";agente:ia
 GAS, MP66;;sim;baixa;Gás MP66 sem item correspondente.;agente:ia
@@ -981,7 +981,7 @@ HELICE, MICROMOTOR, BRANCA, 5, HASTES;;sim;alta;Hélice de micromotor não encon
 HEXANO, PA, ACS, 1 L;354576|354580|362991|416199;nao;media;"Hexano P.A.; grau ACS não discriminado nos itens.";agente:ia
 IMPERMEABILIZANTE, 200 L;73245;nao;baixa;"Impermeabilizante 200 L sem tipo; so o item generico serve.";agente:ia
 IMPERMEABILIZANTE, PRETO, LAJE, 18 L;282965|390022;nao;media;Impermeabilizante asfáltico preto para lajes;agente:ia
-IMPERMEABILIZANTE, VIAPLUS, 5000, 18 KG,;367228;nao;baixa;"Viaplus 5000 é cimentício semiflexível para reservatórios; palpite.";agente:ia
+IMPERMEABILIZANTE, VIAPLUS, 5000, 18 KG;367228;nao;baixa;"Viaplus 5000 é cimentício semiflexível para reservatórios; palpite.";agente:ia
 INDUZIDO, ASPIRADOR, PO;;sim;media;Induzido (rotor) de aspirador de pó não encontrado.;agente:ia
 INTERRUPTOR, 2 SECOES, PARALELO, COMPLETO;254502|329222|398379|433844|617244;nao;baixa;"Interruptor paralelo de 2 seções completo (com placa/espelho); cor e tensão livres.";agente:ia
 INTERRUPTOR, 3 SECOES, PARALELO, COMPLETO;398380|428185;nao;media;Interruptor paralelo de 3 secoes.;agente:ia
@@ -1002,21 +1002,21 @@ JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 45O;240439|304317;nao;m
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 90O;240433|304318;nao;media;Joelho ferro galvanizado 1 1/2 pol 90 graus.;agente:ia
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/4 X 45O;304327;nao;media;Joelho ferro galvanizado 1 1/4 pol 45 graus.;agente:ia
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/4 X 90O;245129|304231|304423;nao;media;Joelho 90 ferro galvanizado 1 1/4.;agente:ia
-JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1⁄2 X 45O;294361;nao;media;Joelho 45 ferro galvanizado 1/2.;agente:ia
-JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1⁄2 X 90O;240436|262458|360494;nao;media;Joelho 90 graus ferro galvanizado 1/2 pol;agente:ia
+JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1/2 X 45O;294361;nao;media;Joelho 45 ferro galvanizado 1/2.;agente:ia
+JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1/2 X 90O;240436|262458|360494;nao;media;Joelho 90 graus ferro galvanizado 1/2 pol;agente:ia
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2 X 45O;240440|265423;nao;alta;Joelho 45 graus ferro galvanizado 2 pol.;agente:ia
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2 X 90O;240434|304336;nao;media;"Joelho 90 graus ferro galvanizado 2 pol; aplicações vapor e água fria.";agente:ia
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2.1/2 X 45O;237027;nao;alta;Joelho 45 ferro galvanizado 2 1/2;agente:ia
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2.1/2 X 90O;237011|240435;nao;media;Joelho 90° ferro galvanizado roscável 2 1/2 pol.;agente:ia
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3 X 45O;237028|240441;nao;alta;Joelho ferro galvanizado 45 graus 3 pol.;agente:ia
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3 X 90O;240437|304337;nao;media;Joelho 90 graus ferro galvanizado roscável 3 pol.;agente:ia
-JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3⁄4 X 45O;294362|389664;nao;media;Joelho 45 graus ferro galvanizado 3/4 pol.;agente:ia
-JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3⁄4 X 90O;240431|258349|304335;nao;media;Joelho 90 graus ferro galvanizado 3/4 pol.;agente:ia
+JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3/4 X 45O;294362|389664;nao;media;Joelho 45 graus ferro galvanizado 3/4 pol.;agente:ia
+JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3/4 X 90O;240431|258349|304335;nao;media;Joelho 90 graus ferro galvanizado 3/4 pol.;agente:ia
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 4 X 45O;237026;nao;alta;Joelho 45 ferro galvanizado 4;agente:ia
 JOELHO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 4 X 90O;237010;nao;media;Joelho 90 ferro galvanizado roscável 4 pol;agente:ia
 JOELHO, HIDRAULICO, PVC, ESGOTO, 100 MM X 45O;304344|319252|351452;nao;media;"Joelho PVC esgoto 100 mm 45 graus; tipo de fixação livre.";agente:ia
-JOELHO, HIDRAULICO, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1 X 1⁄2;346323;nao;alta;Joelho de redução ferro galvanizado 1 x 1/2 pol.;agente:ia
-JOELHO, HIDRAULICO, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1 X 3⁄4;294367|346321;nao;media;Joelho redução ferro galvanizado 1 x 3/4.;agente:ia
+JOELHO, HIDRAULICO, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1 X 1/2;346323;nao;alta;Joelho de redução ferro galvanizado 1 x 1/2 pol.;agente:ia
+JOELHO, HIDRAULICO, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1 X 3/4;294367|346321;nao;media;Joelho redução ferro galvanizado 1 x 3/4.;agente:ia
 JOELHO, PLASTICO, IRRIGACAO, 1/2''X17MM;;sim;media;Joelho irrigação 1/2 x 17 mm não encontrado;agente:ia
 JOELHO, PVC, 50 MM X 45O, ESGOTO;236706|351455;nao;media;Joelho PVC 45 graus 50 mm para esgoto.;agente:ia
 JOELHO, PVC, 75 MM X 90O, ESGOTO;253695|304350|351462;nao;media;Joelho 90 PVC 75 mm;agente:ia
@@ -1048,7 +1048,7 @@ KIT, BARRAMENTO, QUADRO, BIFASICO;;sim;media;Kit barramento bifásico não encon
 KIT, FACIL, REGISTRO, PRESSAO, SALVA, REGISTRO;;sim;baixa;Kit fácil registro de pressão sem item equivalente.;agente:ia
 "KIT, TORNEIRA, DABI ATLANTE, 5/16""X3/16"", COM KNOB";;sim;alta;Kit de torneira Dabi Atlante (equipamento odontológico) sem equivalente.;agente:ia
 "KIT, TORNEIRA, DABI, ATLANTE, 5/16""X3/16"", KNOB";;sim;alta;Kit de torneira Dabi Atlante (odontológico) sem equivalente.;agente:ia
-LA, ACO, LIMPEZA, PACOTE, 8 UND;296307|481018;nao;media;"Esponja de lã de aço; pacote com 8 (unidade_diferente).";agente:ia
+LA, ACO, LIMPEZA, PACOTE, 8 UNIDADE;296307|481018;nao;media;"Esponja de lã de aço; pacote com 8 (unidade_diferente).";agente:ia
 LAMINA, ESTILETE, 18 MM;427106;nao;alta;Lâmina de estilete 18 mm.;agente:ia
 LAMINA, SERRA, BI-METAL, EXTRAFLEX, 305 MM;313747|481046;nao;baixa;"Lâmina de serra bi-metal 30 cm (305 mm aproximado); extraflex não consta.";agente:ia
 LAMINA, SERRA, METAL, TICO, TICO, FERRO;315489|447927;nao;media;Lâmina de serra tico-tico para metal.;agente:ia
@@ -1077,12 +1077,12 @@ LAMPADA, PROJETOR, C162;340558|362625;nao;alta;Lâmpada de projetor referência 
 LAMPADA, PROJETOR, INFOCUS, LP2, 210/220/225;265586|300209;nao;media;Lâmpada projetor Infocus referência SPLAMP-LP2.;agente:ia
 LAMPADA, PROJETOR, INFOCUS, X2/SP, LAMP-18;327081;nao;alta;Lâmpada Infocus X2 referência SPLAMP 018 (LAMP-18).;agente:ia
 LAMPADA, PROJETOR, INFOCUS, X2/SP, LAMP18;327081;nao;alta;Lâmpada projetor Infocus X2, referência SP-LAMP-018 bate.;agente:ia
-LAMPADA, PROJETOR, MULTIMIDIA, EPSON, NS31+;;sim;baixa;Modelo NS31+ nao encontrado entre lampadas Epson;agente:ia
-LAMPADA, PROJETOR, MULTIMIDIA, M260X;;sim;media;Lâmpada para M260X não encontrada;agente:ia
-LAMPADA, PROJETOR, MULTIMIDIA, NP410;;sim;media;Lâmpada projetor NP410 sem item com essa referência.;agente:ia
-LAMPADA, PROJETOR, MULTIMIDIA, S10+;398547;nao;alta;Lâmpada projetor Epson S10+.;agente:ia
-LAMPADA, PROJETOR, MULTIMIDIA, S6+;397929|426996;nao;alta;Lâmpada de projetor Epson S6+;agente:ia
-LAMPADA, PROJETOR, MULTIMIDIA, X14+;;sim;media;Nenhuma lâmpada específica para projetor X14+ no catálogo.;agente:ia
+LAMPADA, PROJETOR, MULTIMIDIA, EPSON, NS31+.;;sim;baixa;Modelo NS31+ nao encontrado entre lampadas Epson;agente:ia
+LAMPADA, PROJETOR, MULTIMIDIA, M260X.;;sim;media;Lâmpada para M260X não encontrada;agente:ia
+LAMPADA, PROJETOR, MULTIMIDIA, NP410.;;sim;media;Lâmpada projetor NP410 sem item com essa referência.;agente:ia
+LAMPADA, PROJETOR, MULTIMIDIA, S10+.;398547;nao;alta;Lâmpada projetor Epson S10+.;agente:ia
+LAMPADA, PROJETOR, MULTIMIDIA, S6+.;397929|426996;nao;alta;Lâmpada de projetor Epson S6+;agente:ia
+LAMPADA, PROJETOR, MULTIMIDIA, X14+.;;sim;media;Nenhuma lâmpada específica para projetor X14+ no catálogo.;agente:ia
 LAMPADA, PROJETOR, NEC, VT70LP;407568;nao;media;Lâmpada de projetor NEC modelo VT 70LP.;agente:ia
 LAMPADA, PROJETOR, SANYO, LMP-129;;sim;alta;"Lâmpada de projetor Sanyo referência LMP-129 inexistente; candidatos têm outras referências.";agente:ia
 LAMPADA, PROJETOR, SANYO, LMP129;;sim;media;Lâmpada Sanyo LMP129 sem item com essa referência.;agente:ia
@@ -1159,7 +1159,7 @@ LIXA, MADEIRA, GRAO, 80;326561|354502|360666|624419;nao;media;"Lixa madeira grã
 LIXA, PANO, GRAO, 40;252751|314868|391477|440529;nao;media;Lixa de pano grão 40.;agente:ia
 LIXEIRA, ESCRITORIO, PLASTICO, PRETA;622324|629854|629855;nao;baixa;"Lixeira plastica preta, capacidade nao informada / Lixeira plástica preta; capacidade não informada. [mesclada de 2 descrições do estoque que a normalização uniu]";agente:ia
 LIXEIRA, ESCRITORIO, PLASTICO, SEM TAMPA, PRETA;416778|610858|629854;nao;media;Lixeira plastica preta sem tampa.;agente:ia
-LONA, PLASTICA, PRETA, 4X100M;333207|356098|384187|624987;nao;alta;"Lona plástica preta 4x100 m; espessura não informada.";agente:ia
+LONA, PLASTICA, PRETA, 4 X 100 M;333207|356098|384187|624987;nao;alta;"Lona plástica preta 4x100 m; espessura não informada.";agente:ia
 LUMINARIA, COMERCIAL, BASE, TARTARUGA;373680|445584|446783|601422;nao;media;"Luminaria tipo tartaruga; demais atributos livres.";agente:ia
 LUMINARIA, COMERCIAL, BASE, TRIANGULAR;;sim;baixa;Luminária comercial base triangular sem item equivalente.;agente:ia
 LUMINARIA, EMBUTIR, 2 X 20 W, A15, ABALUX;263277|334077;nao;media;"Luminária de embutir 2x20 W fluorescente; modelo A15 Abalux não verificável";agente:ia
@@ -1181,13 +1181,13 @@ LUVA, ELETRODUTO, PVC, 4;311885;nao;alta;Luva eletroduto PVC 4 pol.;agente:ia
 LUVA, HIDRAULICA, CONEXAO, FERRO, GALVANIZADO, 1 POLEGADA;240539|389375;nao;media;Luva ferro/aço galvanizado 1 pol;agente:ia
 LUVA, HIDRAULICA, CONEXAO, FERRO, GALVANIZADO, 1.1/2 POLEGADA;240541;nao;alta;Luva ferro galvanizado roscável 1 1/2 pol.;agente:ia
 LUVA, HIDRAULICA, CONEXAO, FERRO, GALVANIZADO, 1.1/4 POLEGADA;;sim;media;Sem luva simples 1 1/4 ferro galvanizado;agente:ia
-LUVA, HIDRAULICA, CONEXAO, FERRO, GALVANIZADO, 1⁄2 POLEGADA;269319;nao;alta;Luva ferro galvanizado roscável 1/2 pol.;agente:ia
+LUVA, HIDRAULICA, CONEXAO, FERRO, GALVANIZADO, 1/2 POLEGADA;269319;nao;alta;Luva ferro galvanizado roscável 1/2 pol.;agente:ia
 LUVA, HIDRAULICA, CONEXAO, FERRO, GALVANIZADO, 2 POLEGADAS;240542;nao;alta;Luva ferro galvanizado roscável 2 pol;agente:ia
 LUVA, HIDRAULICA, CONEXAO, FERRO, GALVANIZADO, 2.1/2 POLEGADAS;240543|328840|363644;nao;media;Luva ferro galvanizado 2 1/2 pol;agente:ia
-LUVA, HIDRAULICA, CONEXAO, FERRO, GALVANIZADO, 3⁄4 POLEGADA;231366|240538;nao;media;Luva ferro galvanizado roscável 3/4 pol (não de redução).;agente:ia
+LUVA, HIDRAULICA, CONEXAO, FERRO, GALVANIZADO, 3/4 POLEGADA;231366|240538;nao;media;Luva ferro galvanizado roscável 3/4 pol (não de redução).;agente:ia
 LUVA, HIDRAULICA, CONEXAO, FERRO, GALVANIZADO, 4 POLEGADAS;328841;nao;media;Luva ferro galvanizado 4 pol roscável.;agente:ia
 LUVA, HIDRAULICA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 1;346326;nao;alta;Luva de redução ferro galvanizado 1.1/2 x 1.;agente:ia
-LUVA, HIDRAULICA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 3⁄4;269316;nao;alta;Luva de redução ferro galvanizado 1 1/2 x 3/4 roscável.;agente:ia
+LUVA, HIDRAULICA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 3/4;269316;nao;alta;Luva de redução ferro galvanizado 1 1/2 x 3/4 roscável.;agente:ia
 LUVA, HIDRAULICA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 3 X 1.1/2;;sim;media;Sem luva redução 3 x 1 1/2;agente:ia
 LUVA, HIDRAULICA, REDUCAO, CONEXAO, FERRO, GALVANIZADO, 4 X 3;365778;nao;alta;Luva de redução ferro galvanizado 4 x 3 pol;agente:ia
 LUVA, PROCEDIMENTO, DESCARTAVEL, TAMANHO, M, LATEX;397422|619846;nao;media;Luva descartável de látex tamanho M para procedimento.;agente:ia
@@ -1198,7 +1198,7 @@ LUVA, PROCEDIMENTO, NAO CIRURGICO, LATEX, G;619842|619847|619851|619855|619859;n
 LUVA, PROCEDIMENTO, NAO CIRURGICO, LATEX, M;619841|619846|619850|619854|619858;nao;media;"Luva latex tamanho M; po e superficie nao informados / Luva procedimento latex tamanho M; pó/superficie livres. [mesclada de 2 descrições do estoque que a normalização uniu]";agente:ia
 LUVA, PROCEDIMENTO, NAO CIRURGICO, LATEX, P;619840|619845|619849|619853|619857;nao;media;"Luva procedimento latex tamanho P; pó e superficie nao informados. / Luva de procedimento látex tamanho P; pó e textura não informados. / Luva procedimento látex não cirúrgica tamanho P; superfície e pó livres. [mesclada de 3 descrições do estoque que a normalização uniu]";agente:ia
 LUVA, PROTETORA, BOSCH;;sim;baixa;Luva protetora Bosch sem item correspondente.;agente:ia
-LUVA, PVC, LR, 20 MM X 1⁄2, BUCHA, LATAO;260149;nao;media;Luva PVC com bucha latão 20 mm x 1/2;agente:ia
+LUVA, PVC, LR, 20 MM X 1/2, BUCHA, LATAO;260149;nao;media;Luva PVC com bucha latão 20 mm x 1/2;agente:ia
 LUVA, PVC, LR, SOLDAVEL, 32 X 1;288137|453344;nao;media;Luva PVC soldável/roscável 32 mm x 1 pol.;agente:ia
 LUVA, PVC, SOLDAVEL, 100 MM, ESGOTO;270390|353504;nao;media;Luva PVC soldável 100 mm esgoto.;agente:ia
 LUVA, PVC, SOLDAVEL, 110 MM;245145|346195;nao;alta;Luva PVC soldavel 110 mm;agente:ia
@@ -1235,7 +1235,7 @@ MASCARA, RESPIRADORA;;sim;baixa;Máscara respiradora vaga (tipo/classe não info
 MASCARA, RESPIRADORA, COM VALVULA;;sim;baixa;Sem máscara respiradora com válvula equivalente claro;agente:ia
 MASCARA, RESPIRADORA, SEM VALVULA;485529|485531|485532;nao;media;"Respirador PFF2 sem válvula; carvão ativado/formato livres.";agente:ia
 MASCARA, RESPIRADORA, VALVULA;485533;nao;baixa;"Máscara respiradora com válvula; único PFF2 com válvula listado, estoque vago.";agente:ia
-MASSA, ACRILICA, 18 L;307559|356009|632916;nao;media;"Massa corrida acrílica; volume 18 L não consta (unidade_diferente).";agente:ia
+MASSA, ACRILICA,18 L;307559|356009|632916;nao;media;"Massa corrida acrílica; volume 18 L não consta (unidade_diferente).";agente:ia
 MASSA, CALAFETAR, 250 G;;sim;baixa;"Massa de calafetar vaga; sem item equivalente";agente:ia
 MASSA, EPOXI, CATALISADOR;272811|307199;nao;baixa;Massa epoxi com catalisador, descricao vaga;agente:ia
 MASSA, PLASTICA, ADESIVA, CINZA, 400 G;;sim;media;Massa plástica adesiva cinza 400 g sem item compatível.;agente:ia
@@ -1274,18 +1274,18 @@ NIPLE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2.1/2 POLEGADAS;339507|353227|36
 NIPLE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3 POLEGADAS;337140;nao;media;Niple de ferro galvanizado 3 pol;agente:ia
 NIPLE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3/4 POLEGADA;245219|269435|367131|474318;nao;media;Niple ferro galvanizado 3/4 pol.;agente:ia
 NIPLE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 4 POLEGADAS;365995;nao;baixa;"Niple ferro galvanizado 4 pol; tipo duplo inferido.";agente:ia
-NIPLE, PARALELO, PVC. 1/2X1/2;420009;nao;media;Niple PVC rosqueavel 1/2 pol.;agente:ia
+NIPLE, PARALELO, PVC. 1/2 X 1/2;420009;nao;media;Niple PVC rosqueavel 1/2 pol.;agente:ia
 O'RING, 14 MM;;sim;baixa;O-ring 14 mm sem item compatível.;agente:ia
-O'RING, 3X32X38MM;;sim;alta;O'ring 3x32x38 mm sem item com essas dimensões.;agente:ia
-O'RING, MINI, 40X47X3,5MM;;sim;media;O-ring 40x47x3,5 mm sem item com essas medidas.;agente:ia
+O'RING, 3 X 32 X 38 MM;;sim;alta;O'ring 3x32x38 mm sem item com essas dimensões.;agente:ia
+O'RING, MINI, 40 X 47 X 3,5 MM;;sim;media;O-ring 40x47x3,5 mm sem item com essas medidas.;agente:ia
 OBJETIVA, 10/0,25;;sim;alta;"Objetiva 10x/0,25 inexistente; apenas 4x, 20x, 40x e 100x.";agente:ia
 OBJETIVA, 3,2/0,10;;sim;media;Objetiva 3,2/0,10 sem item compatível;agente:ia
 OCULOS, PROTECAO, POLICARBONATO, LENTE INCOLOR, AMPLA, VISAO, PROTECAO, LATERAL;286716|321891;nao;alta;Óculos policarbonato incolor ampla visão com proteção lateral.;agente:ia
 OCULOS, PROTECAO, POLICARBONATO, LENTE, INCOLOR, AMPLA, VISAO, PROTECAO, LATERAL;286716|634184;nao;media;Óculos de proteção ampla visão, policarbonato, lente incolor.;agente:ia
 ORING, 14 MM;;sim;media;O-ring 14 mm sem item equivalente com esse diâmetro.;agente:ia
-ORING, 3X32X38MM;;sim;media;O-ring 3x32x38 mm sem item com essas dimensões.;agente:ia
+ORING, 3 X 32 X 38 MM;;sim;media;O-ring 3x32x38 mm sem item com essas dimensões.;agente:ia
 ORING, 50MMX3MM;;sim;baixa;O-ring 50x3 mm sem item compatível;agente:ia
-ORING, MINI, 40X47X3,5MM;;sim;baixa;O-ring 40x47x3,5 mm sem item compatível.;agente:ia
+ORING, MINI, 40 X 47 X 3,5 MM;;sim;baixa;O-ring 40x47x3,5 mm sem item compatível.;agente:ia
 OTICA, C8X/18, OCULAR;;sim;baixa;Ocular C8X/18 sem correspondente;agente:ia
 OTICA, F80MM, OCULAR;;sim;media;Descricao vaga (otica F80mm ocular) sem item compativel.;agente:ia
 OTICA, F=80 MM, OCULAR;;sim;media;Ocular ótica f=80 mm sem equivalente.;agente:ia
@@ -1303,8 +1303,8 @@ OXIDO, FERRO, VERMELHO, 0,5 KG;;sim;media;Sem óxido de ferro vermelho;agente:ia
 PAPEL, ALMACO, PAUTADO, 100 FLS;203525|203533|203537|203541|203545|292802|467579;nao;media;"Papel almaço pautado; gramatura e tamanho livres.";agente:ia
 PAPEL, ALMACO, PAUTADO, A4;233652|274591;nao;baixa;"Papel pautado 210x297 (A4); almaço de 325x215 do catálogo não é A4.";agente:ia
 PAPEL, ALMACO, PAUTADO, A4, 100 FLS;233652|274591;nao;baixa;"Papel pautado A4 (210x297); almaço do CATMAT tem outro formato.";agente:ia
-PAPEL, BOBINADO, CALCULADORA, BRANCO, 57X35MM;;sim;baixa;"Bobina 57x35 mm de calculadora; candidatos têm medidas/tipo não confirmados.";agente:ia
-PAPEL, BOBINADO, CALCULADORA, BRANCO, 76X35MM;203831|203832|298381|315838|376274;nao;baixa;"Bobina de papel para calculadora de 76 mm; cor/diâmetro inferidos.";agente:ia
+PAPEL, BOBINADO, CALCULADORA, BRANCO, 57 X 35 MM;;sim;baixa;"Bobina 57x35 mm de calculadora; candidatos têm medidas/tipo não confirmados.";agente:ia
+PAPEL, BOBINADO, CALCULADORA, BRANCO,76 X 35 MM;203831|203832|298381|315838|376274;nao;baixa;"Bobina de papel para calculadora de 76 mm; cor/diâmetro inferidos.";agente:ia
 PAPEL, BOBINADO, IMPRESSORA, AMARELO, 80MMX30M;;sim;media;"Papel bobinado amarelo 80 mm x 30 m; os amarelos têm 40 m ou largura 76/79 mm.";agente:ia
 PAPEL, BOBINADO, IMPRESSORA, AMARELO/BRANCO, 80MMX30M;304593;nao;baixa;"Bobina 80 mm x 30 m termossensível branca; cor amarelo/branco do estoque ambígua.";agente:ia
 PAPEL, CONTACT, TRANSPARENTE;278461|278462|284683|284782|296651|300701|314481|324104;nao;media;"Papel contact transparente (incolor); largura não especificada.";agente:ia
@@ -1315,11 +1315,11 @@ PAPEL, COPIADORA, OFICIO II, BRANCO;278392|278395|461757|461859;nao;media;Papel 
 PAPEL, COPIADORA, OFICIO, II, BRANCO;278392|278395|461757|461859;nao;media;"Papel ofício II (330x216 mm) branco; unidade_diferente (resma/caixa).";agente:ia
 PAPEL, HIGIENICO, PEQUENO, PACOTE, 4 ROLOS;294861|364309;nao;baixa;"Papel higienico rolo; tamanho pequeno nao definido nos itens.";agente:ia
 PAPEL, KRAFT;232070|244746|244747|244748|247931|266458|277531|351740|373896|436489|443352;nao;baixa;"Papel kraft sem especificação; todos aceitos.";agente:ia
-PAPEL, KRAFT, 96X66CM;200596|200597|245462|256678;nao;media;"Papel kraft 96x66 cm; cor e gramatura livres.";agente:ia
+PAPEL, KRAFT, 96 X 66 CM;200596|200597|245462|256678;nao;media;"Papel kraft 96x66 cm; cor e gramatura livres.";agente:ia
 PAPEL, TOALHA, BOBINA, FOLHA, SIMPLES;249574|290376|635639;nao;media;Toalha de papel em bobina folha simples.;agente:ia
 PAPEL, TOALHA, BOBINA, FOLHA, SIMPLES, ME/EPP;249574|290376|635639;nao;media;Toalha de papel em bobina folha simples;agente:ia
-PAPEL, TOALHA, INTERFOLHADO, DUAS DOBRAS, 23X21CM;319232|353142;nao;alta;Toalha de papel interfolhada 2 dobras 23x21 cm.;agente:ia
-PAPEL, TOALHA, INTERFOLHADO, DUAS, DOBRAS, 23X21CM;319232|353142;nao;alta;Toalha de papel interfolhada 2 dobras 23x21 cm.;agente:ia
+PAPEL, TOALHA, INTERFOLHADO, DUAS DOBRAS, 23 X 21 CM;319232|353142;nao;alta;Toalha de papel interfolhada 2 dobras 23x21 cm.;agente:ia
+PAPEL, TOALHA, INTERFOLHADO, DUAS, DOBRAS, 23 X 21 CM;319232|353142;nao;alta;Toalha de papel interfolhada 2 dobras 23x21 cm.;agente:ia
 PARA, RAIOS, FRANKLIM, OXIDO, ZINCO, POLIMERICO;;sim;media;"Franklin e óxido de zinco polimérico são produtos distintos; sem item compatível.";agente:ia
 PARA-RAIOS, FRANKLIM, OXIDO, ZINCO, POLIMERICO;358967|358968|379978|618324;nao;baixa;"Descrição mistura Franklin e pára-raios polimérico de óxido de zinco; tensão não informada";agente:ia
 "PARABOLT, 1/4""X3""";610833;nao;baixa;"Parabolt 1/4 pol; comprimento 3 pol não verificável.";agente:ia
@@ -1334,7 +1334,7 @@ PARAFUSO, CABECA, CHATA, MDF, PHILLIPS, 40 MM X 4 MM;313074;nao;media;"Parafuso 
 PARAFUSO, CABECA, CHATA, PHILIPS, 3,5 X 30;443264|641967;nao;media;Parafuso chata philips 3,5x30;agente:ia
 PARAFUSO, CABECA, CHATA, PHILIPS, 4,0 X 45;368695|443267;nao;media;Parafuso chata philips 4x45;agente:ia
 PARAFUSO, FENDA, ROSCA, CORRIDA, 1/4 X 3/4 POLEGADA, BOLEADA;;sim;media;Boleada fenda 1/4x3/4 nao existe (so 1 pol);agente:ia
-PARAFUSO, FENDA, ROSCA, CORRIDA, 1/4X1 POLEGADA;316614;nao;media;"Parafuso fenda 1/4 x 1 pol rosca total (busca direta); material livre.";agente:ia
+PARAFUSO, FENDA, ROSCA, CORRIDA, 1/4 X 1 POLEGADA;316614;nao;media;"Parafuso fenda 1/4 x 1 pol rosca total (busca direta); material livre.";agente:ia
 PARAFUSO, FENDA, ROSCA, CORRIDA, 3/16 X 1 POLEGADA;472993;nao;baixa;"Parafuso 3/16 x 1 pol com fenda e rosca UNC; palpite.";agente:ia
 PARAFUSO, FENDA, ROSCA, CORRIDA, 3/16 X 2 POLEGADA, BOLEADA;;sim;media;Nenhum parafuso boleado com fenda 3/16 x 2 pol.;agente:ia
 PARAFUSO, FERRAGENS, FIXACAO, MARMORE, GRANITO;387238;nao;baixa;Parafuso para fixacao de marmore;agente:ia
@@ -1407,11 +1407,11 @@ PINCEL, QUADRO, BRANCO, PRETO;233847|244304|274799|278629;nao;media;Pincel quadr
 PINCEL, QUADRO, BRANCO, VERMELHO;233848|244305|274800|278630|278634|408983;nao;media;Pincel quadro branco vermelho, ponta livre;agente:ia
 PINO, ADAPTADOR, MACHO, COMUM;;sim;baixa;Descrição vaga demais;agente:ia
 PINO, ADAPTADOR, T;;sim;baixa;Descrição vaga (pino adaptador T).;agente:ia
-PISO, ALERTA, PVC, 25X25X0,2CM;602961;nao;baixa;"Piso tátil de alerta PVC 25x25; espessura 5 mm no CATMAT vs 2 mm.";agente:ia
+PISO, ALERTA, PVC, 25 X 25 X 0,2 CM;602961;nao;baixa;"Piso tátil de alerta PVC 25x25; espessura 5 mm no CATMAT vs 2 mm.";agente:ia
 PISO, BORRACHA, ANTIDERRAPANTE, 50CMX50CM, PRETO;249285|359040|614555;nao;media;"Piso de borracha antiderrapante preto 50x50; espessura livre.";agente:ia
-PISO, DIRECIONAL, PVC, 25X25X0,2CM;;sim;media;"Piso direcional PVC 25x25 com 0,2 cm; catálogo tem espessura 5 mm.";agente:ia
+PISO, DIRECIONAL, PVC, 25 X 25 X 0,2 CM;;sim;media;"Piso direcional PVC 25x25 com 0,2 cm; catálogo tem espessura 5 mm.";agente:ia
 PISO, GRANITO, CINZA, 180 X 120 X 3 CM;;sim;baixa;Placa de granito cinza 180x120x3 cm sem item equivalente.;agente:ia
-PISO, GRANITO, CINZA, ANDORINHA, 0,40X0,40CM;215849;nao;baixa;"Piso granito cinza 40x40 cm; variedade andorinha não explícita.";agente:ia
+PISO, GRANITO, CINZA, ANDORINHA, 0,40 X 0,40 CM;215849;nao;baixa;"Piso granito cinza 40x40 cm; variedade andorinha não explícita.";agente:ia
 PISO, SOLEIRA, GRANITO, 100 X 0,1 M;;sim;baixa;Soleira de granito 100 x 10 cm não encontrada;agente:ia
 PISO, VINICULO, PAVIFLEX, 2.00 MM, BRANCO, FLASH;338542;nao;alta;Piso vinílico Paviflex 2 mm branco flash.;agente:ia
 PISO, VINILICO, PAVIFLEX, 2.0 MM, VERDE, JADE, FLASH;393001;nao;baixa;"Piso vinílico Paviflex 2 mm jade; item é linha Classic, estoque cita Flash.";agente:ia
@@ -1420,8 +1420,8 @@ PISO, VINILICO, PAVIFLEX, 2.00 MM, CINZA, FLASH;263335|330604;nao;media;Piso vin
 PLACA, CEGA, FERRO, CONDULETE, 1 POLEGADA;627493;nao;media;Tampa cega de condulete 1 pol galvanizada (ferro).;agente:ia
 PLACA, CEGA, INTERRUPTOR, 1 SECAO, ELETRO T;;sim;baixa;Placa cega 1 seção Eletro T sem item equivalente.;agente:ia
 PLACA, CEGA, INTERRUPTOR, 1 SECAO, ELETRO, T;;sim;baixa;Placa cega 1 secao nao encontrada;agente:ia
-PLACA, CEGA, PVC, CONDULETE, 1/2 X 3⁄4 POLEGADA;336473;nao;baixa;"Tampa cega de condulete PVC 3/4 pol; estoque cita 1/2 x 3/4.";agente:ia
-PLACA, LAVADORA, BWM 05/BWM 06/BWB 22A, BIV;;sim;media;Placa de lavadora Brastemp BWM/BWB sem referência correspondente.;agente:ia
+PLACA, CEGA, PVC, CONDULETE, 1/2 X 3/4 POLEGADA;336473;nao;baixa;"Tampa cega de condulete PVC 3/4 pol; estoque cita 1/2 x 3/4.";agente:ia
+PLACA, LAVADORA, BWM 05/ BWM 06/ BWB 22A, BIV;;sim;media;Placa de lavadora Brastemp BWM/BWB sem referência correspondente.;agente:ia
 PLACA, PAREDE, INTERRUPTOR, 1 SECAO, CONDULETE, METAL;347611|370776|371662|424167;nao;media;"Tampa/placa de condulete metálica para interruptor de 1 seção; excluída a de PVC.";agente:ia
 PLACA, PAREDE, INTERRUPTOR, 1 SECAO, SIMPLES;20850;nao;baixa;"Só o item genérico placa de parede para interruptor serve; sem item específico.";agente:ia
 PLACA, PAREDE, INTERRUPTOR, 2 SECOES, CONDULETE, METAL;338367|370777;nao;baixa;Placa para interruptor 2 seções de condulete.;agente:ia
@@ -1451,7 +1451,7 @@ PORCA, 3/4, LATAO;289673|366257;nao;media;Porca latao furo 3/4 pol.;agente:ia
 PORCA, 3/8, LATAO;249026|263111|264598|315904;nao;media;Porca de latão 3/8 pol.;agente:ia
 PORCA, 5/16, LATAO;263115|264600;nao;media;Porca latão 5/16;agente:ia
 PORCA, 5/8, LATAO;289674|315907;nao;alta;Porca sextavada latão 5/8 pol.;agente:ia
-PORCA, GALVANIZADA, SEXTAVADA, 1⁄2 POLEGADA;365555;nao;media;Porca sextavada galvanizada 1/2 pol (ferro galvanizado).;agente:ia
+PORCA, GALVANIZADA, SEXTAVADA, 1/2 POLEGADA;365555;nao;media;Porca sextavada galvanizada 1/2 pol (ferro galvanizado).;agente:ia
 PORCA, GALVANIZADA, SEXTAVADA, 3/16 POLEGADA;315884;nao;media;Porca sextavada galvanizada 3/16 pol.;agente:ia
 PORCA, GALVANIZADA, SEXTAVADA, 3/8 POLEGADA;275054|277897|315885;nao;media;Porca sextavada galvanizada 3/8;agente:ia
 PORCA, GALVANIZADA, SEXTAVADA, 5/16 POLEGADA;315890|316150|323220|600303;nao;media;Porca sextavada galvanizada 5/16 pol.;agente:ia
@@ -1469,13 +1469,13 @@ PORTA, LISA, PINTURA, 1.00 X 2.10 M;382689;nao;baixa;Porta lisa para pintura 1,0
 PORTA, OBJETO, ESCRITORIO;234401|277291;nao;media;Porta-objeto conjugado de escritório.;agente:ia
 PORTAL, MADEIRA, IPE, 15 CM X 3,5 CM;;sim;baixa;"Portal de ipê 15x3,5 cm sem item compatível; o de ipê tem outras dimensões.";agente:ia
 PORTAL, RETO, 150 MM, CHAPA 18, LINHA 30;;sim;baixa;Portal reto metálico linha 30 sem equivalente.;agente:ia
-POTENCIOMETRO, 1M, LOG;;sim;media;Sem potenciômetro 1M logarítmico;agente:ia
+POTENCIOMETRO, 1 M, LOG;;sim;media;Sem potenciômetro 1M logarítmico;agente:ia
 POTENCIOMETRO, 22K, LOGARITIMO;393879;nao;baixa;"Potenciômetro 22 kohm miniatura; curva logarítmica não confirmada.";agente:ia
 POTENCIOMETRO, 500K, LINEAR;393878;nao;baixa;"Potenciômetro 500 kohm rotativo; curva linear não confirmada.";agente:ia
 POTENCIOMETRO, 50K;393882;nao;baixa;"Potenciômetro 50 kohm rotativo; tipo não informado, preço sugere outro formato.";agente:ia
 POTENCIOMETRO, LINEAR, 100K;393883|607411;nao;media;Potenciômetro linear 100K.;agente:ia
-POTENCIOMETRO, LINEAR, 1M;639099;nao;alta;Potenciômetro linear 1 Mohm.;agente:ia
-POTENCIOMETRO, LINEAR, 2,2M;;sim;media;Potenciômetro linear 2,2M não encontrado.;agente:ia
+POTENCIOMETRO, LINEAR, 1 M;639099;nao;alta;Potenciômetro linear 1 Mohm.;agente:ia
+POTENCIOMETRO, LINEAR, 2,2 M;;sim;media;Potenciômetro linear 2,2M não encontrado.;agente:ia
 POTENCIOMETRO, LINEAR, 220K;393880|473329;nao;media;Potenciômetro linear 220 kohm;agente:ia
 POTENCIOMETRO, LINEAR, 22K;393879;nao;baixa;"Potenciômetro 22 kohm rotativo; tipo linear não confirmado";agente:ia
 POTENCIOMETRO, LINEAR, 4,7K;;sim;baixa;Potenciômetro linear 4,7K sem item equivalente.;agente:ia
@@ -1483,7 +1483,7 @@ POTENCIOMETRO, LINEAR, 470K;13196;nao;baixa;"Apenas item genérico POTENCIÔMETR
 POTENCIOMETRO, LOG, 100K;;sim;baixa;"Potenciômetro log 100K; candidatos de curva linear ou sem curva informada.";agente:ia
 POTENCIOMETRO, LOG, 10K;;sim;media;Potenciômetro logarítmico 10K não encontrado (só lineares).;agente:ia
 POTENCIOMETRO, LOG, 2,2K;;sim;alta;Potenciômetro logarítmico 2,2 k inexistente.;agente:ia
-POTENCIOMETRO, LOG, 2,2M;;sim;media;Potenciômetro logarítmico 2,2 M sem item compatível.;agente:ia
+POTENCIOMETRO, LOG, 2,2 M;;sim;media;Potenciômetro logarítmico 2,2 M sem item compatível.;agente:ia
 POTENCIOMETRO, LOG, 220K;;sim;media;Potenciômetro log 220K sem item compatível.;agente:ia
 POTENCIOMETRO, LOG, 22K;393879;nao;baixa;"Potenciômetro 22k; curva log não especificada no catálogo";agente:ia
 POTENCIOMETRO, LOG, 470K;13196;nao;baixa;Unico item de potenciometro e generico, sem especificacao.;agente:ia
@@ -1500,7 +1500,7 @@ PREGO, 6 X 6, S;233210|337959|344997|612569;nao;baixa;"Prego 6x6 interpretado co
 PREGO, CABECA, 10 X 10;233706|290432|317914;nao;media;"Prego com cabeça 10x10; acabamento livre.";agente:ia
 PREGO, CABECA, 12 X 12;250702|290401|317912|612487;nao;alta;Prego com cabeça 12x12.;agente:ia
 PREGO, CABECA, 13 X 18;317913|612488|622779;nao;media;"Prego com cabeça 13 x 18; acabamento livre.";agente:ia
-PREGO, CABECA, 13X15;234235|396988;nao;media;Prego com cabeça 13x15.;agente:ia
+PREGO, CABECA, 13 X 15;234235|396988;nao;media;Prego com cabeça 13x15.;agente:ia
 PREGO, CABECA, 15 X 15;234234|251960|317911|330576|333251|641922;nao;media;Prego com cabeça 15 x 15;agente:ia
 PREGO, CABECA, 15 X 21;330575;nao;alta;Prego com cabeça 15x21;agente:ia
 PREGO, CABECA, 17 X 21;293026|330577|333252|609322;nao;media;Prego com cabeça 17 x 21;agente:ia
@@ -1536,13 +1536,13 @@ PROTETOR, TERMICO;;sim;baixa;Protetor térmico vago;agente:ia
 PROTETOR, TERMICO, 2HP;;sim;baixa;Protetor térmico 2 HP não encontrado.;agente:ia
 PROTETOR, TERMICO, 3HP;;sim;media;Protetor térmico 3 HP sem item equivalente.;agente:ia
 PUXADOR, MOVEIS, 96 MM, REALE, STEEL, METAL;455989;nao;baixa;"Puxador 96 mm de aço; marca Reale e material pouco claros.";agente:ia
-QUADRO, BRANCO, FORMICA, BRILHANTE, 3,08M X 1,125M;;sim;media;Nenhum quadro branco 3,08x1,125 m.;agente:ia
+QUADRO, BRANCO, FORMICA, BRILHANTE, 3,08 M X 1,125 M;;sim;media;Nenhum quadro branco 3,08x1,125 m.;agente:ia
 QUADRO, COMANDO, METALICO, SOBREPOR, 65 X 50 X 25 CM;;sim;media;Unico quadro sobrepor e 50x40x25 cm, difere de 65x50x25.;agente:ia
 QUADRO, COMANDO, SOBREPOR, METALICO, 40 X 30 X 20 CM;252009;nao;media;Quadro de comando em chapa de aço 400x300x200 mm.;agente:ia
 QUADRO, DISTRIBUICAO, 18 CIRCUITOS, PVC, SOBREPOR;486075;nao;media;Quadro distribuição PVC sobrepor 18/24 disjuntores DIN.;agente:ia
 QUADRO, DISTRIBUICAO, 56 CIRCUITOS, SOBREPOR, METALICO;;sim;media;Sem quadro de 56 circuitos;agente:ia
 QUADRO, SOBREPOR, 30 CIRCUITOS, BARRAMENTO;;sim;media;Quadro de sobrepor 30 circuitos inexistente;agente:ia
-QUADRO, SOBREPOR, COMANDO, METALICO, 40X50X20 CM;282428|328103;nao;media;Quadro elétrico chapa aço 500x400x200 mm comando;agente:ia
+QUADRO, SOBREPOR, COMANDO, METALICO, 40 X 50 X 20 CM;282428|328103;nao;media;Quadro elétrico chapa aço 500x400x200 mm comando;agente:ia
 RABICHO, LIGACAO, FLEXIVEL, 1/2, ACO, BEBEDOURO;;sim;media;Rabicho flexível de bebedouro sem item compatível.;agente:ia
 RABICHO/LIGACAO, FLEXIVEL, 1/2, ACO, BEBEDOURO;;sim;baixa;"Rabicho flexível de aço 1/2 para bebedouro; sem equivalente.";agente:ia
 RALO, PVC, SANFONADO, 15 CM X 15 CM X 75 MM;324666;nao;baixa;"Ralo completo 15x15 cm saída 75 mm; 'sanfonado' não confirmado";agente:ia
@@ -1555,7 +1555,7 @@ REBITE, POP, REPUXO, ALUMINIO, 3,2 X 12 MM;214491|326171|480801|630538;nao;alta;
 REBITE, POP, REPUXO, ALUMINIO, 3,2 X 16 MM;464959;nao;alta;Rebite pop repuxo alumínio 3,2 x 16 mm.;agente:ia
 REBITE, POP, REPUXO, ALUMINIO, 4 X 25 MM;284478;nao;media;Rebite pop aluminio 4x25 mm.;agente:ia
 REBITE, POP, REPUXO, ALUMINIO, 4,8 X 14 MM;214495;nao;media;Rebite pop alumínio 4,8 x 14 mm;agente:ia
-REBITE, POP, REPUXO, ALUMINIO, 4,8X22MM;480805;nao;alta;Rebite pop repuxo alumínio 4,8 x 22 mm.;agente:ia
+REBITE, POP, REPUXO, ALUMINIO, 4,8 X 22 MM;480805;nao;alta;Rebite pop repuxo alumínio 4,8 x 22 mm.;agente:ia
 RECIPIENTE, EVAPORACAO, COMPRESSOR;;sim;baixa;Recipiente de evaporação de compressor sem item equivalente.;agente:ia
 REDUCAO, HIDRAULICA, PVC, 25 MM X 20 MM;242808|260075|264797;nao;media;Redução PVC soldável 25x20 mm (bucha/luva).;agente:ia
 REDUCAO, HIDRAULICA, PVC, 32 MM X 20 MM;264795|423924|454696;nao;media;Redução PVC soldável 32 x 20 mm;agente:ia
@@ -1577,11 +1577,11 @@ REDUCAO, LOUCA, BOCAL, E40 X E27;;sim;baixa;Reducao de bocal E40 x E27 nao const
 REDUCAO, PVC, SOLDAVEL, 75 MM X 50 MM;236914|264801|351387|457802|633306;nao;media;"Redução PVC soldável 75x50 mm; tipo livre.";agente:ia
 REFLETOR, JARDIM, LAMPADA, HALOGENA, 300 W X 220 V;260880;nao;alta;Refletor alumínio halógena 300 W 220 V.;agente:ia
 REFLETOR, JARDIM, LAMPADA, PALITO, HALOGENA, 150 W;261699|323211;nao;baixa;"Lâmpada halógena palito 150 W; estoque ambíguo (refletor ou lâmpada), tensão não informada.";agente:ia
-REGISTRO, ESFERA, ALTA, PRESSAO, 3⁄4 POLEGADA, 300 LBS;;sim;media;"Registro esfera alta pressão 3/4 300 lbs; nenhum item especifica 300 lbs.";agente:ia
+REGISTRO, ESFERA, ALTA, PRESSAO, 3/4 POLEGADA, 300 LBS;;sim;media;"Registro esfera alta pressão 3/4 300 lbs; nenhum item especifica 300 lbs.";agente:ia
 REGISTRO, ESFERA, FERRO, 1 POLEGADA;;sim;media;"Registro esfera de ferro 1 pol inexistente; só PVC e latão.";agente:ia
 REGISTRO, ESFERA, FERRO, 1.1/2 POLEGADA;468593;nao;baixa;"Registro esfera metal 1 1/2 roscável; material ferro não confirmado";agente:ia
 REGISTRO, ESFERA, FERRO, 1/2 POLEGADA;;sim;media;Registro esfera de ferro 1/2 pol não existe (só PVC/latão/bronze/metal cromado).;agente:ia
-REGISTRO, ESFERA, FERRO, 3⁄4 POLEGADA;356062|627273;nao;baixa;"Registro esfera metal 3/4; ferro inferido";agente:ia
+REGISTRO, ESFERA, FERRO, 3/4 POLEGADA;356062|627273;nao;baixa;"Registro esfera metal 3/4; ferro inferido";agente:ia
 REGISTRO, GAS, RD-12, 1/2;;sim;media;"Registro de gás RD-12 sem equivalente; gaveta/pressão são outro tipo.";agente:ia
 REGISTRO, GAS, RD12, 1/2;;sim;baixa;Registro gas RD12 nao encontrado;agente:ia
 REGISTRO, GAVETA, MANUAL, 1, METAL, ACABAMENTO;226353;nao;media;Registro de gaveta manual metal 1 pol cromado.;agente:ia
@@ -1590,8 +1590,8 @@ REGISTRO, GAVETA, MANUAL, 1.1/2, METAL, ACABAMENTO;226354;nao;alta;Registro gave
 REGISTRO, GAVETA, MANUAL, 1.1/2, METAL, BRUTO;240000|240084;nao;media;Registro gaveta manual metal 1 1/2 pol sem cromado (bruto).;agente:ia
 REGISTRO, GAVETA, MANUAL, 1.1/4, METAL, ACABAMENTO;226355|295694;nao;media;Registro gaveta manual metal 1 1/4 pol.;agente:ia
 REGISTRO, GAVETA, MANUAL, 1.1/4, METAL, BRUTO;295694;nao;media;Registro gaveta 1 1/4 metal sem cromado;agente:ia
-REGISTRO, GAVETA, MANUAL, 1⁄2, METAL, ACABAMENTO;226351|295614;nao;media;Registro gaveta manual 1/2 metal;agente:ia
-REGISTRO, GAVETA, MANUAL, 1⁄2, METAL, BRUTO;295614;nao;media;Registro de gaveta manual metal 1/2 pol bruto (sem cromado).;agente:ia
+REGISTRO, GAVETA, MANUAL, 1/2, METAL, ACABAMENTO;226351|295614;nao;media;Registro gaveta manual 1/2 metal;agente:ia
+REGISTRO, GAVETA, MANUAL, 1/2, METAL, BRUTO;295614;nao;media;Registro de gaveta manual metal 1/2 pol bruto (sem cromado).;agente:ia
 REGISTRO, GAVETA, MANUAL, 2, METAL, BRUTO;230976;nao;media;"Registro de gaveta manual metal 2 pol bruto (sem acabamento); excluído o cromado.";agente:ia
 REGISTRO, GAVETA, MANUAL, 2.1/2, METAL, BRUTO;249036;nao;alta;Registro gaveta manual metal 2 1/2;agente:ia
 REGISTRO, GAVETA, MANUAL, 3/4, METAL, ACABAMENTO;226352|273749;nao;media;"Registro de gaveta manual metal 3/4 pol; acabamento não informado.";agente:ia
@@ -1605,10 +1605,10 @@ REGULADOR, GAS, ALUMINIO, REGISTRO, MANUAL, FILTRO, ROSCA, 3/4;239773;nao;alta;R
 REGULADOR, PRESSAO, OXIGENIO;267430|267937|326018|331537|354861|354864|361927|461665;nao;baixa;"Reguladores de pressão para oxigênio; faixa de pressão não informada.";agente:ia
 REJUNTE, BEGE, 1 KG;405158;nao;alta;Rejunte bege.;agente:ia
 REJUNTE, EPOXI, BRANCO, BIANCO, ARGAMASSA;347598;nao;alta;Rejunte epóxi branco.;agente:ia
-RELE, 5 TERMINAIS, 125 V, 10 A/220 V;;sim;baixa;Rele 5 terminais sem item;agente:ia
-RELE, 5 TERMINAIS, 24 V, 10 A/250VAC;;sim;baixa;Rele automotivo 5 terminais 24 V/10 A sem item equivalente.;agente:ia
-RELE, 5, TERMINAIS, 125 V, 10 A/220 V;;sim;baixa;Relé 5 terminais 125 V sem equivalente.;agente:ia
-RELE, 5, TERMINAIS, 24 V, 10 A/250VAC;;sim;media;Relé 5 terminais 24 V 10 A/250 VAC sem equivalente.;agente:ia
+RELE, 5 TERMINAIS, 125 V, 10A/220 V;;sim;baixa;Rele 5 terminais sem item;agente:ia
+RELE, 5 TERMINAIS, 24 V, 10A/250VAC;;sim;baixa;Rele automotivo 5 terminais 24 V/10 A sem item equivalente.;agente:ia
+RELE, 5, TERMINAIS, 125 V, 10A/220 V;;sim;baixa;Relé 5 terminais 125 V sem equivalente.;agente:ia
+RELE, 5, TERMINAIS, 24 V, 10A/250VAC;;sim;media;Relé 5 terminais 24 V 10 A/250 VAC sem equivalente.;agente:ia
 RELE, ESTADO SOLIDO, 25A, 240 V;386068;nao;media;Relé estado sólido 25 A, saída 50-280 VCA cobre 240 V.;agente:ia
 RELE, ESTADO, SOLIDO, 25A, 240 V;386068;nao;media;Rele estado solido monofasico 25 A saida 50-280 VCA cobre 240 V.;agente:ia
 RELE, FALTA, FASE, 220 V;269536|340209|350227|350913|356267|380719|427378|455524;nao;media;"Relé de falta de fase 220 V; excluídos os de 380/440 V e o de sobrecorrente.";agente:ia
@@ -1621,11 +1621,11 @@ RELE, PROTECAO, 1116A;;sim;baixa;Relé proteção ref. 1116A sem item com refer�
 RELE, PROTECAO, 17-22A;;sim;media;Nenhum relé com faixa 17-22 A;agente:ia
 RELE, PROTECAO, 1722A;;sim;media;Relé de proteção 1722A sem item com referência equivalente.;agente:ia
 RELE, PROTECAO, 2,8-4A;240218;nao;alta;Relé de proteção faixa 2,8-4 A.;agente:ia
-RELE, PROTECAO, 2,84 A;240218;nao;media;Relé de proteção 2,84 A cai na faixa 2,8 a 4,0 A.;agente:ia
-RELE, PROTECAO, 4,5-6,3 A;240219;nao;baixa;Relé de proteção faixa 4,0-6,3 A próxima de 4,5-6,3 A;agente:ia
-RELE, PROTECAO, 4,56,3 A;240219;nao;alta;Relé de proteção faixa 4,0 a 6,3 A;agente:ia
-RELE, PROTECAO, 4-6,3 A;240219;nao;alta;Relé de proteção 4,0 a 6,3 A.;agente:ia
-RELE, PROTECAO, 46,3 A;;sim;baixa;"Relé de proteção 46,3 A inexistente; possível erro de digitação de faixa 4-6,3 A.";agente:ia
+RELE, PROTECAO, 2,84A;240218;nao;media;Relé de proteção 2,84 A cai na faixa 2,8 a 4,0 A.;agente:ia
+RELE, PROTECAO, 4,5-6,3A;240219;nao;baixa;Relé de proteção faixa 4,0-6,3 A próxima de 4,5-6,3 A;agente:ia
+RELE, PROTECAO, 4,56,3A;240219;nao;alta;Relé de proteção faixa 4,0 a 6,3 A;agente:ia
+RELE, PROTECAO, 4-6,3A;240219;nao;alta;Relé de proteção 4,0 a 6,3 A.;agente:ia
+RELE, PROTECAO, 46,3A;;sim;baixa;"Relé de proteção 46,3 A inexistente; possível erro de digitação de faixa 4-6,3 A.";agente:ia
 RELE, RW27-1D3, 32A;;sim;media;Relé RW27-1D3 32 A: o único RW27-1D3 é de 4 a 6,3 A.;agente:ia
 RELE, RW271D3, 32A;;sim;media;"Relé térmico WEG RW27-1D3 32 A; só existem RW27D de outras faixas ou sem faixa.";agente:ia
 RELE, RW27D, 15-23A;380279;nao;alta;Relé térmico RW27D (WEG) faixa 15-23 A.;agente:ia
@@ -1651,7 +1651,7 @@ RELE, TERMICO, 3RU, 1126, REGULAVEL, 28, A40, A;378797;nao;baixa;"Relé térmico
 RELE, TERMICO, LR1D 12316, 10-13A;346446;nao;alta;Relé térmico LR1-D12316;agente:ia
 RELE, TERMICO, LR1D, 12316, 1013A;346446;nao;alta;Relé térmico LR1 D12316 com a mesma referência.;agente:ia
 REMOVEDOR, PICHACAO, TINTA;30651;nao;baixa;"Removedor de tinta generico; nenhum especifico para pichacao.";agente:ia
-REPARO, CAIXA, ACOPLADA, BACIA, SANITARIA,;317272|398129|629670|633414|642098;nao;media;"Reparo de caixa acoplada; modelo/marca não informados.";agente:ia
+REPARO, CAIXA, ACOPLADA, BACIA, SANITARIA;317272|398129|629670|633414|642098;nao;media;"Reparo de caixa acoplada; modelo/marca não informados.";agente:ia
 REPARO, CAIXA, ACOPLADA, BACIA, SANITARIA, ACIONAMENTO, SUPERIOR;629670;nao;baixa;"Reparo de caixa acoplada com acionamento superior; palpite.";agente:ia
 REPARO, CARTUCHO, TORNEIRA, AUTOMATICA, ORIENTE;354044;nao;alta;Reparo torneira automatica Oriente Pressmatic.;agente:ia
 REPARO, TORNEIRA, DECAMATIC;314170|359920|391686|432918;nao;media;Reparo de torneira Decamatic, bitola livre;agente:ia
@@ -1668,9 +1668,9 @@ RESISTENCIA, ELETRICA, 220 V, 750 W, TIPO, U200MM;;sim;baixa;Nenhuma resistênci
 RESISTENCIA, LDT23, 220 V;;sim;media;Resistência LDT23 220 V não encontrada.;agente:ia
 RESISTOR, 1,2K, 1 W;600579;nao;alta;Resistor 1K2 1 W;agente:ia
 RESISTOR, 1,2K, 1/4 W;344790|393558;nao;alta;"Resistor 1K2 1/4 W.; corrigido após calibração: 344790 é 1,2 kΩ 1/4 W filme metálico";agente:ia
-RESISTOR, 1,2M, 1/4 W;337334;nao;alta;Resistor 1,2 Mohm 1/4 W (busca direta).;agente:ia
+RESISTOR, 1,2 M, 1/4 W;337334;nao;alta;Resistor 1,2 Mohm 1/4 W (busca direta).;agente:ia
 RESISTOR, 1,5K, 1 W;600580;nao;alta;Resistor carbono 1k5 1 W;agente:ia
-RESISTOR, 1,5M, 1/4 W;;sim;media;"Resistor 1,5 Mohm 1/4 W não existe; o de 1,5 Mohm é 0,5 W.";agente:ia
+RESISTOR, 1,5 M, 1/4 W;;sim;media;"Resistor 1,5 Mohm 1/4 W não existe; o de 1,5 Mohm é 0,5 W.";agente:ia
 RESISTOR, 1,5R, 1/2 W;346827;nao;alta;Resistor carbono 1,5 ohm 1/2 W.;agente:ia
 RESISTOR, 1,5R, 1/8 W;;sim;media;Sem resistor 1,5 ohm 1/8 W no catálogo;agente:ia
 RESISTOR, 1,8R, 1/4 W;274068;nao;media;Resistor 1,8 ohm 1/4W;agente:ia
@@ -1679,7 +1679,7 @@ RESISTOR, 100K, 1/4 W;393606;nao;alta;Resistor carbono fixo 100 kohm 1/4 W.;agen
 RESISTOR, 100R, 1 W;249929;nao;alta;Resistor carbono 100 ohm 1 W;agente:ia
 RESISTOR, 100R, 2 W;249889;nao;alta;Resistor carbono 100 ohm 2 W;agente:ia
 RESISTOR, 100R, 3 W;349180;nao;media;Resistor 100 ohm 3 W.;agente:ia
-RESISTOR, 10M, 1/4 W;;sim;media;Resistor 10 Mohm 1/4 W não existe no catálogo.;agente:ia
+RESISTOR, 10 M, 1/4 W;;sim;media;Resistor 10 Mohm 1/4 W não existe no catálogo.;agente:ia
 RESISTOR, 10R, 1/4 W;274069|398843;nao;alta;Resistor 10 ohm 1/4W;agente:ia
 RESISTOR, 120K, 1/4 W;;sim;media;"Só 120k de 0,5 W ou SMD; potência 1/4 W contradiz";agente:ia
 RESISTOR, 12K, 1 W;;sim;media;Resistor 12K 1W sem item com valor.;agente:ia
@@ -1696,7 +1696,7 @@ RESISTOR, 18R, 5 W;349381;nao;alta;Resistor de fio 18 ohm 5 W.;agente:ia
 RESISTOR, 1K, 1/4 W;344794;nao;media;Resistor 1 kohm 1/4 W filme metálico.;agente:ia
 RESISTOR, 2,2K, 1 W;211655|211686;nao;media;Resistor carbono 2,2K 1 W;agente:ia
 RESISTOR, 2,2K, 3 W;;sim;media;Nenhum resistor 2,2 kohm 3 W no catálogo.;agente:ia
-RESISTOR, 2,2M, 1/4 W;274060;nao;media;"Resistor 2M2 1/4 W; filme metálico tolerância 1 por cento.";agente:ia
+RESISTOR, 2,2 M, 1/4 W;274060;nao;media;"Resistor 2M2 1/4 W; filme metálico tolerância 1 por cento.";agente:ia
 RESISTOR, 220K, 1/2 W;;sim;media;Resistor 220 kohm só existe em 1/4 W, não 1/2 W.;agente:ia
 RESISTOR, 220R, 1/4 W;274054|344786|393553;nao;media;Resistor 220 ohm 1/4 W;agente:ia
 RESISTOR, 22K, 1 W;;sim;media;Sem resistor 22k 1 W específico;agente:ia
@@ -1742,28 +1742,28 @@ RESISTOR, 560R, 1 W;;sim;media;"Resistor 560 ohm 1 W; nenhum item com essa potê
 RESISTOR, 560R, 1/4 W;274055|333864|393555;nao;alta;Resistor 560 ohm 1/4 W (carbono ou filme).;agente:ia
 RESISTOR, 680K, 1/4 W;;sim;media;"Resistor 680K 1/4 W inexistente; só 680K 0,5 W.";agente:ia
 RESISTOR, 68R, 1/4 W;274067|393540;nao;media;Resistor 68 ohm 1/4 W;agente:ia
-RESISTOR, 8,2M, 1/4 W;;sim;baixa;"Resistor 8,2M 1/4W não existe; só 0,5 W";agente:ia
+RESISTOR, 8,2 M, 1/4 W;;sim;baixa;"Resistor 8,2M 1/4W não existe; só 0,5 W";agente:ia
 RESISTOR, 8,2R, 1/2 W;346845;nao;alta;Resistor carbono 8,2 ohm 0,5 W.;agente:ia
 RESISTOR, 820R, 5 W;;sim;media;"Resistor 820 ohm 5 W; itens de 820 ohm só até 2 W.";agente:ia
-RETENTOR, 00994, 20X40X7MM;;sim;media;Retentor 20x40x7 mm não encontrado.;agente:ia
-RETENTOR, 01093, 19X9X7MM;;sim;media;Retentor 01093 19x9x7 nao encontrado;agente:ia
-RETENTOR, 12X28X7MM;;sim;media;Retentor 12x28x7 mm sem item com essas dimensões.;agente:ia
-RETENTOR, 14X24X7MM;;sim;media;Retentor 14x24x7 mm sem item com essas dimensões.;agente:ia
-RETENTOR, 15X23X3MM;;sim;baixa;Retentor 15x23x3 mm sem item com essas medidas.;agente:ia
-RETENTOR, 15X30X7MM;;sim;media;Retentor 15x30x7 nao encontrado;agente:ia
-RETENTOR, 17X40X8,5MM;;sim;media;Retentor 17x40x8,5 mm não encontrado.;agente:ia
-RETENTOR, 24X42X6MM;;sim;baixa;Retentor 24x42x6 mm sem item compatível;agente:ia
-RETENTOR, 25X15X3MM;;sim;baixa;Retentor 25x15x3 mm sem item com essas medidas.;agente:ia
-RETENTOR, 25X23X7MM;;sim;media;Nenhum retentor com 25x23x7 mm.;agente:ia
-RETENTOR, 25X35X7MM;;sim;media;Retentor 25x35x7 não consta;agente:ia
-RETENTOR, 28X16X7MM;;sim;media;Nenhum retentor com 28x16x7 mm.;agente:ia
-RETENTOR, 30X18X6MM;;sim;baixa;Retentor 30x18x6 mm sem item com essas medidas.;agente:ia
-RETENTOR, 31,2X20X7,6MM;;sim;media;Retentor 31,2x20x7,6 não encontrado;agente:ia
-RETENTOR, 40X25X8MM;;sim;media;Nenhum retentor com 40x25x8 mm.;agente:ia
-RETENTOR, 43X24X10MM;;sim;media;Retentor 43x24x10 sem item;agente:ia
-RETENTOR, 5084, 20X40X10MM;;sim;media;Retentor 20x40x10 não encontrado;agente:ia
-RETENTOR, 50X25X10MM;;sim;media;Retentor 50x25x10 não consta;agente:ia
-RETENTOR, 8248, 31X47X7MM;;sim;media;Retentor 31x47x7 mm (ref. 8248) sem item equivalente.;agente:ia
+RETENTOR, 00994, 20 X 40 X 7 MM;;sim;media;Retentor 20x40x7 mm não encontrado.;agente:ia
+RETENTOR, 01093, 19 X 9 X 7 MM;;sim;media;Retentor 01093 19x9x7 nao encontrado;agente:ia
+RETENTOR, 12 X 28 X 7 MM;;sim;media;Retentor 12x28x7 mm sem item com essas dimensões.;agente:ia
+RETENTOR, 14 X 24 X 7 MM;;sim;media;Retentor 14x24x7 mm sem item com essas dimensões.;agente:ia
+RETENTOR, 15 X 23 X 3 MM;;sim;baixa;Retentor 15x23x3 mm sem item com essas medidas.;agente:ia
+RETENTOR, 15 X 30 X 7 MM;;sim;media;Retentor 15x30x7 nao encontrado;agente:ia
+RETENTOR, 17 X 40 X 8,5 MM;;sim;media;Retentor 17x40x8,5 mm não encontrado.;agente:ia
+RETENTOR, 24 X 42 X 6 MM;;sim;baixa;Retentor 24x42x6 mm sem item compatível;agente:ia
+RETENTOR, 25 X 15 X 3 MM;;sim;baixa;Retentor 25x15x3 mm sem item com essas medidas.;agente:ia
+RETENTOR, 25 X 23 X 7 MM;;sim;media;Nenhum retentor com 25x23x7 mm.;agente:ia
+RETENTOR, 25 X 35 X 7 MM;;sim;media;Retentor 25x35x7 não consta;agente:ia
+RETENTOR, 28 X 16 X 7 MM;;sim;media;Nenhum retentor com 28x16x7 mm.;agente:ia
+RETENTOR, 30 X 18 X 6 MM;;sim;baixa;Retentor 30x18x6 mm sem item com essas medidas.;agente:ia
+RETENTOR, 31,2 X 20 X 7,6 MM;;sim;media;Retentor 31,2x20x7,6 não encontrado;agente:ia
+RETENTOR, 40 X 25 X 8 MM;;sim;media;Nenhum retentor com 40x25x8 mm.;agente:ia
+RETENTOR, 43 X 24 X 10 MM;;sim;media;Retentor 43x24x10 sem item;agente:ia
+RETENTOR, 5084, 20 X 40 X 10 MM;;sim;media;Retentor 20x40x10 não encontrado;agente:ia
+RETENTOR, 50 X 25 X 10 MM;;sim;media;Retentor 50x25x10 não consta;agente:ia
+RETENTOR, 8248, 31 X 47 X 7 MM;;sim;media;Retentor 31x47x7 mm (ref. 8248) sem item equivalente.;agente:ia
 RETENTOR, B-1/65;;sim;baixa;Retentor B-1/65 sem correspondente claro;agente:ia
 RETENTOR, B1/65;;sim;baixa;Referência B1/65 não confirmada;agente:ia
 RETENTOR, GROWING;;sim;baixa;Descrição sem especificação;agente:ia
@@ -1861,8 +1861,8 @@ SACO, PLASTICO, DOCUMENTO, A4, DOIS, FUROS;242232;nao;baixa;"Saco documento plá
 SACO, PLASTICO, DOCUMENTO, OFICIO;228882|290725|292453|315424|419495;nao;media;Saco plástico para documento ofício 4 furos;agente:ia
 SACO, PLASTICO, LIXO, PRETO, 100 L;226094|230573|234564|295717|328295|329395|375005|406828|470833|481090;nao;media;"Saco de lixo preto 100 L; largura/espessura livres";agente:ia
 SACO, PLASTICO, LIXO, PRETO, 100 LITROS;226094|230573|234564|295717|328295|329395|375005|406828|470833|481090;nao;media;"Saco lixo preto 100 L; dimensoes livres";agente:ia
-SACO, PLASTICO, P/DOCUMENTO, A4, DOIS, FUROS;;sim;media;Saco plástico A4 com 2 furos não encontrado (todos os itens têm 4 furos ou nenhum).;agente:ia
-SACO, PLASTICO, P/DOCUMENTO, OFICIO;283416|290725|292453|315424;nao;media;Saco plastico para documento tamanho oficio (aprox. 330x240).;agente:ia
+SACO, PLASTICO, PARA DOCUMENTO, A4, DOIS, FUROS;;sim;media;Saco plástico A4 com 2 furos não encontrado (todos os itens têm 4 furos ou nenhum).;agente:ia
+SACO, PLASTICO, PARA DOCUMENTO, OFICIO;283416|290725|292453|315424;nao;media;Saco plastico para documento tamanho oficio (aprox. 330x240).;agente:ia
 SAPATILHA, DESCARTAVEL, POLIPROPILENO, PRO, PE;436854|436855|436856|436857|436858|436859;nao;media;Sapatilha descartável de polipropileno (não tecido) com elástico.;agente:ia
 SAPATILHA, DESCARTAVEL, POLIPROPILENO, PRO-PE;436854|436855|436856|436857|436858|436859|464147|464785|600278;nao;media;"Sapatilha descartável de polipropileno; gramatura e modelo livres.";agente:ia
 SELADOR, PINTURA, MADEIRA, 3,6 L;453731;nao;baixa;"Selador para madeira; volume livre";agente:ia
@@ -1944,16 +1944,16 @@ TE, CONEXAO, HIDRAULICA, PLASTICO, IRRIGACAO, 1/2 POLEGADA;455518;nao;media;Te d
 TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1;240570|287802;nao;media;Tê ferro galvanizado roscável 1 pol.;agente:ia
 TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/2;260959|287804;nao;media;Te ferro galvanizado 1 1/2 pol;agente:ia
 TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/4;240571|287803|333306;nao;media;Te ferro galvanizado roscavel 1 1/4 pol.;agente:ia
-TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1⁄2;237790|240568|365841|424524;nao;media;"Tê ferro galvanizado 1/2 pol; excluídos 45 graus e curva dupla.";agente:ia
+TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1/2;237790|240568|365841|424524;nao;media;"Tê ferro galvanizado 1/2 pol; excluídos 45 graus e curva dupla.";agente:ia
 TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2;294851|365842|606371;nao;media;Te ferro galvanizado 2 pol;agente:ia
 TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2.1/2;339510;nao;alta;"Tê ferro galvanizado roscável 2 1/2 pol; excluídos os de 45 graus.";agente:ia
 TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3;232912|240573|365843|640362;nao;media;"Te ferro galvanizado 3 pol; angulo livre";agente:ia
-TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3⁄4;240569|294850|304233;nao;media;Tê ferro galvanizado roscável 3/4 pol.;agente:ia
+TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3/4;240569|294850|304233;nao;media;Tê ferro galvanizado roscável 3/4 pol.;agente:ia
 TE, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 4;237035|328837|365844;nao;media;Tê ferro galvanizado 4 pol.;agente:ia
 TE, PVC, 100 MM, ESGOTO;257622|271421|441805|626002;nao;media;Tê PVC esgoto 100 mm.;agente:ia
-TE, PVC, LR, 25 MM X 1⁄2, BUCHA, LATAO;453308;nao;baixa;"Tê PVC 25 mm x 1/2 soldável/roscável; bucha de latão não consta.";agente:ia
+TE, PVC, LR, 25 MM X 1/2, BUCHA, LATAO;453308;nao;baixa;"Tê PVC 25 mm x 1/2 soldável/roscável; bucha de latão não consta.";agente:ia
 TE, PVC, SOLDAVEL, 20 MM;344641;nao;alta;Tê PVC soldável 90 graus 20 mm.;agente:ia
-TE, PVC, SOLDAVEL, 20 MM X 1⁄2, BUCHA, LATAO;;sim;media;"Tê 20 mm x 1/2 com bucha de latão; candidato 358266 é 20 x 3/4.";agente:ia
+TE, PVC, SOLDAVEL, 20 MM X 1/2, BUCHA, LATAO;;sim;media;"Tê 20 mm x 1/2 com bucha de latão; candidato 358266 é 20 x 3/4.";agente:ia
 TE, PVC, SOLDAVEL, 25 MM;271558|304362|399168;nao;alta;Te PVC soldavel 25 mm.;agente:ia
 TE, PVC, SOLDAVEL, 32 MM;264977|289901|351416|422203;nao;alta;Tê PVC soldável 32 mm.;agente:ia
 TE, PVC, SOLDAVEL, 40 MM, ESGOTO;257676|271422|299905;nao;alta;Tê PVC soldável 40 mm para esgoto.;agente:ia
@@ -1970,26 +1970,26 @@ TE, PVC, SOLDAVEL, REDUCAO, 60 MM X 25 MM;367628;nao;alta;Te reducao PVC soldave
 TE, PVC, SOLDAVEL, REDUCAO, 60 MM X 32 MM;;sim;media;"Nao ha te de reducao 60 x 32; so bucha e luva de reducao.";agente:ia
 TE, PVC, SOLDAVEL, REDUCAO, 60 MM X 40 MM;255594|426000;nao;alta;Tê de redução PVC soldável 60x40 mm.;agente:ia
 TE, PVC, SOLDAVEL, REDUCAO, 60 MM X 50 MM;255595|271749;nao;alta;Tê de redução PVC soldável 60 x 50 mm.;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1 X 1⁄2;;sim;baixa;Tê de redução ferro galvanizado 1 x 1/2 não encontrado.;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1 X 3⁄4;365925;nao;alta;Tê de redução ferro galvanizado 1 x 3/4 pol;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1 X 1/2;;sim;baixa;Tê de redução ferro galvanizado 1 x 1/2 não encontrado.;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1 X 3/4;365925;nao;alta;Tê de redução ferro galvanizado 1 x 3/4 pol;agente:ia
 TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 1;;sim;media;Sem tê de redução 1 1/2 x 1;agente:ia
 TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 1.1/4;290118;nao;alta;Te reducao 1 1/2 x 1 1/4;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 1⁄2;;sim;media;Sem tê de redução ferro galvanizado 1 1/2 x 1/2;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 3⁄4;264301;nao;alta;Tê de redução ferro galvanizado 1.1/2 x 3/4.;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/4 X 3⁄4;365911;nao;alta;Tê de redução ferro galvanizado 1 1/4 x 3/4 pol;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1⁄4 X 1⁄2;;sim;baixa;Tê de redução 1/4 x 1/2 não existe.;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2 X 3⁄4;;sim;media;Nao ha te reducao 2 x 3/4;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2 X1;264300|346250;nao;alta;Tê de redução ferro galvanizado 2 x 1 pol.;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2 X1.1/2;;sim;media;Tê redução ferro galvanizado 2x1 1/2 não consta;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2 X1/4;;sim;media;Não há tê de redução galvanizado 2 x 1/4.;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 1/2;;sim;media;Sem tê de redução ferro galvanizado 1 1/2 x 1/2;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/2 X 3/4;264301;nao;alta;Tê de redução ferro galvanizado 1.1/2 x 3/4.;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1.1/4 X 3/4;365911;nao;alta;Tê de redução ferro galvanizado 1 1/4 x 3/4 pol;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 1/4 X 1/2;;sim;baixa;Tê de redução 1/4 x 1/2 não existe.;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2 X 3/4;;sim;media;Nao ha te reducao 2 x 3/4;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2 X 1;264300|346250;nao;alta;Tê de redução ferro galvanizado 2 x 1 pol.;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2 X 1.1/2;;sim;media;Tê redução ferro galvanizado 2x1 1/2 não consta;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2 X 1/4;;sim;media;Não há tê de redução galvanizado 2 x 1/4.;agente:ia
 TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2.1/2 X 2;365909;nao;alta;Tê redução ferro galvanizado 2 1/2 x 2 pol.;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2.1/2 X1.1/2;365906;nao;alta;Tê redução ferro galvanizado 2 1/2 x 1 1/2 pol.;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2.1/2 X1.1/4;365907;nao;alta;Tê de redução ferro galvanizado 2 1/2 x 1 1/4.;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2.1/2 X 1.1/2;365906;nao;alta;Tê redução ferro galvanizado 2 1/2 x 1 1/2 pol.;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 2.1/2 X 1.1/4;365907;nao;alta;Tê de redução ferro galvanizado 2 1/2 x 1 1/4.;agente:ia
 TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3 X 1.1/2;365914;nao;alta;Tê de redução ferro galvanizado 3 x 1.1/2.;agente:ia
 TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3 X 1.1/4;332812;nao;alta;Tê de redução ferro galvanizado 3 x 1 1/4 pol.;agente:ia
 TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3 X 2;346255|365916;nao;alta;Tê de redução ferro galvanizado 3 x 2 pol.;agente:ia
 TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3 X 2.1/2;237049;nao;alta;Tê de redução ferro galvanizado 3 x 2 1/2 pol.;agente:ia
-TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3⁄4 X 1⁄2;290119;nao;alta;Tê de redução ferro galvanizado 3/4 x 1/2.;agente:ia
+TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 3/4 X 1/2;290119;nao;alta;Tê de redução ferro galvanizado 3/4 x 1/2.;agente:ia
 TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 4 X 2;323959|365922;nao;media;Tê de redução ferro galvanizado 4x2 pol.;agente:ia
 TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 4 X 2.1/2;;sim;media;Sem tê de redução 4 x 2 1/2;agente:ia
 TE, REDUCAO, HIDRAULICO, CONEXAO, FERRO, GALVANIZADO, 4 X 3;237050|287134;nao;alta;Tê de redução ferro galvanizado 4 x 3;agente:ia
@@ -2065,7 +2065,7 @@ TIJOLO, BARRO, COZIDO, 8 FUROS;216907|216908|227076|227391|231394|232674|235323|
 TINTA, ACRILICA, ACETINADA, CONCRETO, 18 L;349929;nao;baixa;"Tinta acrílica acetinada cor concreto; único item acetinado concreto, é elastomérico.";agente:ia
 TINTA, ACRILICA, PISO, AMARELO, 18 LITROS;427517|449670|457045|457049;nao;baixa;"Tinta acrílica amarela; uso em piso não consta nos itens.";agente:ia
 TINTA, ACRILICA, PISO, PRETO, 18 L;455387|457040|633698|633700;nao;baixa;"Tinta acrilica preta; uso em piso nao consta nos itens.";agente:ia
-TINTA, ACRILICA, PRETO, FOSCO, 18 L;392119|455387|633700;nao;media;Tinta acrilica preta fosca.;agente:ia
+TINTA, ACRILICA, PRETO, FOSCO,18 L;392119|455387|633700;nao;media;Tinta acrilica preta fosca.;agente:ia
 TINTA, ACRILICA, SEMI, BRILHO, AREIA;453754;nao;alta;Tinta acrílica semi-brilho cor areia.;agente:ia
 TINTA, ACRILICA, SEMI, BRILHO, BRANCO, 18 L;297492|397957|446955|453737|472320|636484;nao;media;Tinta acrílica semi-brilho branca ou branco neve.;agente:ia
 TINTA, CARIMBO, AZUL;282554|282555|284286|284649|288739|290661|291371|293085|295505|388652|416510;nao;media;"Tinta azul para carimbo; base e frasco livres; excluída a de numerador automático.";agente:ia
@@ -2144,7 +2144,7 @@ TORNEIRA, BOIA, CAIXA, DESCARGA, MONTANA;290126;nao;media;Bóia para caixa de de
 TORNEIRA, BOIA, METAL, 1 POLEGADA;261034|396905;nao;alta;Torneira de boia metal 1 pol.;agente:ia
 TORNEIRA, BOIA, METAL, 1.1/2 POLEGADA;249821|261033|396903;nao;alta;Torneira de boia metal 1 1/2 pol;agente:ia
 TORNEIRA, BOIA, METAL, 1.1/4 POLEGADA;249822|396904;nao;alta;Torneira bóia metal 1 1/4 pol;agente:ia
-TORNEIRA, BOIA, PVC, 3/4 X 1⁄2 POLEGADA;249830|412726;nao;baixa;"Torneira de boia PVC 3/4; medida 3/4 x 1/2 interpretada como rosca 3/4.";agente:ia
+TORNEIRA, BOIA, PVC, 3/4 X 1/2 POLEGADA;249830|412726;nao;baixa;"Torneira de boia PVC 3/4; medida 3/4 x 1/2 interpretada como rosca 3/4.";agente:ia
 TORNEIRA, METAL, PIA, 1157;;sim;baixa;Torneira de pia ref. 1157 sem item com essa referência.;agente:ia
 TORNEIRA, PIA, BICA, ALTA, ARTICULADOR, MESA;627148;nao;media;Torneira bica alta movel para mesa;agente:ia
 TORNEIRA, TIPO, BOCA;255942;nao;media;Torneira tipo jato para boca (bebedouro).;agente:ia
@@ -2200,14 +2200,14 @@ TRINCHA, PINTURA, 1 POLEGADA;353811|612538;nao;media;Trincha/pincel 1 pol.;agent
 TRINCHA, PINTURA, 1.1/2 POLEGADA;224216|224230|265008|282511|353810|485779;nao;media;"Trincha 1 1/2 pol; cerdas livres";agente:ia
 TRINCHA, PINTURA, 2 POLEGADAS;238822|245253|256570|265009|282975|467559;nao;media;"Trincha de 2 pol sem cerdas/cabo informados; aceitas todas de 2 pol.";agente:ia
 TRINCHA, PINTURA, 2.1/2 POLEGADAS;232625|232626|239397|310783|467558;nao;media;Trincha 2 1/2 pol, cerdas livres;agente:ia
-TRINCHA, PINTURA, 3⁄4 POLEGADA;247080|271512|282510|310784;nao;alta;"Trincha 3/4 pol; cerdas e cabo livres.";agente:ia
+TRINCHA, PINTURA, 3/4 POLEGADA;247080|271512|282510|310784;nao;alta;"Trincha 3/4 pol; cerdas e cabo livres.";agente:ia
 TRINCHA, PINTURA, 4 POLEGADAS;229438|274440|282512|375660|441521|467560;nao;media;"Trincha 4 pol; cerda/cabo livres";agente:ia
 TRINCO, AVIAO, 60 MM, METAL, CROMADO;;sim;media;Trinco avião 6 cm existente é zincado, contradiz cromado.;agente:ia
 TUBO, CANO, FERRO, GALVANIZADO, 1.1/2 POLEGADA;241978|247268|294393|299444;nao;media;"Tubo ferro galvanizado 1 1/2 pol; aplicação livre.";agente:ia
-TUBO, CANO, FERRO, GALVANIZADO, 1⁄2 POLEGADA;233985|236688|385101;nao;media;Tubo ferro galvanizado 1/2 pol;agente:ia
+TUBO, CANO, FERRO, GALVANIZADO, 1/2 POLEGADA;233985|236688|385101;nao;media;Tubo ferro galvanizado 1/2 pol;agente:ia
 TUBO, CANO, FERRO, GALVANIZADO, 2 POLEGADA;265514|389663;nao;media;Tubo ferro galvanizado 2 pol;agente:ia
 TUBO, CANO, FERRO, GALVANIZADO, 3 POLEGADA;341966|377970|378057;nao;media;"Tubo ferro galvanizado 3 pol; espessura livre";agente:ia
-TUBO, CANO, FERRO, GALVANIZADO, 3⁄4 POLEGADA;241977|270688|389429;nao;media;Tubo de ferro galvanizado 3/4 pol;agente:ia
+TUBO, CANO, FERRO, GALVANIZADO, 3/4 POLEGADA;241977|270688|389429;nao;media;Tubo de ferro galvanizado 3/4 pol;agente:ia
 TUBO, CANO, FERRO, GALVANIZADO, 4 POLEGADA;237056|328800|352985;nao;media;Tubo ferro galvanizado 4 pol.;agente:ia
 TUBO, CAPILAR, 0,42=1,07 MM;;sim;media;Tubo capilar 0,42/1,07 mm sem item compatível.;agente:ia
 TUBO, CAPILAR, 1/8;285307;nao;alta;Tubo capilar de cobre 1/8 pol.;agente:ia
@@ -2224,19 +2224,19 @@ TUBO, ELETRODUTO, PVC, 2.1/2 POLEGADA;242126;nao;alta;Eletroduto PVC rígido 2 1
 TUBO, ELETRODUTO, PVC, 3 POLEGADAS;242124;nao;media;Eletroduto PVC rigido 3 pol;agente:ia
 TUBO, FLEXIVEL, SEALTUBO, 1 POLEGADA;;sim;baixa;Sealtubo 1 pol sem correspondente;agente:ia
 TUBO, FLEXIVEL, SEALTUBO, 1.1/2 POLEGADA, REVESTIDO;322856;nao;media;Eletroduto flexível Sealtube 1 1/2 pol.;agente:ia
-TUBO, INDUSTRIAL, REDONDO, 3⁄4, CHAPA 18, 6 M;;sim;baixa;Tubo industrial aco chapa 18 sem item compativel;agente:ia
+TUBO, INDUSTRIAL, REDONDO, 3/4, CHAPA 18, 6 M;;sim;baixa;Tubo industrial aco chapa 18 sem item compativel;agente:ia
 TUBO, LIGACAO, AJUSTAVEL, SPUD, CROMADO, BACIA, SANITARIA, 20 CM;469327;nao;baixa;"Tubo de ligação ajustável cromado para bacia; faixa 17-24 cm.";agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 1 POLEGADAS, ROSCA;214721|330268|399175;nao;baixa;"Tubo PVC 1 pol roscável; 'soldável' no estoque é contraditório.";agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 1.1/2 POLEGADAS, ROSCA;293806|323301|330266|399180;nao;baixa;"Tubo PVC 1 1/2 pol; soldável e rosca ambos citados";agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 1.1/4 POLEGADAS, ROSCA;214722|330267|399181;nao;baixa;"Tubo PVC 1 1/4 pol com rosca; descrição ambígua entre soldável e roscável.";agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 100 MM, ESGOTO;233164|330262;nao;media;Tubo PVC rígido soldável 100 mm para esgoto.;agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 110 MM;247961;nao;media;Tubo PVC soldável 110 mm 6 m;agente:ia
-TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 1⁄2 POLEGADAS, ROSCA;323202|627254;nao;baixa;"Tubo PVC 1/2 pol; soldavel ou roscavel ambiguo.";agente:ia
+TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 1/2 POLEGADAS, ROSCA;323202|627254;nao;baixa;"Tubo PVC 1/2 pol; soldavel ou roscavel ambiguo.";agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 2 POLEGADAS, ROSCA;324422|369393;nao;baixa;"Tubo PVC 2 pol; soldavel e rosca contraditorios";agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 20 MM;396867;nao;media;Tubo PVC rígido soldável 20 mm;agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 3 POLEGADAS, ROSCA;214726|375752|399177;nao;baixa;"Tubo PVC 3 pol roscavel; estoque mistura soldavel e rosca.";agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 32 MM;257386|257837;nao;media;Tubo PVC soldável 32 mm 6 m.;agente:ia
-TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 3⁄4 POLEGADAS, ROSCA;214720|330270|341653|412500|433362|456165;nao;media;"Tubo PVC roscável 3/4 pol; descrição mistura soldável e rosca, adotado roscável.";agente:ia
+TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 3/4 POLEGADAS, ROSCA;214720|330270|341653|412500|433362|456165;nao;media;"Tubo PVC roscável 3/4 pol; descrição mistura soldável e rosca, adotado roscável.";agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 40 MM;239545|330263|359665|366642;nao;media;"Tubo PVC rígido soldável 40 mm; aplicação/comprimento livres.";agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 40 MM, ESGOTO;265266|330263|366642;nao;media;Tubo PVC soldavel 40 mm esgoto;agente:ia
 TUBO, PVC, RIGIDO, SOLDAVEL, CANO, 50 MM;257844|265193|301811|330264;nao;media;"Tubo PVC soldável 50 mm; comprimento/uso livres";agente:ia
@@ -2276,25 +2276,25 @@ VALVULA, EXPANSAO, TIXA-5;;sim;media;Sem válvula TIXA-5;agente:ia
 VALVULA, FIXA;;sim;alta;"Válvula fixa vaga; sem item específico.";agente:ia
 VALVULA, PE, METAL, SUCCAO, VERTICAL, 1.1/2;;sim;media;"Valvula de pe nao consta; so valvulas de retencao vertical.";agente:ia
 VALVULA, PE, METAL, SUCCAO, VERTICAL, 2.1/2;449992;nao;media;Válvula de pé 2 1/2 pol ferro fundido;agente:ia
-VALVULA, PE, METAL, SUCCAO, VERTICAL, 3⁄4;330296|482804;nao;media;Válvula de pé metal 3/4 pol.;agente:ia
+VALVULA, PE, METAL, SUCCAO, VERTICAL, 3/4;330296|482804;nao;media;Válvula de pé metal 3/4 pol.;agente:ia
 VALVULA, REGULADORA, PRESSAO, PURIFICADOR, AGUA;601597;nao;baixa;"Valvula reguladora pressao; aplicacao bebedouro";agente:ia
 VALVULA, RETENCAO, HORIZONTAL, METAL, 1.1/2 POLEGADAS;265481;nao;media;Válvula de retenção horizontal 1 1/2 pol corpo metálico.;agente:ia
-VALVULA, RETENCAO, HORIZONTAL, METAL, 3⁄4 POLEGADAS;482809;nao;media;Válvula de retenção horizontal 3/4 pol em bronze (metal).;agente:ia
+VALVULA, RETENCAO, HORIZONTAL, METAL, 3/4 POLEGADAS;482809;nao;media;Válvula de retenção horizontal 3/4 pol em bronze (metal).;agente:ia
 VALVULA, RETENCAO, VERTICAL, METAL, 1.1/2 POLEGADAS;321187|323506;nao;media;Válvula retenção vertical metal 1 1/2 pol;agente:ia
 VALVULA, RETENCAO, VERTICAL, METAL, 2 POLEGADAS;253824|323507|346246|486627;nao;media;"Válvula de retenção vertical metálica 2 pol; excluída a de corpo de borracha.";agente:ia
 "VALVULA, SOLENOIDE, 1/4""";218264|229368|229369|244978|260267|260355|271961|342188|485263;nao;baixa;"Válvula solenoide rosca 1/4 pol; tipo, vias e tensão não informados";agente:ia
 VALVULA, SOLENOIDE, IRRIGACAO, 3/4 POLEGADA;481706;nao;baixa;"Solenoide água 3/4 pol 220 V; uso irrigação inferido";agente:ia
 VALVULA, TANQUE, METAL, 1.1/4 POLEGADAS;301939;nao;baixa;"Válvula de tanque 1.1/4 pol; item é de inox.";agente:ia
-VARISTOR, 10D201K;;sim;media;Varistor 10D201K sem item com essa referencia.;agente:ia
-VARISTOR, 10D391K;;sim;media;Varistor 10D391K (390 V) não encontrado.;agente:ia
+VARISTOR, 10D201K.;;sim;media;Varistor 10D201K sem item com essa referencia.;agente:ia
+VARISTOR, 10D391K.;;sim;media;Varistor 10D391K (390 V) não encontrado.;agente:ia
 VARISTOR, 10K, 130;472627;nao;alta;Varistor 10K 130 V.;agente:ia
 VARISTOR, 10K, 175 V;;sim;media;Varistor 10K 175 V não encontrado (existem 130 e 150 V).;agente:ia
 VARISTOR, 10K, 230 V;;sim;media;Sem varistor 10K 230 V;agente:ia
 VARISTOR, 20K, 230 V;;sim;media;"Varistor 20K 230 V; o único 20K é de 150 V.";agente:ia
 VARISTOR, VTR, 230K;;sim;baixa;Varistor 230K sem item com referência equivalente.;agente:ia
-VELCRO, PRETO, POLIESTER, 25 MM X 25M;359480;nao;alta;Velcro preto 25 mm x 25 m;agente:ia
+VELCRO, PRETO, POLIESTER, 25 MM X 25 M;359480;nao;alta;Velcro preto 25 mm x 25 m;agente:ia
 VENTOINHA, EXTERNA, WEG, 0,5HP;;sim;baixa;Ventoinha externa WEG 0,5 HP sem equivalente.;agente:ia
-VERGALHAO, FERRO, 4.2 MM, 12M;;sim;media;Vergalhão 4,2 mm não encontrado;agente:ia
+VERGALHAO, FERRO, 4.2 MM, 12 M;;sim;media;Vergalhão 4,2 mm não encontrado;agente:ia
 VERNIZ, ISOLANTE;248260|361010|388574;nao;media;"Verniz isolante; tipo nao informado.";agente:ia
 VERNIZ, MADEIRA, MARITIMO, GALAO, 3,6 L;601189;nao;alta;Verniz marítimo madeira galão 3,6 L.;agente:ia
 VIDRO, ARAMADO, 2,00 X 2,50 METROS;402189;nao;baixa;"Chapa de vidro aramado; medidas nao constam no item.";agente:ia
@@ -2302,6 +2302,6 @@ VIGOTA, MADEIRA, IPE, 12 X 6 X 4 M;;sim;media;"Vigota de ipê 12x6 cm com 4 m; o
 XICARA, CHA, PORCELANA, 180 ML;258007|356516;nao;alta;Xícara de chá de porcelana 180 ml.;agente:ia
 Z, ALCOOL, ETILICO, HIDRATADO, 70%, GEL, GALAO 5 L, ME/EPP;269943|273231|380018|429225;nao;media;"Álcool etílico hidratado 70% em gel; embalagem galão 5 L não informada (unidade_diferente).";agente:ia
 Z, ESCOVA, DEGERMACAO, CLOREXIDINA 2%, ESTERIL;620163;nao;alta;Escova de degermação com clorexidina 2% estéril;agente:ia
-Z, LUVA, SEGURANCA, E.P.I, TAM, GRANDE, NITRILICA, AZUL;375710;nao;media;Luva nitrílica azul tamanho G.;agente:ia
-Z, LUVA, SEGURANCA, E.P.I, TAM, MEDIA, NITRILICA, AZUL;375711;nao;media;Luva nitrílica azul tamanho M.;agente:ia
+Z, LUVA, SEGURANCA, E.P.I, TAMANHO, GRANDE, NITRILICA, AZUL;375710;nao;media;Luva nitrílica azul tamanho G.;agente:ia
+Z, LUVA, SEGURANCA, E.P.I, TAMANHO, MEDIA, NITRILICA, AZUL;375711;nao;media;Luva nitrílica azul tamanho M.;agente:ia
 ZARCAO, FUNDO, 3,6 L;389532;nao;baixa;"Zarcao fundo; volume nao informado no item";agente:ia
