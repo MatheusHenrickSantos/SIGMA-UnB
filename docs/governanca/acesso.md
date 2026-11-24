@@ -55,6 +55,6 @@ PGPASSWORD=troque psql -h localhost -U joao_prc -d sigma -c "SELECT almoxarifado
 
 ## O que ainda não está no privilégio mínimo
 
-- O **painel ainda conecta como dono** (`USUARIO_DO_BANCO`), não como `sigma_painel`. O papel existe e tem os `GRANT` certos; falta criar o usuário e trocar a variável no Compose. Até lá, o painel tem mais privilégio que o necessário.
+- O painel conecta como `sigma_painel_app` (V13, membro de `sigma_painel`), com senha em `SENHA_DO_PAINEL`. Testado: lê `ouro`; `prata` e `reverso` dão `permission denied`. Troque a senha padrão fora do ambiente local.
 - As senhas dos usuários não são geridas pelo repositório (de propósito): criar fora da migração, com segredo do ambiente.
 - `acesso_almoxarifado` é uma semente em CSV. Acima de ~20 usuários ou com rotatividade, mover para tabela mantida por aplicação (gatilho do [ADR 0012](adr/0012-governanca-lgpd-e-controle-de-acesso.md)).

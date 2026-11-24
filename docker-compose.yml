@@ -70,6 +70,7 @@ services:
       - -user=${USUARIO_DO_BANCO:-sigma}
       - -password=${SENHA_DO_BANCO:-sigma}
       - -locations=filesystem:/flyway/sql
+      - -placeholders.senha_painel=${SENHA_DO_PAINEL:-sigma_painel}
       - -connectRetries=10
       - migrate
 
@@ -227,7 +228,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment: *conexao-banco
+    # Conecta como sigma_painel_app (V13): só lê o schema ouro.
+    environment:
+      <<: *conexao-banco
+      USUARIO_DO_BANCO: sigma_painel_app
+      SENHA_DO_BANCO: ${SENHA_DO_PAINEL:-sigma_painel}
     ports:
       - "${PORTA_DO_PAINEL:-8501}:8501"
 
