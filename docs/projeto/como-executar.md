@@ -4,7 +4,7 @@ Versão resumida do README para o site da documentação.
 
 ## Escopo deste passo a passo
 
-Os comandos abaixo sobem o pipeline atual: o serviço `ingest` baixa o estoque da UnB e o catálogo CATMAT, carrega os arquivos na camada `raw`, e as etapas seguintes transformam os dados com dbt e calculam candidatos semânticos. A consulta de preços públicos pela API do Compras.gov.br continua exploratória e não está integrada ao Compose; consulte o [teste de viabilidade](../testes/teste-de-viabilidade.md).
+Os comandos abaixo sobem o pipeline atual: o serviço `ingest` baixa o estoque da UnB e o catálogo CATMAT diretamente para a camada `raw`; as etapas seguintes transformam os dados com dbt, calculam candidatos semânticos e consultam compras públicas dos itens aprovados. Os downloads não criam arquivos locais; compras concluídas e checkpoints ficam no banco.
 
 ## Pré-requisitos
 
@@ -17,25 +17,29 @@ Os comandos abaixo sobem o pipeline atual: o serviço `ingest` baixa o estoque d
 ```bash
 git clone https://github.com/MatheusHenrickSantos/SIGMA-UnB.git
 cd SIGMA-UnB
-cp .env.example .env        # opcional
-docker compose up --build
+cp .env.example .env        # opcional (ou `make setup`, que gera senhas aleatórias)
+docker compose up --build   # ou `make carga`
 ```
 
 ## Conferir
 
 ```bash
-docker compose ps -a        # migrate, ingest, transformar, semantica, compras e transformar_ouro: Exited (0); db: Up (healthy)
-docker compose exec db psql -U sigma -d sigma -c "SELECT count(*) FROM semantica.candidato_catmat;"
+docker compose ps -a        # migrate, ingest, transformar, semantica, compras, transformar_ouro e exportar: Exited (0); db: Up (healthy)
+docker compose exec db psql -U sigma -d sigma -c "SELECT count(*) FROM prata.candidato_catmat;"
 ```
 
 ## Comandos úteis
 
 | Para… | Comando |
 |---|---|
-| Reexecutar a carga e etapas seguintes | `docker compose up --build ingest transformar semantica compras transformar_ouro` |
+| Reexecutar a carga e etapas seguintes | `docker compose up --build ingest transformar semantica compras transformar_ouro exportar` |
+| Reimportar só as decisões dos agentes e refazer a ouro (15 s) | `make decisoes` |
+| Rodar os testes Python | `make testes` |
 | Aplicar migrações novas | `docker compose run --rm migrate` |
 | Parar | `docker compose down` |
 | Recomeçar do zero | `docker compose down -v` |
+
+O banco e o painel são publicados só em `127.0.0.1`; o painel pede a senha `SENHA_DE_ACESSO_DO_PAINEL` quando ela está definida. Detalhes em [Controle de acesso](../governanca/acesso.md).
 
 ## Problemas comuns
 

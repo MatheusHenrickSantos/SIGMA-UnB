@@ -2,6 +2,8 @@
 
 A **Figura 1** abaixo apresenta o diagrama de arquitetura do sistema, organizando as principais entidades envolvidas no controle de estoque por meio de uma arquitetura _Medalhão_, estruturada nas camadas _raw_, bronze, prata e ouro, bem como a indicação das ferramentas e transformações realizadas.
 
+Na arquitetura atual, `candidatoCatmat` pertence à Prata, junto das decisões de revisão. O schema `busca` é um espaço técnico para embeddings e execuções do algoritmo; não é a camada semântica analítica planejada para depois da Ouro.
+
 <details>
   <summary>Figura 1 – Arquitetura do banco
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
@@ -23,3 +25,4 @@ A **Figura 1** abaixo apresenta o diagrama de arquitetura do sistema, organizand
 | `1.1` | Atualiza o diagrama | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 18/10/2026 | - | - |
 | `2.0` | Atualiza o diagrama | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 01/11/2026 | [Israel Thalles](https://github.com/IsraelThalles) | 05/11/2026 |
 | `2.1` | Adiciona a camada semântica e atualiza a camada ouro do diagrama | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 16/11/2026 |  |  |
+| `2.2` | Distingue os artefatos técnicos da busca das correspondências mantidas na Prata | Matheus Henrick | 23/11/2026 | - | - |

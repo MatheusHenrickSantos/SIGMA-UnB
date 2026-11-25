@@ -121,7 +121,7 @@ def teste_sincronizacao_guarda_original_normalizado_e_motivo(banco):
             linha[0]: linha[1:]
             for linha in conn.execute(
                 "SELECT chave_origem, texto_original, texto_normalizado, situacao, motivo "
-                "FROM semantica.descricao"
+                "FROM busca.descricao"
             )
         }
 
@@ -135,9 +135,9 @@ def teste_sincronizacao_guarda_original_normalizado_e_motivo(banco):
 def teste_sincronizar_de_novo_nao_altera_nada(banco):
     with conectar(banco) as conn:
         processamento.sincronizar_origem(conn, "estoque", ESTOQUE)
-        antes = conn.execute("SELECT max(atualizada_em) FROM semantica.descricao").fetchone()[0]
+        antes = conn.execute("SELECT max(atualizada_em) FROM busca.descricao").fetchone()[0]
         resumo, _, _ = processamento.sincronizar_origem(conn, "estoque", ESTOQUE)
-        depois = conn.execute("SELECT max(atualizada_em) FROM semantica.descricao").fetchone()[0]
+        depois = conn.execute("SELECT max(atualizada_em) FROM busca.descricao").fetchone()[0]
     assert (resumo.novas, resumo.alteradas, resumo.desativadas) == (0, 0, 0)
     assert antes == depois
 
@@ -148,7 +148,7 @@ def teste_origem_vazia_e_recusada_sem_alterar_nada(banco):
         with pytest.raises(repositorio.ErroOrigem):
             processamento.sincronizar_origem(conn, "estoque", [])
         assert conn.execute(
-            "SELECT count(*) FROM semantica.descricao WHERE ativa"
+            "SELECT count(*) FROM busca.descricao WHERE ativa"
         ).fetchone()[0] == 5
 
 
@@ -158,7 +158,7 @@ def teste_embeddings_so_das_validas_sem_recalcular_texto_repetido(banco):
         processamento.sincronizar_origem(conn, "estoque", ESTOQUE)
         id_modelo = processamento.preparar_modelo(conn, codificador)
         resumo = processamento.atualizar_embeddings(conn, codificador, id_modelo, "estoque", "consulta")
-        total = contar(conn, "semantica.embedding")
+        total = contar(conn, "busca.embedding")
 
     assert (resumo.pendentes, resumo.gravados) == (3, 3)
     # ma0002 e ma0003 têm o mesmo texto normalizado: o modelo vê 2 textos
@@ -175,8 +175,8 @@ def teste_reexecucao_nao_duplica_nem_recalcula(banco):
         chamadas = len(codificador.chamadas)
         resumo = processamento.atualizar_embeddings(conn, codificador, id_modelo, "estoque", "consulta")
         assert processamento.preparar_modelo(conn, codificador) == id_modelo
-        total = contar(conn, "semantica.embedding")
-        modelos = contar(conn, "semantica.modelo_embedding")
+        total = contar(conn, "busca.embedding")
+        modelos = contar(conn, "busca.modelo_embedding")
 
     assert (resumo.pendentes, resumo.textos_enviados_ao_modelo) == (0, 0)
     assert len(codificador.chamadas) == chamadas
@@ -208,7 +208,7 @@ def teste_chave_que_some_e_volta(banco):
 
         sem_ma0003 = [r for r in ESTOQUE if r[0] != "ma0003"]
         saiu, _, _ = processamento.sincronizar_origem(conn, "estoque", sem_ma0003)
-        assert contar(conn, "semantica.embedding") == 2
+        assert contar(conn, "busca.embedding") == 2
 
         voltou, _, _ = processamento.sincronizar_origem(conn, "estoque", ESTOQUE)
         enviados_antes = len(codificador.textos_enviados)
@@ -225,7 +225,7 @@ def teste_dimensao_incompativel_falha_antes_de_gravar(banco):
     with conectar(banco) as conn:
         with pytest.raises(ErroEmbedding, match=r"vector\(384\)"):
             processamento.preparar_modelo(conn, CodificadorDeTeste(dimensao=10))
-        assert contar(conn, "semantica.modelo_embedding") == 0
+        assert contar(conn, "busca.modelo_embedding") == 0
 
 
 def teste_falha_no_meio_mantem_lotes_anteriores_e_retoma(banco):
@@ -235,13 +235,13 @@ def teste_falha_no_meio_mantem_lotes_anteriores_e_retoma(banco):
         id_modelo = processamento.preparar_modelo(conn, quebrado)
         with pytest.raises(ErroEmbedding, match="lote 2"):
             processamento.atualizar_embeddings(conn, quebrado, id_modelo, "estoque", "consulta", tamanho_lote=1)
-        assert contar(conn, "semantica.embedding") == 1
+        assert contar(conn, "busca.embedding") == 1
 
         resumo = processamento.atualizar_embeddings(
             conn, CodificadorDeTeste(), id_modelo, "estoque", "consulta", tamanho_lote=1
         )
         assert resumo.reaproveitados + resumo.gravados == 2
-        assert contar(conn, "semantica.embedding") == 3
+        assert contar(conn, "busca.embedding") == 3
 
 
 def teste_vetor_com_nan_nao_e_gravado(banco):
@@ -251,14 +251,14 @@ def teste_vetor_com_nan_nao_e_gravado(banco):
         id_modelo = processamento.preparar_modelo(conn, codificador)
         with pytest.raises(ErroEmbedding):
             processamento.atualizar_embeddings(conn, codificador, id_modelo, "estoque", "consulta")
-        assert contar(conn, "semantica.embedding") == 0
+        assert contar(conn, "busca.embedding") == 0
 
 
 def teste_modelo_registrado_com_metadados(banco):
     with conectar(banco) as conn:
         processamento.preparar_modelo(conn, CodificadorDeTeste())
         nome, dimensao, metadados = conn.execute(
-            "SELECT nome, dimensao, metadados FROM semantica.modelo_embedding"
+            "SELECT nome, dimensao, metadados FROM busca.modelo_embedding"
         ).fetchone()
     assert (nome, dimensao, metadados) == ("teste/hash-de-palavras", 384, {"tipo": "codificador de teste"})
 

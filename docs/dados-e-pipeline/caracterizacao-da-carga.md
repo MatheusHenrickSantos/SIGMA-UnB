@@ -1,156 +1,144 @@
-# Caracterização e volume da carga
+# Caracterização da carga
 
-Medições da carga dos dados abertos da UnB no PostgreSQL. Os números aqui embasam o [ADR 1](../adr/adr-1.md) e o [ADR 0003](../adr/0003-validacao-de-volume-na-carga_1.md).
+Esta página descreve a carga executada pelo Compose atual: estoque da UnB,
+catálogo CATMAT, normalização versionada, correspondências, compras públicas e
+modelo analítico Ouro. As contagens abaixo vêm da execução completa de
+23/11/2026 no PostgreSQL 16 com pgvector. O CATMAT foi reaproveitado do cache
+persistido no banco; a execução não fez o download frio do catálogo.
 
-| Campo | Valor |
-|---|---|
-| Data da medição | 19/10/2026 |
-| Commit medido | `[hash — rode git rev-parse --short HEAD]` |
-| Ambiente | GitHub Codespaces — `[nº de núcleos (nproc) / RAM (free -h)]` |
-| Banco | PostgreSQL 16.15 (Docker), migração `V1__esquema_inicial.sql` |
+## Escopo e reprodução
 
-## Como reproduzir
+O pipeline automatizado consulta três fontes:
 
-As medições abaixo são do pipeline legado, que usava o serviço `ingest` e a pasta
-`dados/bruto/`; esse fluxo não existe mais na configuração atual. Para executar
-o pipeline atual:
+| Fonte | Unidade consultada | Persistência na raw |
+|---|---|---|
+| Estoque do almoxarifado da UnB | Um recurso JSON por mês publicado | Uma linha por recurso em `raw.estoque` |
+| CATMAT (Compras.gov.br) | Catálogo paginado, consolidado em um array | Um documento em `raw.catmat` |
+| Pesquisa de preços (Compras.gov.br) | Um código aprovado e uma janela de datas | Um documento por código com resultados em `raw.compras`; checkpoints em `raw.compras_coleta` |
+
+As respostas são inseridas como JSONB, sem arquivos de dados locais. O hash
+SHA-256 do conteúdo impede inserir novamente um documento idêntico. A migração
+V7 acrescenta checkpoints por código e janela para a coleta de compras,
+inclusive quando não há resultados.
+
+O CATMAT é mantido como snapshot em `raw.catmat`, com o estado da coleta em
+`raw.catmat_coleta`. Depois que uma coleta completa é salva, execuções seguintes
+reutilizam esse snapshot e pulam as centenas de requisições. Para buscar a versão
+mais recente, execute `python codigos/inserir/baixar_catalogo_catmat.py
+--atualizar`. Uma coleta parcial (por exemplo, com `--max-paginas`) não é marcada
+como completa e, portanto, não ativa esse cache.
+
+Os tempos abaixo são da execução com ingestão direta para a raw e normalização
+integrada ao serviço `transformar`.
+
+Para executar e consultar o estado dos containers:
 
 ```bash
 docker compose up --build
+docker compose ps -a
 ```
 
-## 1. Camada bruta (`dados/bruto/`)
+O pipeline também pode ser reproduzido em um banco já carregado; os hashes
+evitam duplicar payloads iguais e os checkpoints evitam repetir códigos de
+compras concluídos. O CATMAT é baixado em páginas e consolidado em memória antes
+de substituir o snapshot no banco. Se a execução for interrompida antes da
+gravação, a próxima tentativa precisa repetir a coleta; depois de gravado, o
+snapshot funciona como cache entre execuções.
 
-| Dataset | Arquivos baixados | Registros brutos | Tamanho em disco | Formatos de colunas | Falhas de download |
-|---|---:|---:|---:|---:|---:|
-| Empenhos | 89 | 890.000 | 743 MB | 1 | 0 |
-| Requisições de serviços | 83 | 103.311 | 39 MB | 1 | 0 |
-| Gastos por unidade | 51 | 95.837 | 13 MB | 1 | 0 |
-| Estoque do almoxarifado | 89 | 79.164 | 12 MB | 1 | 0 |
-| Unidades acadêmicas | 141 | 14.231 | 6,1 MB | 1 | 0 |
-| **Total** | **453** | **1.182.543** | **≈ 813 MB** | | **0** |
+## Volume observado
 
-Os arquivos vêm em JSON. Nenhum dataset mudou de esquema ao longo do tempo (um único formato de colunas por dataset).
+Contagens consultadas após a conclusão do pipeline. Os tamanhos incluem índices
+e armazenamento TOAST do PostgreSQL (`pg_total_relation_size`); são referências
+do volume observado, não limites fixos.
 
-**Empenhos são 91% do volume em disco.** Os 89 arquivos têm exatamente 10.000 registros cada, o que sugere um limite de exportação do portal (ver [Qualidade dos dados](#_5-qualidade-dos-dados)).
+| Área | Relação | Linhas/documentos | Tamanho aproximado |
+|---|---|---:|---:|
+| Raw | `raw.estoque` | 39 documentos | 1,3 MiB |
+| Raw | `raw.catmat` | 2 documentos (snapshots) | 124 MiB |
+| Raw | `raw.compras` | 2.459 documentos | 19 MiB |
+| Bronze | `bronze.estoque` | 39.183 | 6,0 MiB |
+| Bronze | `bronze.catmat` | 346.546 | 149 MiB |
+| Bronze | `bronze.materiais_normalizados` (seed) | 2.327 | 0,3 MiB |
+| Bronze | `bronze.compras` | 41.522 | 14 MiB |
+| Prata | `prata.material` | 2.306 | 0,8 MiB |
+| Prata | `prata.estoque` | 35.458 | 2,1 MiB |
+| Prata | `prata.catmat_item` | 346.546 | 75 MiB |
+| Prata | `prata.candidato_catmat` | 46.120 em 2 execuções | 24 MiB |
+| Prata | `prata.compra_publica` | 41.522 | 4,0 MiB |
+| Busca | `busca.descricao` | 253.299 | 378 MiB |
+| Busca | `busca.embedding` | 253.298 | 503 MiB |
+| Ouro | `ouro.fato_comparacao_preco` | 39.176 | 6,5 MiB |
 
-## 2. Arquivos distintos e republicações
+O estoque cobre 39 referências mensais, de 06/2021 a 12/2025, com lacunas
+publicadas pela fonte. O snapshot mais recente do CATMAT contém 346.546 itens.
+O banco ainda guarda dois documentos CATMAT: a migração V8 aproveitou o maior
+como cache inicial, sem apagar o documento histórico menor. A Bronze seleciona
+o catálogo atual sem duplicar códigos. A execução consultou 3.388 códigos
+CATMAT aprovados para compras; 2.459 documentos estão na raw e a Bronze contém
+41.522 registros na janela 01/07/2025–31/12/2025.
 
-O portal republica o mesmo mês várias vezes, com sufixo (ex.: `_07c0e994`). A carga identifica os arquivos pelo sha256 e carrega um por mês.
+O CSV `seeds/materiais_normalizados.csv` contém 2.327 descrições distintas
+lidas da Bronze. O dbt o carrega como `bronze.materiais_normalizados`; as 2.327
+descrições originais resultam em 2.306 descrições normalizadas distintas, que
+formam `prata.material`.
 
-| Dataset | Arquivos baixados | Arquivos distintos carregados |
-|---|---:|---:|
-| Unidades | 141 | 12 |
-| Estoque | 89 | 40 |
-| Gastos | 51 | 39 |
-| Empenhos | 89 | 46 |
-| Requisições | 83 | 44 |
-| **Total** | **453** | **181** |
+## Duração da execução observada
 
-Exemplo: os 4 arquivos de estoque de 11/2022 têm o mesmo md5 (`7f251675ae5fcb4219fb4edc6749c4db`).
+Os horários vêm dos estados dos containers Docker. O tempo entre o início da
+ingestão e o fim da transformação Ouro foi aproximadamente **31 min 53 s**.
 
-## 3. Carga no banco
+| Serviço | Duração observada | Resultado |
+|---|---:|---|
+| `ingest` | 12 s | 39 recursos de estoque processados; CATMAT reconhecido no cache do banco |
+| `transformar` | 26 s | normalização e seed executados; 86 testes passaram, 2 avisos e 0 erros |
+| `semantica` | 20 min 56 s | 253.299 descrições sincronizadas; 23.060 candidatos nesta execução; 3.558 pares de decisão importados |
+| `compras` | 10 min 05 s | 930 códigos pendentes consultados; 1 teve resultado (14 registros); 0 falhas finais |
+| `transformar_ouro` | 11 s | 48 testes passaram; 0 avisos; 0 erros |
 
-### Resultado da carga
+Esta execução usou o cache no banco e, portanto, **não mede um download frio do
+CATMAT**. Um download completo pode levar mais de 20 minutos, conforme observado
+pelo responsável pelo projeto. Esse tempo só é necessário na primeira carga ou
+quando `--atualizar` for solicitado; a ingestão normal seguinte reutiliza o
+snapshot salvo.
 
-| Dataset | Arquivos | Linhas lidas | Gravadas | Rejeitadas |
-|---|---:|---:|---:|---:|
-| Empenhos | 46 | 460.000 | 460.000 | 0 |
-| Gastos | 39 | 73.034 | 73.034 | 0 |
-| Requisições | 44 | 53.341 | 53.341 | 0 |
-| Estoque | 40 | 41.116 | 41.116 | 0 |
-| Unidades | 12 | 1.203 | 1.203 | 0 |
+O serviço `compras` recebeu respostas HTTP 429 durante a coleta e precisou
+repetir algumas requisições; as 930 consultas pendentes terminaram antes da
+transformação Ouro. O tempo varia conforme os limites e a disponibilidade da
+API. A sincronização semântica também recusou 236 linhas do CSV de decisões de
+agentes porque elas ainda usam descrições anteriores à normalização atual.
 
-Nenhuma linha foi rejeitada. "Gravadas" conta inserções e atualizações: empenhos e requisições chegam como fotografias acumuladas, então a mesma entidade é atualizada a cada mês (ver seção 4).
+## Avisos de qualidade observados
 
-### Linhas e tamanho por tabela
+O `dbt build` de Bronze e Prata terminou com 86 testes aprovados, dois avisos
+e nenhum erro:
 
-| Tabela | Linhas | Tamanho (com índices) |
-|---|---:|---:|
-| `empenho` | 21.324 | 20 MB |
-| `gasto` | 73.034 | 11 MB |
-| `estoque_saldo` | 41.116 | 6,5 MB |
-| `credor` | 7.020 | 1,2 MB |
-| `material` | 2.382 | 0,6 MB |
-| `requisicao_servico` | 1.853 | 0,5 MB |
-| `unidade` | 733 | 0,2 MB |
-| `carga_execucao` | — | 136 kB |
-| `natureza_despesa` | 58 | 48 kB |
-| `almoxarifado` | 2 | 48 kB |
-| `cotacao_online` | 0 | 24 kB |
-| `carga_rejeitado` | 0 | 16 kB |
-| **Total** | **≈ 148 mil** | **≈ 40 MB** |
+| Teste | Resultado | Interpretação |
+|---|---:|---|
+| `preco_estoque_positivo` | 1 ocorrência | Há uma linha com preço não positivo; o teste emite aviso |
+| `serie_material_some_e_volta` | 55 ocorrências | Há materiais que desaparecem e reaparecem entre referências; o teste emite aviso |
 
-**Redução de ≈ 813 MB brutos para ≈ 40 MB no banco (≈ 20×).** Ela vem da eliminação das republicações e das fotografias repetidas.
+Esses resultados são alertas sobre a fonte, não falhas da execução. A
+transformação Ouro terminou com 48 testes aprovados e nenhum aviso ou erro.
 
-### Linhas por mês de referência
+## Como obter as contagens
 
-| Tabela | Meses | Primeiro | Último | Mediana linhas/mês | Máx. linhas/mês |
-|---|---:|---|---|---:|---:|
-| `estoque_saldo` | 40 | 09/2020 | 12/2025 | 758 | 1.933 |
-| `gasto` | 39 | 09/2020 | 12/2025 | 1.884 | 2.223 |
-| `empenho` | 87 | 10/2018 | 12/2025 | 205 | 911 |
-| `requisicao_servico` | 83 | 02/2019 | 12/2025 | 17 | 93 |
+Conecte ao banco pelo `psql` e consulte, por exemplo:
 
-## 4. Perfil da carga de trabalho
+```sql
+SELECT count(*) FROM raw.estoque;
+SELECT count(*) FROM raw.catmat;
+SELECT count(*) FROM raw.compras;
+SELECT count(*) FROM bronze.estoque;
+SELECT count(*) FROM bronze.catmat;
+SELECT count(*) FROM prata.candidato_catmat;
+SELECT count(*) FROM ouro.fato_comparacao_preco;
 
-| Característica | Observação |
-|---|---|
-| Frequência de publicação na origem | Mensal, com lacunas (ex.: sem arquivos de 08–10/2022, 05–06/2024, 04–05/2025, 09/2025) |
-| Natureza dos arquivos | Fotografias (*snapshots*) do estado no mês, não eventos |
-| Estoque | 89% das linhas são idênticas às do mês anterior (34.285 de 38.733); só 6% dos pares material/almoxarifado (148 de 2.383) mudaram de preço ao longo do tempo |
-| Gastos | Valor **acumulado no ano**: em 62.321 de 62.334 pares de meses seguidos (≈ 100%) o valor não diminui |
-| Entidades que mudam de estado | Empenhos: 60% (12.735 de 21.324) atualizados depois da primeira carga; requisições: 14%; unidades: 4% |
-| Operação predominante | Inserção mensal em lote + atualização de estado; leitura analítica |
-| Crescimento estimado | ≈ 700–800 linhas/mês de estoque; ≈ 2.000 de gastos; ≈ 200 de empenhos |
+SELECT schemaname, relname, n_live_tup,
+       pg_size_pretty(pg_total_relation_size(relid)) AS tamanho
+FROM pg_stat_user_tables
+WHERE schemaname IN ('raw', 'bronze', 'prata', 'busca', 'ouro')
+ORDER BY schemaname, relname;
+```
 
-### Medição das alternativas de modelagem do estoque (ADR 1)
-
-Consultas repetidas: Q4 300 vezes com materiais sorteados (semente 2026), Q7 30 vezes. Tempo medido no cliente.
-
-| Alternativa | Linhas | Tamanho | Q4 mediana / p95 | Q7 mediana / p95 |
-|---|---:|---:|---:|---:|
-| A — CRUD (opção nula) | 2.383 | 0,3 MB | 0,17 / 0,22 ms | não responde (histórico perdido) |
-| B — *insert-only* | 41.116 | 6,5 MB | 0,22 / 0,27 ms | 6,9 / 7,2 ms |
-| C — CRUD + histórico | 41.116 | 3,7 MB | 0,18 / 0,23 ms | 7,8 / 13,6 ms |
-
-Na alternativa A, os preços antigos dos 148 pares que mudaram de preço seriam sobrescritos. Isso impede responder à pergunta de gestão, que compara preços ao longo do tempo.
-
-## 5. Qualidade dos dados
-
-### Quebra de patamar no estoque em 11/2022
-
-- O estoque cai de **1.800 linhas (07/2022) para 830 (11/2022)** e segue estável depois disso (830 → 680 até 12/2025).
-- A queda está concentrada no almoxarifado **PRC (1.660 → 695)**. O **Central** praticamente não muda (140 → 135).
-- Entre os dois meses, **991 materiais sumiram e 21 apareceram**.
-- **Não são itens zerados**: os materiais que sumiram tinham saldo positivo em 07/2022 (ex.: 2.000 L de álcool etílico no Central).
-- A mudança acontece dentro de uma lacuna da origem (não há arquivos de 08, 09 e 10/2022), por isso aparece como um salto.
-- A causa não foi identificada (baixa/inventário no PRC, mudança no critério do relatório ou extração parcial).
-- A validação original recusava os 30 meses a partir de 11/2022. A correção está no [ADR 0003](../adr/0003-validacao-de-volume-na-carga_1.md).
-
-### Empenhos: possível truncamento em 10.000 registros
-
-- Todos os 89 arquivos de empenhos têm **exatamente 10.000 registros**.
-- Isso indica um limite de exportação do portal, não o total real de empenhos do mês.
-- **Consequência:** meses antigos podem estar incompletos. A cobertura de 10/2018 a 2020 deve ser vista com cautela.
-- **A verificar:** comparar com a API do portal, se houver paginação.
-
-### Outras observações
-
-| Item | Observação | Tratamento |
-|---|---|---|
-| Preço como texto | Ex.: `"R$             4,42"` | `normalizar.py` converte para número |
-| Republicações idênticas | Até 8 arquivos com o mesmo conteúdo no mesmo mês | Deduplicação por sha256 |
-| Mês sem data no nome | `materiais-estoques-de-almoxarifado.json` foi carregado como 09/2020 | `[confirmar se a data de referência está correta]` |
-| Empenhos repetidos entre UGs | 52 pares (ano, número) aparecem em mais de uma unidade gestora (4 UGs) | A chave do empenho inclui a UG |
-| Unidades por origem | 101 do cadastro, 632 criadas a partir de referências em outros datasets | Hierarquia corrigida na carga |
-| Portal instável | Respostas 502 intermitentes | Até 5 tentativas por arquivo; nenhuma falha nesta medição |
-
-## 6. Conclusões
-
-1. **O volume é pequeno para o PostgreSQL**: cerca de 40 MB e 148 mil linhas. Desempenho não é o fator decisivo nesta etapa.
-2. **A origem publica fotografias, não eventos**, com muita repetição (89% das linhas de estoque repetem o mês anterior). Por isso a deduplicação por hash e a modelagem do ADR 1 reduzem o volume em ≈ 20×.
-3. **O histórico é indispensável para a pergunta de gestão**: sem ele (alternativa A), os preços antigos se perdem.
-4. **A origem tem mudanças de patamar e lacunas.** A validação de volume deve avisar, não recusar (ADR 0003).
-5. **Gastos são acumulados no ano**: para obter o valor do mês, é preciso subtrair o mês anterior.
-6. **Empenhos podem estar truncados em 10.000 registros por arquivo.** Isso precisa ser verificado antes de usar empenhos em análises de volume.
+As contagens de `pg_stat_user_tables.n_live_tup` são estimativas; use `count(*)`
+quando precisar de uma contagem exata.

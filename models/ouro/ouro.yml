@@ -135,3 +135,65 @@ models:
           - accepted_values:
               arguments:
                 values: ['dentro do SLA', 'fora do SLA']
+
+  - name: qualidade_dados
+    description: >
+      Registro de confiabilidade: uma linha por verificação (estoque, compras
+      públicas, comparação e correspondência CATMAT) com valor medido, limites
+      e situação (ok, atencao, critico, sem_dado). Não derruba o build; mede o
+      quanto se pode confiar na comparação de preços.
+    columns:
+      - name: verificacao
+        data_tests: [not_null, unique]
+      - name: sentido
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['max', 'min']}
+      - name: situacao
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['ok', 'atencao', 'critico', 'sem_dado']}
+
+  - name: resumo_correspondencia
+    description: >
+      Uma linha por material (versão vigente): tipo de revisor, confiança,
+      itens CATMAT, melhor candidato da busca, valor em estoque e prioridade
+      de revisão.
+    columns:
+      - name: identificador_material
+        data_tests: [not_null, unique]
+      - name: tipo_revisor
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['pessoa', 'agente', 'sem_decisao']}
+
+  - name: metrica_mensal
+    description: >
+      Camada semântica de métricas: uma linha por (métrica, mês, almoxarifado),
+      com almoxarifado = 'TODOS' para o total. As fórmulas moram em
+      macros/metricas.sql, versionadas; painel, qualidade_dados e ETL reverso
+      leem daqui e nenhum recalcula.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [metrica, mes_referencia, almoxarifado]
+    columns:
+      - name: metrica
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('catalogo_metrica')
+                field: metrica
+      - name: unidade
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['R$', 'materiais', '%']}
+      - name: versao_definicao
+        data_tests: [not_null]
+
+  - name: catalogo_metrica
+    description: Definição de cada métrica (nome, tipo, unidade, versão, descrição e fórmula).
+    columns:
+      - name: metrica
+        data_tests: [not_null, unique]

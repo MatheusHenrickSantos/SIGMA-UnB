@@ -6,17 +6,20 @@
 # Ordem de execução (garantida pelos depends_on):
 #   1. db          — PostgreSQL com pgvector (imagem construída em db/Dockerfile)
 #   2. migrate     — Flyway aplica db/migrations/V*.sql em ordem, a partir do banco vazio
-#   3. ingest      — baixa estoque e CATMAT e grava no schema raw
-#   4. transformar — dbt: raw -> bronze -> prata, com os testes de dados (dbt build;
-#                    snapshot e camada ouro ficam para o passo 7)
+#   3. ingest      — baixa estoque e CATMAT diretamente no schema raw
+#   4. transformar — dbt: raw -> bronze -> prata do estoque e do CATMAT, com os testes
+#                    de dados (dbt build). Compras, snapshot e camada ouro ficam para o
+#                    passo 7: dependem de passos que ainda não rodaram (raw.compras só
+#                    existe depois do passo 6; o snapshot, depois das decisões do 5)
 #   5. semantica   — embeddings e candidatos CATMAT para cada material (busca híbrida)
 #                    e importação das decisões sugeridas por agentes de IA
-#   6. compras     — compras públicas dos itens CATMAT aprovados -> raw.compras
-#   7. transformar_ouro — dbt: compras (bronze, prata), snapshot SCD 2 e camada ouro
+#   6. compras     — baixa compras aprovadas diretamente para raw.compras
+#   7. transformar_ouro — dbt: compras (bronze, prata), snapshot SCD 2, camada ouro e ETL reverso
+#   8. exportar    — CSV de alertas de preço para o setor de compras (dados/saida)
 #
 # Só o db fica rodando; os outros terminam (Exited 0) e o seguinte começa.
 # O semantica baixa o modelo de linguagem (~0,5 GB) na primeira vez e guarda
-# no volume `modelos`; ver docs/semantica.md.
+# no volume `modelos`; ver docs/dados-e-pipeline/semantica.md.
 #
 # Todas as variáveis têm valor padrão, então nenhum .env é obrigatório.
 # Para trocar senha, porta ou parâmetros da busca, copie .env.example para .env.
@@ -38,6 +41,8 @@ services:
       context: ./db
     image: sigma-unb/postgres-pgvector:16
     restart: unless-stopped
+    # Registra conexões e desconexões: sem isso não há como saber quem acessou o banco.
+    command: ["postgres", "-c", "log_connections=on", "-c", "log_disconnections=on"]
     environment:
       POSTGRES_DB: ${NOME_DO_BANCO:-sigma}
       POSTGRES_USER: ${USUARIO_DO_BANCO:-sigma}
@@ -46,7 +51,9 @@ services:
       PGTZ: America/Sao_Paulo
     ports:
       # Porta do host configurável: útil se já houver um Postgres local na 5432.
-      - "${PORTA_DO_BANCO:-5432}:5432"
+      # Só no loopback: o banco tem dados do almoxarifado e senha padrão. Para abrir
+      # a outra máquina, defina INTERFACE_DO_BANCO (e troque as senhas do .env).
+      - "${INTERFACE_DO_BANCO:-127.0.0.1}:${PORTA_DO_BANCO:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -67,10 +74,11 @@ services:
       - -user=${USUARIO_DO_BANCO:-sigma}
       - -password=${SENHA_DO_BANCO:-sigma}
       - -locations=filesystem:/flyway/sql
+      - -placeholders.senha_painel=${SENHA_DO_PAINEL:-sigma_painel}
       - -connectRetries=10
       - migrate
 
-  # Ingestão de estoque e CATMAT na camada raw.
+  # Baixa estoque e CATMAT e grava diretamente na camada raw.
   ingest:
     build:
       context: ./codigos
@@ -83,21 +91,29 @@ services:
       PYTHONUNBUFFERED: "1"
       # vazio = catálogo inteiro; um número limita as páginas, para testes rápidos
       CATMAT_MAX_PAGINAS: ${CATMAT_MAX_PAGINAS:-}
+      # páginas do CATMAT baixadas ao mesmo tempo (1 = em sequência) e validade do cache em raw (dias)
+      CATMAT_PARALELISMO: ${CATMAT_PARALELISMO:-4}
+      CATMAT_VALIDADE_DIAS: ${CATMAT_VALIDADE_DIAS:-30}
     volumes:
-      - ./dados:/app/dados
       # inicializar_esquema lê db/migrations/ddl.sql
       - ./db/migrations:/app/db/migrations:ro
     command:
       - sh
       - -c
       - >-
-        python codigos/inserir/buscar-dados-de-almoxarifado.py
-        && python codigos/inserir/baixar_catalogo_catmat.py $${CATMAT_MAX_PAGINAS:+--max-paginas $$CATMAT_MAX_PAGINAS}
-        && python -m codigos.banco_de_dados.inicializar_esquema
-        && python -m codigos.banco_de_dados.inserir_dados_na_camada_raw
+        python -m codigos.banco_de_dados.inicializar_esquema
+        && python codigos/inserir/buscar-dados-de-almoxarifado.py
+        && python codigos/inserir/baixar_catalogo_catmat.py
+        --paralelismo "$$CATMAT_PARALELISMO" --validade-dias "$$CATMAT_VALIDADE_DIAS"
+        $${CATMAT_MAX_PAGINAS:+--max-paginas $$CATMAT_MAX_PAGINAS}
 
-  # Bronze e Prata (dbt). Monta o repositório porque o projeto dbt fica na raiz;
+  # Bronze e Prata do estoque e do CATMAT (dbt). As compras (compras_bronze e o que
+  # depende dela) ficam de fora: raw.compras só é carregada no serviço `compras`,
+  # depois da busca semântica; construí-las aqui seria rodar sobre uma tabela vazia.
+  # Monta o repositório porque o projeto dbt fica na raiz;
   # target/, logs/ e dbt_packages/ são criados no host (ignorados pelo git).
+  # Primeiro materializa Bronze para a normalização ler o estoque; depois
+  # atualiza o seed versionado e reconstrói Bronze e Prata.
   transformar:
     build:
       context: ./codigos
@@ -108,7 +124,15 @@ services:
     environment: *conexao-banco
     volumes:
       - .:/projeto
-    command: ["sh", "-c", "dbt deps && dbt build --profiles-dir . --project-dir . --exclude path:snapshots path:models/ouro"]
+    command:
+      - sh
+      - -c
+      - >-
+        dbt deps
+        && dbt run --profiles-dir . --project-dir . --select estoque_bronze catmat_bronze
+        && python -m codigos.normalizar.main
+        && dbt seed --profiles-dir . --project-dir . --full-refresh --select materiais_normalizados
+        && dbt build --profiles-dir . --project-dir . --exclude path:snapshots path:models/ouro compras_bronze+
 
   # Busca semântica: embeddings (pgvector) e candidatos CATMAT para revisão.
   semantica:
@@ -132,19 +156,25 @@ services:
       - modelos:/modelos
       # a etapa `fila` grava o CSV de revisão em dados/semantica
       - ./dados:/app/codigos/dados
-    # Depois da busca, carrega as decisões sugeridas por agentes de IA
-    # (tipo_revisor = agente). Decisões de pessoas registradas antes não são
-    # sobrescritas; ver codigos/semantica/decisoes.py.
+    # Ordem interna: sincronizar -> embeddings -> corresponder -> importar -> validar.
+    # `importar` carrega as decisões sugeridas por agentes de IA (tipo_revisor = agente);
+    # decisões de pessoas registradas antes não são sobrescritas (ver
+    # codigos/semantica/decisoes.py). `validar` falha o serviço se alguma etapa
+    # anterior ficou pela metade, para `compras` não rodar sobre dado incoerente.
     command:
-      - sh
-      - -c
-      - >-
-        python -m semantica tudo
-        && python -m semantica importar --arquivo semantica/decisoes/decisoes_agentes.csv
-        --revisor agente --tipo-revisor agente
+      - python
+      - -m
+      - semantica
+      - tudo
+      - --arquivo
+      - semantica/decisoes/decisoes_agentes.csv
+      - --revisor
+      - agente
+      - --tipo-revisor
+      - agente
 
-  # Compras públicas dos itens CATMAT aprovados (semantica.v_item_aprovado).
-  # As páginas da API ficam em dados/compras_cache: outra execução só baixa o que falta.
+  # Compras públicas dos itens CATMAT aprovados (prata.v_item_aprovado).
+  # Checkpoints em raw.compras_coleta permitem retomar sem arquivos locais.
   # A janela (COMPRAS_INICIO/COMPRAS_FIM) também é lida pelo dbt (dbt_project.yml).
   compras:
     build:
@@ -158,14 +188,16 @@ services:
       PYTHONUNBUFFERED: "1"
       COMPRAS_INICIO: ${COMPRAS_INICIO:-2025-07-01}
       COMPRAS_FIM: ${COMPRAS_FIM:-2025-12-31}
-    volumes:
-      - ./dados:/app/dados
+      # códigos baixados ao mesmo tempo (1 = em sequência; a API responde 429 se exagerar)
+      COMPRAS_PARALELISMO: ${COMPRAS_PARALELISMO:-4}
+      # tira CNPJ/CPF e nome do fornecedor antes de gravar em raw.compras (LGPD, ADR 0012)
+      REMOVER_IDENTIFICACAO_FORNECEDOR: ${REMOVER_IDENTIFICACAO_FORNECEDOR:-true}
     command:
       - sh
       - -c
       - >-
         python codigos/inserir/baixar_compras.py --inicio "$$COMPRAS_INICIO" --fim "$$COMPRAS_FIM"
-        && python -m codigos.banco_de_dados.inserir_dados_na_camada_raw compras
+        --paralelismo "$$COMPRAS_PARALELISMO"
 
   # Compras (bronze, prata), snapshot da correspondência (SCD tipo 2) e camada
   # ouro. Roda depois de semantica e compras porque depende das decisões e dos preços.
@@ -184,6 +216,23 @@ services:
       - .:/projeto
     command: ["sh", "-c", "dbt deps && dbt build --profiles-dir . --project-dir . --select compras_bronze+ path:snapshots+ path:models/ouro+"]
 
+  # ETL reverso: grava em dados/saida/ o CSV de alertas de preço (reverso.alerta_preco_compras)
+  # para o setor de compras. O destino puxa: se estiver fora do ar nada se perde, a
+  # próxima execução regrava o mesmo arquivo (ver docs/adr/0011).
+  exportar:
+    build:
+      context: ./codigos
+    depends_on:
+      transformar_ouro:
+        condition: service_completed_successfully
+    working_dir: /app
+    environment:
+      <<: *conexao-banco
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./dados:/app/dados
+    command: ["python", "codigos/reverso/exportar_alertas.py"]
+
   # Painel analítico (Streamlit) sobre a camada ouro: http://localhost:8501
   # Fica no ar, como o db; lê o que o último transformar_ouro gravou.
   painel:
@@ -193,9 +242,16 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment: *conexao-banco
+    # Conecta como sigma_painel_app (V13): só lê o schema ouro.
+    environment:
+      <<: *conexao-banco
+      USUARIO_DO_BANCO: sigma_painel_app
+      SENHA_DO_BANCO: ${SENHA_DO_PAINEL:-sigma_painel}
+      # vazio = painel sem senha (aceitável só no loopback)
+      SENHA_DE_ACESSO_DO_PAINEL: ${SENHA_DE_ACESSO_DO_PAINEL:-}
     ports:
-      - "${PORTA_DO_PAINEL:-8501}:8501"
+      # Só no loopback até haver login no painel; INTERFACE_DO_PAINEL=0.0.0.0 abre à rede.
+      - "${INTERFACE_DO_PAINEL:-127.0.0.1}:${PORTA_DO_PAINEL:-8501}:8501"
 
 volumes:
   pgdata:

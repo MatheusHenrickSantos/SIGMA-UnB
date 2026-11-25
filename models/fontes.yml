@@ -30,10 +30,54 @@ sources:
             warn_after: {count: 35, period: day}
             error_after: {count: 60, period: day}
 
-  # Escrito pelo pipeline Python (codigos/semantica), não pelo dbt.
-  - name: semantica
-    schema: semantica
+  # Artefatos técnicos escritos pelo pipeline de busca; não são a camada semântica de BI.
+  - name: busca
+    schema: busca
     tables:
       - name: descricao
+        columns:
+          - name: id_descricao
+            data_tests: [not_null, unique]
+          - name: origem
+            data_tests:
+              - accepted_values:
+                  arguments: {values: ['estoque', 'catmat']}
+          - name: situacao
+            data_tests:
+              - accepted_values:
+                  arguments: {values: ['valida', 'vazia', 'invalida']}
+      - name: modelo_embedding
+      - name: embedding
+      - name: execucao_correspondencia
+        columns:
+          - name: id_execucao
+            data_tests: [not_null, unique]
+
+  # Correspondências e decisões mantidas pelo processo de revisão na Prata.
+  - name: prata_operacional
+    schema: prata
+    tables:
+      - name: candidato_catmat
+        columns:
+          - name: situacao_especificacao
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: ['conflito_tecnico', 'sem_conflito_mas_incompleto',
+                             'sem_conflito_detectado', 'sem_especificacoes_verificaveis']
       - name: revisao_correspondencia
+        columns:
+          - name: decisao
+            data_tests:
+              - accepted_values:
+                  arguments: {values: ['equivalente', 'nao_equivalente', 'incerto']}
+          - name: tipo_revisor
+            data_tests:
+              - accepted_values:
+                  arguments: {values: ['pessoa', 'agente']}
       - name: revisao_material
+        columns:
+          - name: confianca
+            data_tests:
+              - accepted_values:
+                  arguments: {values: ['alta', 'media', 'baixa']}

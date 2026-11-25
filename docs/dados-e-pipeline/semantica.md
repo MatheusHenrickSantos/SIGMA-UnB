@@ -14,23 +14,26 @@ Decisões e alternativas: [ADR 0005](adr/0005-busca-semantica-com-pgvector.md)
 ## Onde fica na arquitetura
 
 ```text
- raw (JSONB)  ──dbt──▶  bronze  ──dbt──▶  prata                      ──python──▶  semantica
- raw.estoque            bronze.estoque     prata.material                          descricao
- raw.catmat             bronze.catmat      prata.catmat_item                       embedding (vector(384))
-                                                                                   candidato_catmat
-                                                                                   revisao_correspondencia
+ raw (JSONB)  ──dbt──▶  bronze  ──dbt──▶  prata ──python──▶ busca
+ raw.estoque            bronze.estoque     material       descricao / embedding
+ raw.catmat             bronze.catmat      catmat_item    modelo / execucao
+                                          candidato_catmat ◀── busca
+                                          revisao_*       ◀── revisão
 ```
 
-O schema `semantica` é separado da Prata porque:
+O schema técnico `busca` guarda o estado necessário para executar a busca:
 
 - quem escreve nele é o Python (`codigos/semantica`), não o dbt;
 - os vetores dependem do modelo e da versão das regras de normalização e
   não podem ser refeitos só com SQL a partir da Bronze;
-- tudo nele é derivado e pode ser recalculado a partir da Prata, **exceto**
-  `revisao_correspondencia`, que guarda decisões humanas.
+- seus objetos são artefatos técnicos da busca, não uma camada semântica de
+  consumo analítico.
 
-A visão `semantica.v_candidato_catmat` faz o papel da entidade
-`candidatoCatmat` do [diagrama de arquitetura](modelagem/diagrama-de-arquitetura.md).
+Os candidatos e as decisões são dados da **Prata**: `prata.candidato_catmat`,
+`prata.revisao_correspondencia` e `prata.revisao_material`. As visões
+`prata.v_candidato_catmat`, `prata.v_fila_revisao` e `prata.v_item_aprovado`
+servem à revisão, ao snapshot da Ouro e à coleta de compras. Um candidato é
+uma sugestão; equivalência registrada é uma decisão explícita.
 
 ## Etapas
 
@@ -39,13 +42,14 @@ sozinha e é segura para repetir.
 
 | Etapa | Lê | Grava | O que evita refazer |
 |---|---|---|---|
-| `sincronizar` | `prata.material` (`descricao_normalizada`), `prata.catmat_item` (ativos) | `semantica.descricao` | Linhas sem mudança não são tocadas |
-| `embeddings` | descrições válidas sem vetor atual | `semantica.embedding` | Texto já vetorizado (mesmo hash) não volta ao modelo |
-| `corresponder` | vetores e textos normalizados do estoque e do CATMAT | `execucao_correspondencia`, `candidato_catmat` | — (cada execução é uma fotografia completa) |
-| `tudo` | as três acima, em ordem | | |
-| `revisar` | um par material × item CATMAT | `revisao_correspondencia` | |
-| `importar` | CSV de decisões (agentes ou planilha da squad) | `revisao_correspondencia`, `revisao_material` | Reimportar substitui, não duplica |
-| `fila` | `v_fila_revisao` | CSV em `dados/semantica/` | |
+| `sincronizar` | `prata.material` (`descricao_normalizada`), `prata.catmat_item` (ativos) | `busca.descricao` | Linhas sem mudança não são tocadas |
+| `embeddings` | descrições válidas sem vetor atual | `busca.embedding` | Texto já vetorizado (mesmo hash) não volta ao modelo |
+| `corresponder` | vetores e textos normalizados do estoque e do CATMAT | `busca.execucao_correspondencia`, `prata.candidato_catmat` | — (cada execução é uma fotografia completa) |
+| `validar` | busca e prata inteiras | nada (erro = saída 1) | Confere a ordem das etapas e a coerência das decisões (`validacao.py`) |
+| `tudo` | a cadeia, nesta ordem: `sincronizar` → `embeddings` → `corresponder` → `importar` (só com `--arquivo`) → `validar` | | |
+| `revisar` | um par material × item CATMAT | `prata.revisao_correspondencia` | |
+| `importar` | CSV de decisões (agentes ou planilha da squad) | `prata.revisao_correspondencia`, `prata.revisao_material` | Reimportar substitui, não duplica |
+| `fila` | `prata.v_fila_revisao` | CSV em `dados/semantica/` | |
 
 Proveniência: cada linha de `descricao` guarda a origem (`estoque`/`catmat`),
 a chave na Prata, o texto original sem alteração e seu sha256. Cada execução
@@ -53,7 +57,7 @@ guarda o modelo, os parâmetros da busca e as versões das regras.
 
 ## 1. Normalização
 
-`codigos/semantica/normalizacao.py`, aplicada igual nos dois lados. Desfaz
+`codigos/normalizar/limpeza.py`, aplicada igual nos dois lados. Desfaz
 entidades HTML e mojibake, aplica Unicode NFKC, põe em minúsculas sem acento,
 expande abreviações de cadastro (`c/` → `com`, `cx` → `caixa`, `pct` →
 `pacote`...), separa número de unidade (`500ml` → `500 ml`) e arruma
@@ -75,13 +79,10 @@ Conferido com as 2.327 descrições reais de `seeds/materiais_normalizados.csv`
 idempotente, nenhuma sequência de dígitos perdida, 16 grupos de variações de
 escrita convergindo para o mesmo texto.
 
-**Duas normalizações no repositório.** `codigos/normalizar/` (camada Bronze)
-gera a descrição canônica legível, em maiúsculas, da semente
-`materiais_normalizados.csv`, com correção de erros de digitação
-(`FEVERDOR` → `FERVEDOR`). Esta aqui gera a entrada do modelo (minúsculas,
-abreviações expandidas). Os objetivos são diferentes, mas parte das regras se
-sobrepõe (HTML, acentos, unidades); consolidar as duas — e usar aqui o
-dicionário de correções — fica para a Squad decidir.
+O mesmo conjunto de regras atende à normalização do estoque e à entrada do
+modelo. A Prata mantém a forma canônica em maiúsculas no seed; o serviço de
+busca usa a forma em minúsculas para gerar embeddings. A validação, os hashes
+e a situação da descrição continuam em `codigos/semantica/normalizacao.py`.
 
 ## 2. Modelo de embeddings
 
@@ -221,11 +222,11 @@ Consultas úteis:
 ```sql
 -- candidatos da última execução para um material
 SELECT posicao, codigo_item, round(similaridade::numeric, 3), situacao_especificacao, decisao
-FROM semantica.v_fila_revisao WHERE identificador_material = 'ma0012' ORDER BY posicao;
+FROM prata.v_fila_revisao WHERE identificador_material = 'ma0012' ORDER BY posicao;
 
 -- materiais já resolvidos
 SELECT texto_material, codigo_item, revisor, revisada_em
-FROM semantica.revisao_correspondencia WHERE decisao = 'equivalente';
+FROM prata.revisao_correspondencia WHERE decisao = 'equivalente';
 ```
 
 ## 7. Busca híbrida (padrão desde a V4)
@@ -290,7 +291,7 @@ carrega decisões de um CSV (separador `;`), uma linha por material:
   para `revisao_material` (V5).
 - `tipo_revisor` separa decisões de **pessoas** das sugeridas por **agentes
   de IA**. Agente nunca sobrescreve pessoa; pessoa sobrescreve agente.
-- A visão `semantica.v_item_aprovado` lista os itens equivalentes (de pessoa
+- A visão `prata.v_item_aprovado` lista os itens equivalentes (de pessoa
   ou de agente) dos materiais ativos: é a entrada da busca de compras.
 - A `v_fila_revisao` só tira da fila o material resolvido **por pessoa**. Os
   resolvidos por agente continuam nela, com a sugestão visível nas colunas
@@ -342,10 +343,10 @@ amostra (sugestão: 100 materiais sorteados), compare a similaridade dos pares
 ```sql
 SELECT r.decisao, count(*),
        percentile_cont(ARRAY[0.1, 0.5, 0.9]) WITHIN GROUP (ORDER BY v.similaridade) AS p10_p50_p90
-FROM semantica.revisao_correspondencia r
-JOIN semantica.v_candidato_catmat v
+FROM prata.revisao_correspondencia r
+JOIN prata.v_candidato_catmat v
   ON v.codigo_item = r.codigo_item AND v.id_execucao = r.id_execucao
-JOIN semantica.descricao m
+JOIN busca.descricao m
   ON m.chave_origem = v.identificador_material AND m.hash_original = r.hash_original_material
 GROUP BY r.decisao;
 ```
@@ -365,7 +366,7 @@ baixam o modelo: usam um codificador falso determinístico
 
 | Arquivo | Cobre |
 |---|---|
-| `teste_migracao_semantica.py` | V2/V3: objetos criados, cosseno, índice recriável, restrições |
+| `teste_migracao_semantica.py` | V2–V6: pgvector, busca técnica, candidatos e revisões na Prata |
 | `teste_normalizacao.py` | regras, idempotência, preservação de números e códigos, recusas |
 | `teste_embeddings.py` | prefixos, sincronização incremental, falhas, dimensão |
 | `teste_especificacoes.py` | conflitos de especificação conhecidos |
@@ -393,17 +394,19 @@ baixam o modelo: usam um codificador falso determinístico
 
 ## Compras públicas
 
-Os itens de `semantica.v_item_aprovado` são a entrada da busca de preços:
+Os itens de `prata.v_item_aprovado` são a entrada da busca de preços:
 
 | Serviço | Faz |
 |---|---|
-| `compras` | `codigos/inserir/baixar_compras.py` consulta a API de pesquisa de preços do Compras.gov.br (`modulo-pesquisa-preco/1_consultarMaterial`) para cada código aprovado, na janela `COMPRAS_INICIO`–`COMPRAS_FIM` (padrão 01/07/2025 a 31/12/2025), grava um JSON por código em `dados/compras/` e carrega em `raw.compras` |
+| `compras` | `codigos/inserir/baixar_compras.py` consulta a API de pesquisa de preços do Compras.gov.br (`modulo-pesquisa-preco/1_consultarMaterial`) para cada código aprovado, na janela `COMPRAS_INICIO`–`COMPRAS_FIM` (padrão 01/07/2025 a 31/12/2025), e grava diretamente em `raw.compras` |
 | `transformar_ouro` | `dbt build --select compras_bronze+ path:snapshots+ path:models/ouro+`: `bronze.compras` (um registro da API por linha, deduplicado por `id_item_compra`) e `prata.compra_publica` (janela e preço > 0) |
 
-As páginas da API ficam em `dados/compras_cache/<janela>/<código>/`: outra
-execução só pede à API o que falta. A API filtra por data no servidor, não
-ordena por data e usa `idItemCompra` como chave real (detalhes no cabeçalho
-de `baixar_compras.py`).
+O checkpoint `raw.compras_coleta` registra cada código concluído na janela,
+inclusive códigos sem resultado; uma execução interrompida retoma pelos
+códigos ainda pendentes. A resposta de cada código é mantida em memória até
+terminar a paginação e então é gravada em `raw.compras`. A API filtra por data
+no servidor, não ordena por data e usa `idItemCompra` como chave real
+(detalhes no cabeçalho de `baixar_compras.py`).
 
 Resultado com os dados reais (janela 01/07/2025 a 31/12/2025, decisões dos
 agentes): 3.528 códigos CATMAT aprovados para 1.620 materiais; 2.458 códigos

@@ -8,7 +8,7 @@ sendo a forma de rodar cada etapa e de subir tudo sem agenda.
 Jobs:
 
 - pipeline_mensal: db -> migrate -> ingest -> transformar -> semantica ->
-  compras -> transformar_ouro. Agendado todo dia 20, 06:00 (America/Sao_Paulo):
+  compras -> transformar_ouro -> exportar_alertas. Agendado todo dia 20, 06:00 (America/Sao_Paulo):
   o portal publica o estoque do mês no mês seguinte e o SLA é de 45 dias.
 - recarga_mensal: particionado por mês de referência do estoque (06/2021 a
   12/2025). Para a partição M: grava em raw.estoque o arquivo do mês M (se
@@ -99,12 +99,15 @@ transformar = etapa("transformar", "run", "--rm", "--no-deps", "transformar")
 buscar_correspondencias = etapa("buscar_correspondencias", "run", "--rm", "--no-deps", "semantica")
 baixar_compras = etapa("baixar_compras", "run", "--rm", "--no-deps", "compras")
 transformar_ouro = etapa("transformar_ouro", "run", "--rm", "--no-deps", "transformar_ouro")
+exportar_alertas = etapa("exportar_alertas", "run", "--rm", "--no-deps", "exportar")
 
 
 @job(description="Carga mensal completa: estoque, CATMAT, correspondências, compras e camada ouro.",
      tags=TAG_DBT)
 def pipeline_mensal():
-    transformar_ouro(baixar_compras(buscar_correspondencias(transformar(ingerir(migrar(subir_banco()))))))
+    exportar_alertas(
+        transformar_ouro(baixar_compras(buscar_correspondencias(transformar(ingerir(migrar(subir_banco()))))))
+    )
 
 
 # --- Backfill por mês ----------------------------------------------------------
@@ -119,14 +122,19 @@ def _mes(context: OpExecutionContext) -> tuple[str, str]:
 def carregar_estoque_do_mes(context: OpExecutionContext) -> None:
     arquivo, _ = _mes(context)
     compose(context, "run", "--rm", "--no-deps", "ingest",
-            "python", "-m", "codigos.banco_de_dados.inserir_dados_na_camada_raw",
-            "estoque", "--mes", arquivo)
+            "python", "codigos/inserir/buscar-dados-de-almoxarifado.py",
+            "--mes", arquivo)
 
 
 @op(ins={"anterior": In(Nothing)}, retry_policy=RETRY)
 def refazer_bronze_prata(context: OpExecutionContext) -> None:
     compose(context, "run", "--rm", "--no-deps", "transformar", "sh", "-c",
-            "dbt deps --quiet && dbt build --profiles-dir . --project-dir . "
+            "dbt deps --quiet "
+            "&& dbt run --profiles-dir . --project-dir . --select estoque_bronze "
+            "&& python -m codigos.normalizar.main "
+            "&& dbt seed --profiles-dir . --project-dir . --full-refresh "
+            "--select materiais_normalizados "
+            "&& dbt build --profiles-dir . --project-dir . "
             "--select estoque_bronze+ --exclude path:snapshots path:models/ouro")
 
 

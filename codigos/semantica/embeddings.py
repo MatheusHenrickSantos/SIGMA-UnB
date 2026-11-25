@@ -8,7 +8,7 @@ Modelo padrão: intfloat/multilingual-e5-small (384 dimensões). Os modelos
 da família e5 foram treinados com prefixos: 'query: ' no texto que procura
 e 'passage: ' no texto onde se procura. Aqui, o material do estoque é a
 consulta e o item CATMAT é o documento. Os prefixos ficam registrados junto
-com o modelo no banco (semantica.modelo_embedding).
+com o modelo no banco (busca.modelo_embedding).
 """
 
 from __future__ import annotations

@@ -26,7 +26,7 @@ def modulo():
     return module
 
 
-def teste_ajuda_usa_pasta_dados_catmat(modulo):
+def teste_ajuda_indica_tabela_raw(modulo):
     with pytest.raises(SystemExit):
         with contextlib.redirect_stdout(io.StringIO()) as stdout:
             import sys
@@ -39,8 +39,7 @@ def teste_ajuda_usa_pasta_dados_catmat(modulo):
                 sys.argv = original_argv
 
     saida = stdout.getvalue()
-    assert "dados/catmat" in saida
-    assert "dados/teste" not in saida
+    assert "raw.catmat" in saida
 
 
 def teste_max_paginas_deve_ser_positivo(modulo):
@@ -59,12 +58,13 @@ def teste_max_paginas_deve_ser_positivo(modulo):
     assert "maior que zero" in saida
 
 
-def teste_salva_catalogo_em_um_unico_json(tmp_path, monkeypatch):
-    diretorio_cache = tmp_path / "cache_catmat_json"
-    diretorio_cache.mkdir()
-    (diretorio_cache / "pagina_000001.json").write_text(
-        json.dumps(
-            {
+def teste_salva_catalogo_diretamente_na_raw(modulo, monkeypatch):
+    class Resposta:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {
                 "totalPaginas": 1,
                 "resultado": [
                     {"codigoItem": 123, "descricao": "Descrição antiga"},
@@ -72,30 +72,71 @@ def teste_salva_catalogo_em_um_unico_json(tmp_path, monkeypatch):
                     {"codigoItem": 456, "descricao": "Outro item"},
                 ],
             }
-        ),
-        encoding="utf-8",
-    )
 
+    class Sessao:
+        headers = {}
+
+        def get(self, *args, **kwargs):
+            return Resposta()
+
+        def close(self):
+            pass
+
+    gravados = []
+    monkeypatch.setattr(modulo.requests, "Session", Sessao)
+    monkeypatch.setattr(modulo, "catmat_em_cache", lambda: False)
     monkeypatch.setattr(
-        "sys.argv",
-        ["baixar_catalogo_catmat.py", "--saida", str(tmp_path)],
+        modulo,
+        "salvar_catmat",
+        lambda dado, conteudo, **metadados: gravados.append(
+            (dado, conteudo, metadados)
+        ) or True,
+    )
+    monkeypatch.setattr(
+        "sys.argv", ["baixar_catalogo_catmat.py", "--max-paginas", "1"]
     )
 
-    spec = importlib.util.spec_from_file_location(
-        "baixar_catalogo_catmat_exec", MODULE_PATH
-    )
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-
-    assert module.executar() == 0
-
-    caminho_catalogo = tmp_path / "catalogo_catmat.json"
-    catalogo = json.loads(caminho_catalogo.read_text(encoding="utf-8"))
-
-    assert catalogo == [
+    assert modulo.executar() == 0
+    assert gravados[0][0] == [
         {"codigoItem": 123, "descricao": "Descrição atual"},
         {"codigoItem": 456, "descricao": "Outro item"},
     ]
-    assert not (tmp_path / "catalogo_catmat.csv").exists()
-    assert not (tmp_path / "catalogo_catmat_baixado.csv").exists()
+    assert json.loads(gravados[0][1]) == gravados[0][0]
+    assert gravados[0][2] == {"completa": True, "total_paginas": 1}
+
+
+def teste_paginas_em_paralelo_mantem_a_ordem(modulo, monkeypatch):
+    """Com vários trabalhadores o catálogo sai na mesma ordem do modo em sequência."""
+    import time
+
+    def pagina_falsa(sessao, pagina, tamanho, pausa):
+        time.sleep(0.002 * (7 - pagina % 7))  # páginas terminam fora de ordem
+        return {"totalPaginas": 20, "resultado": [{"codigoItem": pagina * 10 + i} for i in range(3)]}
+
+    monkeypatch.setattr(modulo, "solicitar_pagina", pagina_falsa)
+    monkeypatch.setattr(modulo, "criar_sessao", lambda: object())
+    sequencial, total_a, baixadas_a = modulo.baixar_catalogo(500, 0, None, trabalhadores=1)
+    paralelo, total_b, baixadas_b = modulo.baixar_catalogo(500, 0, None, trabalhadores=4)
+    assert paralelo == sequencial
+    assert (total_b, baixadas_b) == (20, 20) == (total_a, baixadas_a)
+    assert len(paralelo) == 60
+
+
+def teste_cache_do_catmat_respeita_a_validade(modulo, monkeypatch):
+    """Cache completo e dentro da validade: não baixa; vencido ou --atualizar: baixa."""
+    chamadas = []
+    monkeypatch.setattr(modulo, "catmat_em_cache", lambda: True)
+    monkeypatch.setattr(modulo, "baixar_catalogo", lambda *a, **k: chamadas.append(a) or ([{"codigoItem": 1}], 1, 1))
+    monkeypatch.setattr(modulo, "salvar_catmat", lambda *a, **k: True)
+
+    monkeypatch.setattr(modulo, "catmat_cache_vencido", lambda dias: False)
+    monkeypatch.setattr("sys.argv", ["baixar_catalogo_catmat.py"])
+    assert modulo.executar() == 0 and chamadas == []
+
+    monkeypatch.setattr(modulo, "catmat_cache_vencido", lambda dias: True)
+    assert modulo.executar() == 0 and len(chamadas) == 1
+
+    chamadas.clear()
+    monkeypatch.setattr(modulo, "catmat_cache_vencido", lambda dias: False)
+    monkeypatch.setattr("sys.argv", ["baixar_catalogo_catmat.py", "--atualizar"])
+    assert modulo.executar() == 0 and len(chamadas) == 1

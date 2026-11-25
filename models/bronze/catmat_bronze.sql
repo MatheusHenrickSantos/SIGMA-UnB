@@ -4,6 +4,26 @@
     alias='catmat'
 ) }}
 
+WITH catalogos_enumerados AS (
+    SELECT
+        dado_bruto,
+        hash_do_arquivo,
+        data_da_insercao,
+        ROW_NUMBER() OVER (
+            ORDER BY data_da_insercao DESC, hash_do_arquivo DESC
+        ) AS posicao
+    FROM {{ source('raw', 'catmat') }}
+),
+
+snapshot_mais_recente AS (
+    SELECT
+        dado_bruto,
+        hash_do_arquivo,
+        data_da_insercao
+    FROM catalogos_enumerados
+    WHERE posicao = 1
+)
+
 SELECT
     NULLIF(item ->> 'codigoItem', '')::INTEGER AS codigo_item,
     NULLIF(item ->> 'codigoGrupo', '')::INTEGER AS codigo_grupo,
@@ -19,10 +39,10 @@ SELECT
     NULLIF(item ->> 'dataHoraAtualizacao', '')::TIMESTAMP
         AS data_hora_atualizacao,
 
-    catmat.hash_do_arquivo,
-    catmat.data_da_insercao
+    snapshot_mais_recente.hash_do_arquivo,
+    snapshot_mais_recente.data_da_insercao
 
-FROM {{ source('raw', 'catmat') }} AS catmat
+FROM snapshot_mais_recente
 
 CROSS JOIN LATERAL
-    jsonb_array_elements(catmat.dado_bruto) AS elemento(item)
+    jsonb_array_elements(snapshot_mais_recente.dado_bruto) AS elemento(item)

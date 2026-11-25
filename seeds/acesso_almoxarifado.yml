@@ -1,0 +1,15 @@
+version: 2
+
+seeds:
+  - name: acesso_almoxarifado
+    description: >
+      Quais almoxarifados cada usuário do grupo sigma_almoxarifado pode ver em
+      reverso.alerta_preco_compras (recorte de linha por RLS). Um usuário sem
+      linha aqui não vê nenhuma linha.
+    config:
+      schema: reverso
+    columns:
+      - name: usuario
+        data_tests: [not_null]
+      - name: almoxarifado
+        data_tests: [not_null]

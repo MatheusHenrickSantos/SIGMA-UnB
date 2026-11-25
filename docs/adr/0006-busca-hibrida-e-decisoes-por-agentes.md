@@ -1,5 +1,7 @@
 # 0006 — Ordenar candidatos CATMAT com busca híbrida, decidir a correspondência com agentes de IA sob revisão humana e buscar as compras públicas dos itens aprovados
 
+> A estratégia de persistência da coleta de compras foi atualizada pelo [ADR 0009](0009-ingestao-direta-na-raw.md): as respostas agora vão diretamente para a raw e os checkpoints ficam no banco.
+
 - **Status:** proposto (falta a revisão da Squad; as decisões dos agentes ainda não foram conferidas por pessoas)
 - **Data:** 2026-11-10
 - **Decisores:** [a definir pela Squad] — proposta preparada com assistente de IA (ver [Uso de IA](../gestao/ai-usage.md))
@@ -108,7 +110,7 @@ estoque de 12/2025**.
    `codigos/semantica/decisoes/decisoes_agentes.csv` e são importadas com
    `tipo_revisor = 'agente'` (V5). Decisão de pessoa sempre prevalece; o
    material só sai da fila de revisão quando uma pessoa decide.
-4. Os itens equivalentes (de pessoa ou de agente) em `semantica.v_item_aprovado`
+4. Os itens equivalentes (de pessoa ou de agente) em `prata.v_item_aprovado`
    alimentam o serviço `compras`, que grava `raw.compras`; o dbt gera
    `bronze.compras` (deduplicado por `id_item_compra`) e `prata.compra_publica`
    (janela `COMPRAS_INICIO`–`COMPRAS_FIM`, preço > 0).

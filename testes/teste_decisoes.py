@@ -41,7 +41,7 @@ def linha(material, codigos="", sem="nao", confianca="alta", justificativa="", r
 def pares(conn) -> set[tuple]:
     return set(conn.execute(
         "SELECT texto_material, codigo_item, decisao, tipo_revisor, revisor "
-        "FROM semantica.revisao_correspondencia"
+        "FROM prata.revisao_correspondencia"
     ).fetchall())
 
 
@@ -75,13 +75,13 @@ def teste_importa_pares_e_decisao_por_material(banco):
         gravados = pares(conn)
         por_material = {texto: resto for texto, *resto in conn.execute(
             "SELECT texto_material, sem_correspondente, confianca, tipo_revisor "
-            "FROM semantica.revisao_material"
+            "FROM prata.revisao_material"
         ).fetchall()}
         aprovados = conn.execute(
-            "SELECT identificador_material, codigo_item FROM semantica.v_item_aprovado ORDER BY 2"
+            "SELECT identificador_material, codigo_item FROM prata.v_item_aprovado ORDER BY 2"
         ).fetchall()
         observacao = conn.execute(
-            "SELECT observacao FROM semantica.revisao_correspondencia LIMIT 1"
+            "SELECT observacao FROM prata.revisao_correspondencia LIMIT 1"
         ).fetchone()[0]
 
     assert (resumo.materiais, resumo.sem_correspondente, resumo.pares_equivalentes) == (2, 1, 2)
@@ -100,7 +100,7 @@ def teste_reimportar_substitui_e_nao_duplica(banco):
         decisoes.importar(conn, [linha("PILHA ALCALINA AAA 1,5V", "990011|990012")], "agente:a", "agente")
         decisoes.importar(conn, [linha("PILHA ALCALINA AAA 1,5V", "990012")], "agente:a", "agente")
         gravados = pares(conn)
-        materiais = conn.execute("SELECT count(*) FROM semantica.revisao_material").fetchone()[0]
+        materiais = conn.execute("SELECT count(*) FROM prata.revisao_material").fetchone()[0]
 
     assert {codigo for _, codigo, *_ in gravados} == {"990012"}
     assert materiais == 1
@@ -116,7 +116,7 @@ def teste_agente_nao_sobrescreve_pessoa_e_pessoa_sobrescreve_agente(banco):
         resumo = decisoes.importar(conn, [linha("CANETA ESFEROGRAFICA AZUL", "990020")], "agente:a", "agente")
         gravados = pares(conn)
         material = conn.execute(
-            "SELECT sem_correspondente, revisor, tipo_revisor FROM semantica.revisao_material"
+            "SELECT sem_correspondente, revisor, tipo_revisor FROM prata.revisao_material"
         ).fetchone()
 
     assert gravados == {("CANETA ESFEROGRAFICA AZUL", "990020", "nao_equivalente", "pessoa", "Ana")}
@@ -153,11 +153,11 @@ def teste_fila_mantem_decisao_de_agente_e_tira_decisao_de_pessoa(banco):
         ], "agente:a", "agente")
         antes = conn.execute(
             "SELECT DISTINCT identificador_material, confianca_sugestao, sugestao_sem_correspondente "
-            "FROM semantica.v_fila_revisao ORDER BY 1"
+            "FROM prata.v_fila_revisao ORDER BY 1"
         ).fetchall()
         correspondencia.registrar_revisao(conn, "ma0001", "990011", "equivalente", "Ana")
         decisoes.importar(conn, [linha("ARTEFATO SEM EQUIVALENTE", sem="sim")], "Bia", "pessoa")
-        depois = {m for (m,) in conn.execute("SELECT DISTINCT identificador_material FROM semantica.v_fila_revisao")}
+        depois = {m for (m,) in conn.execute("SELECT DISTINCT identificador_material FROM prata.v_fila_revisao")}
 
     assert antes == [("ma0001", "baixa", False), ("ma0002", None, None), ("ma0003", "alta", True)]
     assert depois == {"ma0002"}

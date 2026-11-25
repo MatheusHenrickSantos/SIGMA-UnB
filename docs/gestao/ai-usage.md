@@ -73,7 +73,7 @@ o hábito de rodar um comando por vez e salvar saídas em arquivo (> medicao.txt
 ### 2026-11-08 — busca semântica (embeddings + pgvector) para candidatos CATMAT
 
 - **Ferramenta:** Claude (modelo configurado: claude-opus-5-5), em modo agente, num ambiente de nuvem com cópia do repositório; os commits da branch `busca-semantica-catmat` foram feitos pelo agente com a autoria de quem pediu
-- **Onde:** `db/Dockerfile`, `db/migrations/V2__semantica_pgvector.sql` e `V3__semantica_sem_indice_hnsw.sql`, `codigos/semantica/`, `codigos/medir_adr0005.py`, `codigos/validacao_e_cobertura_precos.py` (extração das regras de especificação, sem mudar a lógica), `docker-compose.yml`, `.env.example`, `codigos/requirements.txt`, `testes/`, `docs/semantica.md`, ADR 0005, README
+- **Onde:** `db/Dockerfile`, migrações Flyway, `codigos/semantica/`, `codigos/medir_adr0005.py`, `codigos/validacao_e_cobertura_precos.py`, `docker-compose.yml`, `.env.example`, `codigos/requirements.txt`, `testes/`, `docs/dados-e-pipeline/semantica.md`, ADRs 0005–0008 e README
 - **O que foi pedido:** avaliar o repositório e implementar, em commits incrementais, a normalização das descrições, os embeddings, o armazenamento e a busca por cosseno no PostgreSQL com pgvector, a integração com raw/bronze/prata (branch `configuracao_do_dbt`) e com o Docker Compose, com testes e documentação
 - **O que foi aproveitado:** [a preencher pela Squad depois da revisão do PR]
 - **Como foi verificado:** pelo agente, no ambiente dele: 143 testes automatizados (PostgreSQL 16 + pgvector 0.8.7 compilado localmente), incluindo a normalização sobre as 2.327 descrições reais de `seeds/materiais_normalizados.csv` (que revelou e levou a corrigir um erro com entidades HTML em maiúsculas); fluxo raw → dbt build → `python -m semantica` sobre a amostra escrita à mão; teste da biblioteca sentence-transformers real com um modelo de pesos aleatórios (o modelo real não pôde ser baixado); medições do ADR 0005 com vetores aleatórios no volume do domínio (que levaram a trocar o índice HNSW pela busca exata). **Não verificado:** build das imagens Docker, execução com o modelo real e com os dados reais, qualidade dos candidatos
@@ -89,6 +89,15 @@ o hábito de rodar um comando por vez e salvar saídas em arquivo (> medicao.txt
 - **Como foi verificado:** 174 testes automatizados com PostgreSQL + pgvector (os 143 anteriores, 3 ajustados para fixar o método por cosseno, e 31 novos); cadeia completa do `docker compose` num banco vazio com dados reais (CATMAT completo, modelo real): dbt 79/79 e 14/14, busca híbrida em 2.306 materiais, importação das 2.306 decisões sem recusa, 41.514 compras na Prata; medição no conjunto de referência (`python -m semantica.medir_referencia`).
 - **Quem revisou:** Magno Luiz
 
+
+### 2026-11-24 — revisão do pipeline e da camada semântica, confiabilidade, painel e governança da E4
+
+- **Ferramenta:** Claude Code (claude-sonnet-5-5), em modo agente na máquina de magnluiz
+- **Onde:** `docker-compose.yml` e `codigos/semantica/` (`validacao.py`, `__main__.py`), `macros/metricas.sql`, `models/ouro/` (`qualidade_dados`, `resumo_correspondencia`, `metrica_mensal`, `catalogo_metrica`), `models/reverso/`, `db/migrations/V11` e `V12`, `codigos/reverso/`, `codigos/gerar_catalogo.py`, `painel/`, `docs/governanca/`, `docs/adr/0010` a `0012` e `revisao-dos-gatilhos.md`, `docs/gestao/diario/retrospectiva-e4.md`
+- **O que foi pedido:** revisar a camada semântica e a ordem do pipeline, analisar a confiabilidade dos dados, expandir o painel com a paleta da UnB e preparar a E4 (camada de métricas, ETL reverso, catálogo e linhagem, LGPD, controle de acesso, ADRs e retrospectiva)
+- **O que foi aproveitado:** [a preencher pela Squad depois da revisão]
+- **Como foi verificado:** dbt `build` num PostgreSQL local com o estoque real (39 arquivos) e compras e correspondências **sintéticas** (só para exercitar o painel); testes de acesso com usuários do banco; teste do painel na imagem Docker. Medição de fornecedor na API pública (60 códigos). A análise de confiabilidade do estoque usa os arquivos reais; a de compras e correspondência não foi medida com a carga real nesta rodada. Os textos de LGPD e dos ADRs são rascunhos que a Squad precisa validar
+- **Quem revisou:** [pendente]
 
 ### AAAA-MM-DD — [o que estava sendo feito]
 

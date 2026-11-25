@@ -10,5 +10,6 @@ Registro semanal do andamento do Projeto Integrado. Cada semana tem um arquivo p
 | [Semana 04](semana-04.md) | 20/09 – 28/09 | [Finalização para Apresentação] | E1 |
 | [Semana 06](semana-05.md) | 27/09 – 10/10 | [Arrumar mkdocs, Revisitar Banco de Dados, Definir Arquitetura de Dados] | E2 |
 | [Semana 07](semana-06.md) | 11/10 – 19/10 | [Organização para Entrega E2] | E2 |
+| [Retrospectiva E4](retrospectiva-e4.md) | 30/08 – 24/11 | Ciclo de vida percorrido | E4 |
 
 Modelo para novas semanas: [`semana-XX.md`](semana-XX.md).

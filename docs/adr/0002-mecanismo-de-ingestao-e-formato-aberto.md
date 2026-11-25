@@ -1,5 +1,7 @@
 # ADR 0002 — [Mecanismo de ingestão e formato aberto da camada bruta]
 
+> **Aviso (revisão de 24/11/2026):** este arquivo ainda é o modelo não preenchido. A decisão real da E2 (Delta Lake com Parquet ZSTD particionado por ano) está em `docs/adr/adr-2.md` na branch `e2-entrega`, que não entrou na `main`, e foi **superada** pelo [ADR 0007](adr/0007-modelo-estrela-para-comparacao-de-precos.md) (camada ouro em PostgreSQL com dbt) e pela ingestão direta na raw. Ver [Revisão dos gatilhos](adr/revisao-dos-gatilhos.md).
+
 | Campo | Valor |
 |---|---|
 | Status | Proposto \| Aceito \| Substituído por ADR XXXX |
