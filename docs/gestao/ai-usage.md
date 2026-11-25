@@ -99,6 +99,15 @@ o hábito de rodar um comando por vez e salvar saídas em arquivo (> medicao.txt
 - **Como foi verificado:** dbt `build` num PostgreSQL local com o estoque real (39 arquivos) e compras e correspondências **sintéticas** (só para exercitar o painel); testes de acesso com usuários do banco; teste do painel na imagem Docker. Medição de fornecedor na API pública (60 códigos). A análise de confiabilidade do estoque usa os arquivos reais; a de compras e correspondência não foi medida com a carga real nesta rodada. Os textos de LGPD e dos ADRs são rascunhos que a Squad precisa validar
 - **Quem revisou:** [pendente]
 
+### 2026-11-25 — alinhamento e revisão do dicionário de dados
+
+- **Ferramenta:** Copilot SDK no VS Code
+- **Onde:** `docs/modelagem/dicionario-de-dados.md`
+- **O que foi pedido:** reconciliar o dicionário com as migrações V7 a V13 e com as tabelas reais da E4; corrigir `prata.material`; incluir `raw.compras_coleta`, `raw.catmat_coleta` e as seeds; registrar a minimização de dados do fornecedor em `raw.compras`; remover a duplicação de `candidato_catmat`; agrupar o que pertence à camada de busca e mover candidatos, decisões e visões para a seção da camada Prata; numerar e organizar todas as tabelas pelas camadas; padronizar setas e autores das seções HTML.
+- **O que foi aproveitado:** os ajustes foram aplicados ao dicionário, com 40 tabelas numeradas consecutivamente de 1 a 40. Foram mantidas as seções `raw`, `bronze`, `prata`, `busca`, `ouro` e `reverso`; `prata.candidato_catmat` ficou na Prata, sem uma duplicação reservada fora da sequência. Também foram descritas as seeds `materiais_normalizados`, `excecoes_qualidade` e `acesso_almoxarifado`, as tabelas de métricas e qualidade da Ouro e as tabelas do ETL reverso.
+- **Como foi verificado:** conferência das migrações e das tabelas reais com o PostgreSQL; busca por referências antigas e duplicadas no dicionário; conferência das seções de HTML, das setas e dos autores; validação de que não havia números de tabela repetidos, com intervalo consecutivo de 1 a 40; `git diff --check` sem erros de whitespace.
+- **Quem revisou:** [pendente]
+
 ### AAAA-MM-DD — [o que estava sendo feito]
 
 - **Ferramenta:**

@@ -7,11 +7,9 @@
 
 
 
-## Definição das tabelas
+## Camada raw
 
-### Camada raw
-
-A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena os dados brutos mensais de estoque oriundos dos dados abertos da UnB. O campo `DadoBruto` é armazenado como _JSONB_ para preservar o arquivo exatamente como disponibilizado pela fonte, enquanto `MesDeReferencia` e `AnoDeReferencia` utilizam o tipo _SMALLINT_ e a `HashDoArquivo` utiliza _CHAR(64)_ (gerada via SHA-256) para garantir a integridade e unicidade da carga. As __Tabelas 2 e 3__ apresentam, respectivamente, a descrição da tabela `compras` e da tabela `CATMAT`, compostas pelos atributos `DadoBruto`, `HashDoArquivo` e `DataDaInsercao` (_TIMESTAMP_). Essa estruturação garante a rastreabilidade e a imutabilidade do dado de entrada sem nenhum tipo de tratamento prévio.
+A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena os dados brutos mensais de estoque oriundos dos dados abertos da UnB. O campo `DadoBruto` é armazenado como _JSONB_ para preservar o arquivo exatamente como disponibilizado pela fonte, enquanto `MesDeReferencia` e `AnoDeReferencia` utilizam o tipo _SMALLINT_ e a `HashDoArquivo` utiliza _CHAR(64)_ (gerada via SHA-256) para garantir a integridade e unicidade da carga. As __Tabelas 2 e 3__ apresentam, respectivamente, a descrição da tabela `compras` e da tabela `CATMAT`, compostas pelos atributos `DadoBruto`, `HashDoArquivo` e `DataDaInsercao` (_TIMESTAMP_). As tabelas `compras_coleta` e `catmat_coleta`, descritas em seguida, registram o progresso de cada coleta. Essa estruturação garante a rastreabilidade e a imutabilidade do dado de entrada sem nenhum tipo de tratamento prévio.
 
 <details>
   <summary>Tabela 1 – Dicionário de dados da tabela estoque
@@ -122,6 +120,7 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
         </tr>
       </tbody>
     </table>
+    <p>Na migração V12, os campos <code>niFornecedor</code> e <code>nomeFornecedor</code> são removidos dos elementos JSON de <code>DadoBruto</code> como medida de minimização LGPD. O hash continua representando o conteúdo original recebido da API. Essa minimização pode ser desativada apenas pela variável de carga correspondente, mas não deve guardar esses dados em uma execução normal.</p>
     <p>Autor: <a href="https://github.com/IsraelThalles">Israel Thalles</a>.</p>
   </div>
 </details>
@@ -178,18 +177,169 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
   </div>
 </details>
 
----
-
-### Camada bronze
-
-  A **Tabela 4** abaixo apresenta a descrição da tabela `estoque`, que é oriunda dos **Dados Abertos da UnB**. Os campos `preco`, `valor_total`,`material`, `almoxarifado` e `saldo` são armazenados na camada bronze como *TEXT* e sem nenhum tipo de restrição para preservar os valores conforme disponibilizados pela fonte e evitar falhas de carga causadas por variações de formato, como símbolos monetários, separadores decimais ou espaços. A conversão para tipos mais adequados e a validação dos valores são realizadas nas etapas posteriores de tratamento dos dados. O mesmo vale para a **Tabela 5**, que apresenta a descrição da tabela `CATMAT` e para a **Tabela 6**, que apresenta a descrição da tabela de `compras`.
-
 <details>
-  <summary>Tabela 4 – Dicionário de dados da tabela estoque
+  <summary>Tabela 4 – Dicionário de dados da tabela compras_coleta
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 4 – Dicionário de dados da tabela estoque</strong></p>
+    <p><strong>Tabela 4 – Dicionário de dados da tabela compras_coleta</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>codigo_item_catalogo</code></td>
+          <td>Código CATMAT consultado.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>data_inicio</code></td>
+          <td>Primeiro dia da janela consultada.</td>
+          <td>DATE</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK</td>
+          <td>Not NULL / CHECK <code>data_inicio &lt;= data_fim</code></td>
+        </tr>
+        <tr>
+          <td><code>data_fim</code></td>
+          <td>Último dia da janela consultada.</td>
+          <td>DATE</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK</td>
+          <td>Not NULL / CHECK <code>data_inicio &lt;= data_fim</code></td>
+        </tr>
+        <tr>
+          <td><code>total_registros</code></td>
+          <td>Quantidade de registros encontrados na coleta concluída.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>Not NULL / CHECK / Default 0</td>
+        </tr>
+        <tr>
+          <td><code>concluida_em</code></td>
+          <td>Momento em que a consulta foi registrada como concluída.</td>
+          <td>TIMESTAMPTZ</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL / Default <code>now()</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Esta tabela é criada pela migração V7 e permite retomar a coleta da API, incluindo códigos CATMAT que não tiveram compras na janela.</p>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 5 – Dicionário de dados da tabela catmat_coleta
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 5 – Dicionário de dados da tabela catmat_coleta</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id_coleta</code></td>
+          <td>Identificador único do snapshot do catálogo.</td>
+          <td>SMALLINT</td>
+          <td>-</td>
+          <td>Somente 1</td>
+          <td>PK</td>
+          <td>Not NULL / CHECK <code>id_coleta = 1</code></td>
+        </tr>
+        <tr>
+          <td><code>completa</code></td>
+          <td>Indica se a coleta recuperou o catálogo completo.</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>total_paginas</code></td>
+          <td>Quantidade de páginas usadas na coleta.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>&gt; 0</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>total_itens</code></td>
+          <td>Quantidade de itens presentes no catálogo coletado.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>hash_do_arquivo</code></td>
+          <td>Hash SHA-256 do snapshot utilizado como cache.</td>
+          <td>CHAR</td>
+          <td>64</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>atualizada_em</code></td>
+          <td>Momento da última atualização registrada do snapshot.</td>
+          <td>TIMESTAMP</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL / Default <code>now()</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Esta tabela é criada pela migração V8 e funciona como cache persistente da coleta completa do CATMAT.</p>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+---
+
+## Camada bronze
+
+  A **Tabela 6** abaixo apresenta a descrição da tabela `estoque`, que é oriunda dos **Dados Abertos da UnB**. Os campos `preco`, `valor_total`,`material`, `almoxarifado` e `saldo` são armazenados na camada bronze como *TEXT* e sem nenhum tipo de restrição para preservar os valores conforme disponibilizados pela fonte e evitar falhas de carga causadas por variações de formato, como símbolos monetários, separadores decimais ou espaços. A conversão para tipos mais adequados e a validação dos valores são realizadas nas etapas posteriores de tratamento dos dados. O mesmo vale para a **Tabela 7**, que apresenta a descrição da tabela `CATMAT` e para a **Tabela 8**, que apresenta a descrição da tabela de `compras`.
+
+<details>
+  <summary>Tabela 6 – Dicionário de dados da tabela estoque
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 6 – Dicionário de dados da tabela estoque</strong></p>
     <table>
       <thead>
         <tr>
@@ -255,11 +405,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 5 – Dicionário de dados da tabela CATMAT
+  <summary>Tabela 7 – Dicionário de dados da tabela CATMAT
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 5 – Dicionário de dados da tabela CATMAT</strong></p>
+    <p><strong>Tabela 7 – Dicionário de dados da tabela CATMAT</strong></p>
     <table>
       <thead>
         <tr>
@@ -370,11 +520,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 6 – Dicionário de dados da tabela compras
+  <summary>Tabela 8 – Dicionário de dados da tabela compras
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 6 – Dicionário de dados da tabela compras</strong></p>
+    <p><strong>Tabela 8 – Dicionário de dados da tabela compras</strong></p>
     <table>
       <thead>
         <tr>
@@ -547,18 +697,113 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
   </div>
 </details>
 
----
 
-### Camada prata
 
-  As **Tabelas 7 a 15** apresentam o dicionário de dados das tabelas geradas após a etapa de transformação da camada bronze, contendo seus respectivos atributos e descrições.
+#### Seeds da camada bronze
+
+Além das tabelas 6 a 8, que chegam da transformação dos dados brutos, a camada Bronze contém duas seeds carregadas pelo dbt:
+
+- `bronze.materiais_normalizados` relaciona cada descrição original do estoque à sua descrição normalizada e é usada pela Prata;
+- `bronze.excecoes_qualidade` registra anomalias já investigadas que os testes singulares podem excluir.
 
 <details>
-  <summary>Tabela 7 – Dicionário de dados da tabela estoque
+  <summary>Tabela 9 – Dicionário de dados da tabela materiais_normalizados
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 7 – Dicionário de dados da tabela estoque</strong></p>
+    <p><strong>Tabela 9 – Dicionário de dados da tabela materiais_normalizados</strong></p>
+    <table>
+      <thead><tr><th>Nome do atributo</th><th>Descrição</th><th>Tipo de dados</th><th>Tamanho</th><th>Valores permitidos</th><th>É chave?</th><th>Outras restrições</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>descricao_original</code></td>
+          <td>Descrição encontrada no estoque antes da normalização.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK</td>
+          <td>Not NULL / Unique</td>
+        </tr>
+        <tr>
+          <td><code>descricao_normalizada</code></td>
+          <td>Descrição padronizada gerada pelas regras Python de normalização.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>O CSV <code>seeds/materiais_normalizados.csv</code> é regenerado pelo script <code>python -m codigos.normalizar.main</code> depois que <code>bronze.estoque</code> é construída, e em seguida carregado pelo dbt com <code>dbt seed --full-refresh</code>.</p>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 10 – Dicionário de dados da tabela excecoes_qualidade
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 10 – Dicionário de dados da tabela excecoes_qualidade</strong></p>
+    <table>
+      <thead><tr><th>Nome do atributo</th><th>Descrição</th><th>Tipo de dados</th><th>Tamanho</th><th>Valores permitidos</th><th>É chave?</th><th>Outras restrições</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>teste</code></td>
+          <td>Nome do teste singular que aceita a ocorrência.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>chave</code></td>
+          <td>Chave da ocorrência no formato esperado pelo teste.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>motivo</code></td>
+          <td>Investigação e justificativa pela qual a ocorrência é aceita.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>registrado_em</code></td>
+          <td>Data em que a exceção foi registrada.</td>
+          <td>DATE</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>O CSV <code>seeds/excecoes_qualidade.csv</code> é manual e só deve receber ocorrências depois de investigação na origem.</p>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+---
+
+## Camada prata
+
+  As **Tabelas 11 a 19** apresentam o dicionário de dados das tabelas geradas após a etapa de transformação da camada bronze. As **Tabelas 20 a 24** apresentam as correspondências, decisões e visões da Prata.
+
+<details>
+  <summary>Tabela 11 – Dicionário de dados da tabela estoque
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 11 – Dicionário de dados da tabela estoque</strong></p>
     <table>
       <thead>
         <tr>
@@ -606,11 +851,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 8 – Dicionário de dados da tabela material
+  <summary>Tabela 12 – Dicionário de dados da tabela material
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 8 – Dicionário de dados da tabela material</strong></p>
+    <p><strong>Tabela 12 – Dicionário de dados da tabela material</strong></p>
     <table>
       <thead>
         <tr>
@@ -652,13 +897,13 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
           <td>Not NULL</td>
         </tr>
         <tr>
-          <td><code>preco</code></td>
-          <td>Preço praticado do material.</td>
-          <td>NUMERIC</td>
-          <td>(10,2)</td>
-          <td>Maior que 0</td>
+          <td><code>descricao_normalizada</code></td>
+          <td>Descrição completa padronizada usada como chave semântica do material.</td>
+          <td>TEXT</td>
           <td>-</td>
-          <td>Not NULL / CHECK</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL / Unique com o identificador normalizado</td>
         </tr>
       </tbody>
     </table>
@@ -667,11 +912,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 9 – Dicionário de dados da tabela almoxarifado
+  <summary>Tabela 13 – Dicionário de dados da tabela almoxarifado
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 9 – Dicionário de dados da tabela almoxarifado</strong></p>
+    <p><strong>Tabela 13 – Dicionário de dados da tabela almoxarifado</strong></p>
     <table>
       <thead>
         <tr>
@@ -710,11 +955,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 10 – Dicionário de dados da tabela candidatoCatmat
+  <summary>Tabela 14 – Dicionário de dados da tabela candidato_catmat
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 10 – Dicionário de dados da tabela candidatoCatmat</strong></p>
+    <p><strong>Tabela 14 – Dicionário de dados da tabela candidato_catmat</strong></p>
     <table>
       <thead>
         <tr>
@@ -729,53 +974,108 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
       </thead>
       <tbody>
         <tr>
-          <td><code>IdentificadorCandidato</code></td>
-          <td>Identificador único da associação candidata entre um material e um item CATMAT.</td>
-          <td>ID</td>
-          <td>6</td>
-          <td>Padrão do tipo ID</td>
+          <td><code>id_execucao</code></td>
+          <td>Execução da busca que gerou o candidato.</td>
+          <td>BIGINT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK, FK</td>
+          <td>Not NULL / ON DELETE CASCADE</td>
+        </tr>
+        <tr>
+          <td><code>id_descricao_material</code></td>
+          <td>Descrição do material do estoque para o qual o candidato foi sugerido.</td>
+          <td>BIGINT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK, FK</td>
+          <td>Not NULL / referência a <code>busca.descricao</code></td>
+        </tr>
+        <tr>
+          <td><code>posicao</code></td>
+          <td>Posição do candidato na lista do material.</td>
+          <td>SMALLINT</td>
+          <td>-</td>
+          <td>≥ 1</td>
           <td>PK</td>
-          <td>Unique / Not NULL / CHECK</td>
-        </tr>
-        <tr>
-          <td><code>IdentificadorMaterial</code></td>
-          <td>Identificador do material associado.</td>
-          <td>ID</td>
-          <td>6</td>
-          <td>Padrão do tipo ID</td>
-          <td>FK</td>
           <td>Not NULL / CHECK</td>
         </tr>
         <tr>
-          <td><code>codigoItem</code></td>
-          <td>Código do item CATMAT candidato.</td>
-          <td>ID_ITEM</td>
-          <td>6</td>
-          <td>0-9</td>
+          <td><code>id_descricao_catmat</code></td>
+          <td>Descrição do item CATMAT sugerido.</td>
+          <td>BIGINT</td>
+          <td>-</td>
+          <td>-</td>
           <td>FK</td>
-          <td>Not NULL / CHECK</td>
+          <td>Not NULL / parte da unique composta</td>
         </tr>
         <tr>
-          <td><code>pontuacao</code></td>
-          <td>Pontuação atribuída à correspondência entre o material e o item CATMAT.</td>
-          <td>NUMERIC</td>
-          <td>(5,2)</td>
-          <td>≥ 0<br>≤ 100</td>
+          <td><code>similaridade</code></td>
+          <td>Similaridade de cosseno entre os vetores do material e do CATMAT.</td>
+          <td>DOUBLE PRECISION</td>
+          <td>-</td>
+          <td>-1 a 1</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>situacao_especificacao</code></td>
+          <td>Resultado da checagem técnica de especificações entre os textos.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>conflito_tecnico</code>, <code>sem_conflito_mas_incompleto</code>, <code>sem_conflito_detectado</code>, <code>sem_especificacoes_verificaveis</code></td>
           <td>-</td>
           <td>Not NULL / CHECK</td>
         </tr>
+        <tr>
+          <td><code>especificacoes</code></td>
+          <td>Detalhes da comparação de especificações em JSON.</td>
+          <td>JSONB</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL / Default <code>'{}'</code></td>
+        </tr>
+        <tr>
+          <td><code>pontuacao</code></td>
+          <td>Pontuação da busca híbrida; nula em execuções somente por cosseno.</td>
+          <td>DOUBLE PRECISION</td>
+          <td>-</td>
+          <td>0 a 100</td>
+          <td>-</td>
+          <td>NULL permitido</td>
+        </tr>
+        <tr>
+          <td><code>medidas</code></td>
+          <td>Medidas usadas pela pontuação híbrida em JSON.</td>
+          <td>JSONB</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL / Default <code>'{}'</code></td>
+        </tr>
+        <tr>
+          <td><code>recuperado_por</code></td>
+          <td>Mecanismos que recuperaram o candidato.</td>
+          <td>TEXT[]</td>
+          <td>-</td>
+          <td><code>{vetor}</code>, <code>{trigrama}</code>, <code>{vetor,trigrama}</code></td>
+          <td>-</td>
+          <td>Not NULL / Default <code>{vetor}</code></td>
+        </tr>
       </tbody>
     </table>
+    <p>Chave primária composta: (<code>id_execucao</code>, <code>id_descricao_material</code>, <code>posicao</code>). Unique composta: (<code>id_execucao</code>, <code>id_descricao_material</code>, <code>id_descricao_catmat</code>). A Tabela 14 consolida a entidade <code>candidatoCatmat</code> do diagrama: a tabela real é <code>prata.candidato_catmat</code>. A migração V6 moveu essa entidade da antiga camada semântica para a Prata.</p>
     <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
   </div>
 </details>
 
 <details>
-  <summary>Tabela 11 – Dicionário de dados da tabela catmatGrupo
+  <summary>Tabela 15 – Dicionário de dados da tabela catmatGrupo
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 11 – Dicionário de dados da tabela catmatGrupo</strong></p>
+    <p><strong>Tabela 15 – Dicionário de dados da tabela catmatGrupo</strong></p>
     <table>
       <thead>
         <tr>
@@ -814,11 +1114,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 12 – Dicionário de dados da tabela catmatClasse
+  <summary>Tabela 16 – Dicionário de dados da tabela catmatClasse
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 12 – Dicionário de dados da tabela catmatClasse</strong></p>
+    <p><strong>Tabela 16 – Dicionário de dados da tabela catmatClasse</strong></p>
     <table>
       <thead>
         <tr>
@@ -866,11 +1166,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 13 – Dicionário de dados da tabela catmatPdm
+  <summary>Tabela 17 – Dicionário de dados da tabela catmatPdm
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 13 – Dicionário de dados da tabela catmatPdm</strong></p>
+    <p><strong>Tabela 17 – Dicionário de dados da tabela catmatPdm</strong></p>
     <table>
       <thead>
         <tr>
@@ -918,11 +1218,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 14 – Dicionário de dados da tabela catmatItem
+  <summary>Tabela 18 – Dicionário de dados da tabela catmatItem
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 14 – Dicionário de dados da tabela catmatItem</strong></p>
+    <p><strong>Tabela 18 – Dicionário de dados da tabela catmatItem</strong></p>
     <table>
       <thead>
         <tr>
@@ -979,11 +1279,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 15 – Dicionário de dados da tabela compraPublica
+  <summary>Tabela 19 – Dicionário de dados da tabela compraPublica
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 15 – Dicionário de dados da tabela compraPublica</strong></p>
+    <p><strong>Tabela 19 – Dicionário de dados da tabela compraPublica</strong></p>
     <table>
       <thead>
         <tr>
@@ -1057,22 +1357,454 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
   </div>
 </details>
 
----
-
-### Busca vetorial e correspondência material–CATMAT
-
-  A migração V6 separa o espaço técnico de busca dos dados de correspondência. As **Tabelas 16 a 19** ficam no schema `busca`: registro de modelos, descrições sincronizadas, vetores e execuções. O serviço Python `semantica` escreve nesses artefatos; eles não constituem a camada semântica analítica que poderá ser criada depois da Ouro.
-
-  As **Tabelas 20 a 22** e as **visões 23 a 25** ficam na Prata: candidatos gerados, decisões por par e por material e visões para revisão e consumo. O candidato é uma sugestão; as tabelas de revisão registram decisões de pessoas ou sugestões de agentes. O snapshot `snap_correspondencia_material` lê a descrição de `busca` e as revisões da Prata; o serviço `compras` consome `prata.v_item_aprovado`. O processo está descrito em [Busca semântica](dados-e-pipeline/semantica.md), e as decisões arquiteturais nos [ADR 0005](adr/0005-busca-semantica-com-pgvector.md) e [ADR 0006](adr/0006-busca-hibrida-e-decisoes-por-agentes.md).
-
-#### Busca vetorial — schema `busca`
-
 <details>
-  <summary>Tabela 16 – Dicionário de dados da tabela modelo_embedding
+  <summary>Tabela 20 – Dicionário de dados da tabela revisao_correspondencia
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 16 – Dicionário de dados da tabela modelo_embedding</strong></p>
+    <p><strong>Tabela 20 – Dicionário de dados da tabela revisao_correspondencia</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>hash_original_material</code></td>
+          <td>Hash SHA-256 do texto original do material (<code>descricao.hash_original</code>). A decisão vale para aquele texto exato e continua valendo depois de reprocessamentos.</td>
+          <td>CHAR</td>
+          <td>64</td>
+          <td>Hexadecimal (0-9, a-f)</td>
+          <td>PK</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>codigo_item</code></td>
+          <td>Código do item CATMAT avaliado.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>0-9</td>
+          <td>PK</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>decisao</code></td>
+          <td>Decisão sobre o par material × item CATMAT.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>equivalente, nao_equivalente, incerto</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>revisor</code></td>
+          <td>Quem tomou a decisão.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>Texto não vazio</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>observacao</code></td>
+          <td>Observação livre de quem revisou.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>texto_material</code></td>
+          <td>Cópia do texto do material revisado, para leitura humana.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>id_execucao</code></td>
+          <td>Última execução em que o par apareceu como candidato, gravada na revisão par a par (comando <code>revisar</code>). Nulo nas decisões importadas em lote (comando <code>importar</code>), quando o par nunca foi candidato ou quando a execução é apagada.</td>
+          <td>BIGINT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>FK</td>
+          <td>ON DELETE SET NULL</td>
+        </tr>
+        <tr>
+          <td><code>revisada_em</code></td>
+          <td>Data e hora da decisão.</td>
+          <td>TIMESTAMPTZ</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL / Default now()</td>
+        </tr>
+        <tr>
+          <td><code>tipo_revisor</code></td>
+          <td>Origem da decisão: <code>pessoa</code> (conferida pela squad) ou <code>agente</code> (sugerida por agente de IA, ainda sem conferência). Decisão de pessoa substitui a de agente; a de agente nunca substitui a de pessoa.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>pessoa, agente</td>
+          <td>-</td>
+          <td>Not NULL / CHECK / Default 'agente'</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Chave primária composta: (<code>hash_original_material</code>, <code>codigo_item</code>). Junto com <code>revisao_material</code>, é a única tabela da camada que não pode ser recalculada a partir da Prata. <code>tipo_revisor</code> foi acrescentada na V5.</p>
+    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 21 – Dicionário de dados da tabela revisao_material
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 21 – Dicionário de dados da tabela revisao_material</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>hash_original_material</code></td>
+          <td>Hash SHA-256 do texto original do material (<code>descricao.hash_original</code>).</td>
+          <td>CHAR</td>
+          <td>64</td>
+          <td>Hexadecimal (0-9, a-f)</td>
+          <td>PK</td>
+          <td>Unique / Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>sem_correspondente</code></td>
+          <td>Indica que não existe item CATMAT ativo equivalente ao material.</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>confianca</code></td>
+          <td>Confiança na decisão: <code>alta</code> = inequívoca; <code>media</code> = com inferência; <code>baixa</code> = palpite, prioridade de revisão.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>alta, media, baixa</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>justificativa</code></td>
+          <td>Justificativa da decisão.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>revisor</code></td>
+          <td>Quem tomou a decisão.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>Texto não vazio</td>
+          <td>-</td>
+          <td>Not NULL / CHECK</td>
+        </tr>
+        <tr>
+          <td><code>tipo_revisor</code></td>
+          <td>Origem da decisão: <code>pessoa</code> ou <code>agente</code> de IA.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>pessoa, agente</td>
+          <td>-</td>
+          <td>Not NULL / CHECK / Default 'pessoa'</td>
+        </tr>
+        <tr>
+          <td><code>texto_material</code></td>
+          <td>Cópia do texto do material revisado, para leitura humana.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>revisada_em</code></td>
+          <td>Data e hora da decisão.</td>
+          <td>TIMESTAMPTZ</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL / Default now()</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Decisão sobre o material como um todo, criada na V5; os itens equivalentes ficam em <code>revisao_correspondencia</code>. Registra principalmente o caso "sem correspondente", que não tem código CATMAT para apontar.</p>
+    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 22 – Dicionário de dados da visão v_candidato_catmat
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 22 – Dicionário de dados da visão v_candidato_catmat</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Origem</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>id_execucao</code></td>
+          <td>Execução que gerou o candidato.</td>
+          <td>BIGINT</td>
+          <td><code>candidato_catmat.id_execucao</code></td>
+        </tr>
+        <tr>
+          <td><code>id_modelo</code></td>
+          <td>Modelo usado na execução.</td>
+          <td>SMALLINT</td>
+          <td><code>execucao_correspondencia.id_modelo</code></td>
+        </tr>
+        <tr>
+          <td><code>metodo</code></td>
+          <td>Método da execução.</td>
+          <td>TEXT</td>
+          <td><code>execucao_correspondencia.metodo</code></td>
+        </tr>
+        <tr>
+          <td><code>identificador_material</code></td>
+          <td>Identificador do material na Prata.</td>
+          <td>TEXT</td>
+          <td><code>descricao.chave_origem</code> (estoque)</td>
+        </tr>
+        <tr>
+          <td><code>material</code></td>
+          <td>Descrição original do material.</td>
+          <td>TEXT</td>
+          <td><code>descricao.texto_original</code> (estoque)</td>
+        </tr>
+        <tr>
+          <td><code>posicao</code></td>
+          <td>Posição do candidato na lista do material.</td>
+          <td>SMALLINT</td>
+          <td><code>candidato_catmat.posicao</code></td>
+        </tr>
+        <tr>
+          <td><code>codigo_item</code></td>
+          <td>Código do item CATMAT sugerido.</td>
+          <td>TEXT</td>
+          <td><code>descricao.chave_origem</code> (catmat)</td>
+        </tr>
+        <tr>
+          <td><code>descricao_catmat</code></td>
+          <td>Descrição original do item CATMAT.</td>
+          <td>TEXT</td>
+          <td><code>descricao.texto_original</code> (catmat)</td>
+        </tr>
+        <tr>
+          <td><code>similaridade</code></td>
+          <td>Similaridade de cosseno.</td>
+          <td>DOUBLE PRECISION</td>
+          <td><code>candidato_catmat.similaridade</code></td>
+        </tr>
+        <tr>
+          <td><code>pontuacao</code></td>
+          <td>Pontuação da busca híbrida (0 a 100).</td>
+          <td>DOUBLE PRECISION</td>
+          <td><code>candidato_catmat.pontuacao</code></td>
+        </tr>
+        <tr>
+          <td><code>vantagem_sobre_proximo</code></td>
+          <td>Diferença entre a medida que define a ordem (pontuação na busca híbrida, similaridade na de cosseno) e a do candidato seguinte. Valor pequeno indica empate; nulo no último candidato.</td>
+          <td>DOUBLE PRECISION</td>
+          <td>Calculado com <code>lead()</code> sobre <code>posicao</code></td>
+        </tr>
+        <tr>
+          <td><code>situacao_especificacao</code></td>
+          <td>Resultado da checagem de especificações.</td>
+          <td>TEXT</td>
+          <td><code>candidato_catmat.situacao_especificacao</code></td>
+        </tr>
+        <tr>
+          <td><code>especificacoes</code></td>
+          <td>Detalhes da checagem de especificações.</td>
+          <td>JSONB</td>
+          <td><code>candidato_catmat.especificacoes</code></td>
+        </tr>
+        <tr>
+          <td><code>medidas</code></td>
+          <td>Medidas que formaram a pontuação.</td>
+          <td>JSONB</td>
+          <td><code>candidato_catmat.medidas</code></td>
+        </tr>
+        <tr>
+          <td><code>recuperado_por</code></td>
+          <td>Busca que trouxe o candidato.</td>
+          <td>TEXT[]</td>
+          <td><code>candidato_catmat.recuperado_por</code></td>
+        </tr>
+        <tr>
+          <td><code>decisao</code></td>
+          <td>Decisão registrada para o par, se houver.</td>
+          <td>TEXT</td>
+          <td><code>revisao_correspondencia.decisao</code></td>
+        </tr>
+        <tr>
+          <td><code>revisor</code></td>
+          <td>Quem decidiu.</td>
+          <td>TEXT</td>
+          <td><code>revisao_correspondencia.revisor</code></td>
+        </tr>
+        <tr>
+          <td><code>revisada_em</code></td>
+          <td>Data e hora da decisão.</td>
+          <td>TIMESTAMPTZ</td>
+          <td><code>revisao_correspondencia.revisada_em</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Candidatos de todas as execuções, com os textos dos dois lados e a revisão do par. Faz o papel da entidade <code>candidatoCatmat</code> consolidada na Tabela 14 do diagrama de arquitetura.</p>
+    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 23 – Dicionário de dados da visão v_fila_revisao
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Origem</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><em>Todas as colunas de</em> <code>v_candidato_catmat</code></td>
+          <td>Mesmas colunas e descrições da Tabela 22.</td>
+          <td>-</td>
+          <td><code>v_candidato_catmat</code></td>
+        </tr>
+        <tr>
+          <td><code>sugestao_sem_correspondente</code></td>
+          <td>Decisão registrada de que o material não tem item CATMAT equivalente.</td>
+          <td>BOOLEAN</td>
+          <td><code>revisao_material.sem_correspondente</code></td>
+        </tr>
+        <tr>
+          <td><code>confianca_sugestao</code></td>
+          <td>Confiança dessa decisão.</td>
+          <td>TEXT</td>
+          <td><code>revisao_material.confianca</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Candidatos da última execução finalizada de cada modelo, só dos materiais que ainda não foram resolvidos por uma pessoa (nem item <code>equivalente</code> nem <code>sem_correspondente</code> decididos com <code>tipo_revisor</code> = <code>pessoa</code>). Materiais resolvidos só por agente continuam na fila, com a sugestão visível. É exportada para <code>dados/semantica/fila_revisao.csv</code> pelo comando <code>python -m semantica fila</code>.</p>
+    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 24 – Dicionário de dados da visão v_item_aprovado
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Origem</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>identificador_material</code></td>
+          <td>Identificador do material na Prata.</td>
+          <td>TEXT</td>
+          <td><code>descricao.chave_origem</code> (estoque)</td>
+        </tr>
+        <tr>
+          <td><code>material</code></td>
+          <td>Descrição original do material.</td>
+          <td>TEXT</td>
+          <td><code>descricao.texto_original</code> (estoque)</td>
+        </tr>
+        <tr>
+          <td><code>codigo_item</code></td>
+          <td>Código do item CATMAT equivalente.</td>
+          <td>TEXT</td>
+          <td><code>revisao_correspondencia.codigo_item</code></td>
+        </tr>
+        <tr>
+          <td><code>tipo_revisor</code></td>
+          <td>Origem da decisão (pessoa ou agente).</td>
+          <td>TEXT</td>
+          <td><code>revisao_correspondencia.tipo_revisor</code></td>
+        </tr>
+        <tr>
+          <td><code>revisor</code></td>
+          <td>Quem decidiu.</td>
+          <td>TEXT</td>
+          <td><code>revisao_correspondencia.revisor</code></td>
+        </tr>
+        <tr>
+          <td><code>revisada_em</code></td>
+          <td>Data e hora da decisão.</td>
+          <td>TIMESTAMPTZ</td>
+          <td><code>revisao_correspondencia.revisada_em</code></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Itens CATMAT marcados como <code>equivalente</code>, por pessoa ou por agente, dos materiais ativos. É a entrada do serviço <code>compras</code>, que busca as compras públicas de cada código aprovado.</p>
+    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
+  </div>
+</details>
+
+---
+
+## Camada busca
+
+  A migração V6 separa o espaço técnico de busca dos dados de correspondência. As **Tabelas 25 a 28** ficam no schema `busca`: registro de modelos, descrições sincronizadas, vetores e execuções. O serviço Python `semantica` escreve nesses artefatos; candidatos, decisões e visões de consumo ficam na camada Prata.
+
+  O processo está descrito em [Busca semântica](dados-e-pipeline/semantica.md), e as decisões arquiteturais nos [ADR 0005](adr/0005-busca-semantica-com-pgvector.md) e [ADR 0006](adr/0006-busca-hibrida-e-decisoes-por-agentes.md).
+
+<details>
+  <summary>Tabela 25 – Dicionário de dados da tabela modelo_embedding
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 25 – Dicionário de dados da tabela modelo_embedding</strong></p>
     <table>
       <thead>
         <tr>
@@ -1166,11 +1898,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 17 – Dicionário de dados da tabela descricao
+  <summary>Tabela 26 – Dicionário de dados da tabela descricao
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 17 – Dicionário de dados da tabela descricao</strong></p>
+    <p><strong>Tabela 26 – Dicionário de dados da tabela descricao</strong></p>
     <table>
       <thead>
         <tr>
@@ -1309,11 +2041,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 18 – Dicionário de dados da tabela embedding
+  <summary>Tabela 27 – Dicionário de dados da tabela embedding
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 18 – Dicionário de dados da tabela embedding</strong></p>
+    <p><strong>Tabela 27 – Dicionário de dados da tabela embedding</strong></p>
     <table>
       <thead>
         <tr>
@@ -1389,11 +2121,10 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 19 – Dicionário de dados da tabela execucao_correspondencia
+  <summary>Tabela 28 – Dicionário de dados da tabela execucao_correspondencia
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 19 – Dicionário de dados da tabela execucao_correspondencia</strong></p>
     <table>
       <thead>
         <tr>
@@ -1576,580 +2307,24 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
   </div>
 </details>
 
-#### Correspondências e decisões — camada Prata
-
-<details>
-  <summary>Tabela 20 – Dicionário de dados da tabela candidato_catmat
-    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
-  </summary>
-  <div align="center">
-    <p><strong>Tabela 20 – Dicionário de dados da tabela candidato_catmat</strong></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Nome do atributo</th>
-          <th>Descrição</th>
-          <th>Tipo de dados</th>
-          <th>Tamanho</th>
-          <th>Valores permitidos</th>
-          <th>É chave?</th>
-          <th>Outras restrições</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id_execucao</code></td>
-          <td>Execução que gerou o candidato.</td>
-          <td>BIGINT</td>
-          <td>-</td>
-          <td>-</td>
-          <td>PK, FK</td>
-          <td>Not NULL</td>
-        </tr>
-        <tr>
-          <td><code>id_descricao_material</code></td>
-          <td>Descrição do material do estoque para o qual o candidato foi sugerido.</td>
-          <td>BIGINT</td>
-          <td>-</td>
-          <td>-</td>
-          <td>PK, FK</td>
-          <td>Not NULL</td>
-        </tr>
-        <tr>
-          <td><code>posicao</code></td>
-          <td>Posição do candidato na lista do material (1 = primeiro colocado). Na busca híbrida, candidatos com conflito de especificação ficam no fim.</td>
-          <td>SMALLINT</td>
-          <td>-</td>
-          <td>≥ 1</td>
-          <td>PK</td>
-          <td>Not NULL / CHECK</td>
-        </tr>
-        <tr>
-          <td><code>id_descricao_catmat</code></td>
-          <td>Descrição do item CATMAT sugerido.</td>
-          <td>BIGINT</td>
-          <td>-</td>
-          <td>-</td>
-          <td>FK</td>
-          <td>Not NULL / Unique composto</td>
-        </tr>
-        <tr>
-          <td><code>similaridade</code></td>
-          <td>Similaridade de cosseno entre o vetor do material e o do item (1 − distância de cosseno; 1 = mesma direção).</td>
-          <td>DOUBLE PRECISION</td>
-          <td>-</td>
-          <td>-1 a 1</td>
-          <td>-</td>
-          <td>Not NULL</td>
-        </tr>
-        <tr>
-          <td><code>situacao_especificacao</code></td>
-          <td>Resultado da checagem de especificações (medidas, unidades, cor, apresentação, códigos) entre o texto do estoque e o do CATMAT. Não altera a similaridade.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>conflito_tecnico, sem_conflito_mas_incompleto, sem_conflito_detectado, sem_especificacoes_verificaveis</td>
-          <td>-</td>
-          <td>Not NULL / CHECK</td>
-        </tr>
-        <tr>
-          <td><code>especificacoes</code></td>
-          <td>Detalhes da checagem: especificações encontradas no estoque e no CATMAT e as categorias compatíveis, ausentes no CATMAT e em conflito, com a descrição de cada conflito.</td>
-          <td>JSONB</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-          <td>Not NULL / Default '{}'</td>
-        </tr>
-        <tr>
-          <td><code>pontuacao</code></td>
-          <td>Pontuação da busca híbrida, combinando cosseno, <code>token_set</code>, <code>token_sort</code> e cobertura de termos. Nulo nas execuções só por cosseno.</td>
-          <td>DOUBLE PRECISION</td>
-          <td>-</td>
-          <td>0 a 100</td>
-          <td>-</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <td><code>medidas</code></td>
-          <td>Medidas que formaram a pontuação: <code>cosseno</code>, <code>token_set</code>, <code>token_sort</code> e <code>cobertura</code>.</td>
-          <td>JSONB</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-          <td>Not NULL / Default '{}'</td>
-        </tr>
-        <tr>
-          <td><code>recuperado_por</code></td>
-          <td>Busca que trouxe o candidato: por vetor, por trigramas ou pelas duas.</td>
-          <td>TEXT[]</td>
-          <td>-</td>
-          <td>{vetor}, {trigrama}, {vetor,trigrama}</td>
-          <td>-</td>
-          <td>Not NULL / Default '{vetor}'</td>
-        </tr>
-      </tbody>
-    </table>
-    <p>Chave primária composta: (<code>id_execucao</code>, <code>id_descricao_material</code>, <code>posicao</code>). Chave única composta: (<code>id_execucao</code>, <code>id_descricao_material</code>, <code>id_descricao_catmat</code>), para que o mesmo item não apareça duas vezes na lista de um material. <code>id_execucao</code> → <code>execucao_correspondencia</code> (<code>ON DELETE CASCADE</code>); <code>id_descricao_material</code> e <code>id_descricao_catmat</code> → <code>descricao</code>. Um candidato é uma sugestão para revisão, nunca uma equivalência aprovada. As colunas <code>pontuacao</code>, <code>medidas</code> e <code>recuperado_por</code> foram acrescentadas na V4.</p>
-    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
-  </div>
-</details>
-
-<details>
-  <summary>Tabela 21 – Dicionário de dados da tabela revisao_correspondencia
-    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
-  </summary>
-  <div align="center">
-    <p><strong>Tabela 21 – Dicionário de dados da tabela revisao_correspondencia</strong></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Nome do atributo</th>
-          <th>Descrição</th>
-          <th>Tipo de dados</th>
-          <th>Tamanho</th>
-          <th>Valores permitidos</th>
-          <th>É chave?</th>
-          <th>Outras restrições</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>hash_original_material</code></td>
-          <td>Hash SHA-256 do texto original do material (<code>descricao.hash_original</code>). A decisão vale para aquele texto exato e continua valendo depois de reprocessamentos.</td>
-          <td>CHAR</td>
-          <td>64</td>
-          <td>Hexadecimal (0-9, a-f)</td>
-          <td>PK</td>
-          <td>Not NULL</td>
-        </tr>
-        <tr>
-          <td><code>codigo_item</code></td>
-          <td>Código do item CATMAT avaliado.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>0-9</td>
-          <td>PK</td>
-          <td>Not NULL</td>
-        </tr>
-        <tr>
-          <td><code>decisao</code></td>
-          <td>Decisão sobre o par material × item CATMAT.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>equivalente, nao_equivalente, incerto</td>
-          <td>-</td>
-          <td>Not NULL / CHECK</td>
-        </tr>
-        <tr>
-          <td><code>revisor</code></td>
-          <td>Quem tomou a decisão.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>Texto não vazio</td>
-          <td>-</td>
-          <td>Not NULL / CHECK</td>
-        </tr>
-        <tr>
-          <td><code>observacao</code></td>
-          <td>Observação livre de quem revisou.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <td><code>texto_material</code></td>
-          <td>Cópia do texto do material revisado, para leitura humana.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-          <td>Not NULL</td>
-        </tr>
-        <tr>
-          <td><code>id_execucao</code></td>
-          <td>Última execução em que o par apareceu como candidato, gravada na revisão par a par (comando <code>revisar</code>). Nulo nas decisões importadas em lote (comando <code>importar</code>), quando o par nunca foi candidato ou quando a execução é apagada.</td>
-          <td>BIGINT</td>
-          <td>-</td>
-          <td>-</td>
-          <td>FK</td>
-          <td>ON DELETE SET NULL</td>
-        </tr>
-        <tr>
-          <td><code>revisada_em</code></td>
-          <td>Data e hora da decisão.</td>
-          <td>TIMESTAMPTZ</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-          <td>Not NULL / Default now()</td>
-        </tr>
-        <tr>
-          <td><code>tipo_revisor</code></td>
-          <td>Origem da decisão: <code>pessoa</code> (conferida pela squad) ou <code>agente</code> (sugerida por agente de IA, ainda sem conferência). Decisão de pessoa substitui a de agente; a de agente nunca substitui a de pessoa.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>pessoa, agente</td>
-          <td>-</td>
-          <td>Not NULL / CHECK / Default 'pessoa'</td>
-        </tr>
-      </tbody>
-    </table>
-    <p>Chave primária composta: (<code>hash_original_material</code>, <code>codigo_item</code>). Junto com <code>revisao_material</code>, é a única tabela da camada que não pode ser recalculada a partir da Prata. <code>tipo_revisor</code> foi acrescentada na V5.</p>
-    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
-  </div>
-</details>
-
-<details>
-  <summary>Tabela 22 – Dicionário de dados da tabela revisao_material
-    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
-  </summary>
-  <div align="center">
-    <p><strong>Tabela 22 – Dicionário de dados da tabela revisao_material</strong></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Nome do atributo</th>
-          <th>Descrição</th>
-          <th>Tipo de dados</th>
-          <th>Tamanho</th>
-          <th>Valores permitidos</th>
-          <th>É chave?</th>
-          <th>Outras restrições</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>hash_original_material</code></td>
-          <td>Hash SHA-256 do texto original do material (<code>descricao.hash_original</code>).</td>
-          <td>CHAR</td>
-          <td>64</td>
-          <td>Hexadecimal (0-9, a-f)</td>
-          <td>PK</td>
-          <td>Unique / Not NULL</td>
-        </tr>
-        <tr>
-          <td><code>sem_correspondente</code></td>
-          <td>Indica que não existe item CATMAT ativo equivalente ao material.</td>
-          <td>BOOLEAN</td>
-          <td>-</td>
-          <td>TRUE / FALSE</td>
-          <td>-</td>
-          <td>Not NULL</td>
-        </tr>
-        <tr>
-          <td><code>confianca</code></td>
-          <td>Confiança na decisão: <code>alta</code> = inequívoca; <code>media</code> = com inferência; <code>baixa</code> = palpite, prioridade de revisão.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>alta, media, baixa</td>
-          <td>-</td>
-          <td>Not NULL / CHECK</td>
-        </tr>
-        <tr>
-          <td><code>justificativa</code></td>
-          <td>Justificativa da decisão.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <td><code>revisor</code></td>
-          <td>Quem tomou a decisão.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>Texto não vazio</td>
-          <td>-</td>
-          <td>Not NULL / CHECK</td>
-        </tr>
-        <tr>
-          <td><code>tipo_revisor</code></td>
-          <td>Origem da decisão: <code>pessoa</code> ou <code>agente</code> de IA.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>pessoa, agente</td>
-          <td>-</td>
-          <td>Not NULL / CHECK / Default 'pessoa'</td>
-        </tr>
-        <tr>
-          <td><code>texto_material</code></td>
-          <td>Cópia do texto do material revisado, para leitura humana.</td>
-          <td>TEXT</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-          <td>Not NULL</td>
-        </tr>
-        <tr>
-          <td><code>revisada_em</code></td>
-          <td>Data e hora da decisão.</td>
-          <td>TIMESTAMPTZ</td>
-          <td>-</td>
-          <td>-</td>
-          <td>-</td>
-          <td>Not NULL / Default now()</td>
-        </tr>
-      </tbody>
-    </table>
-    <p>Decisão sobre o material como um todo, criada na V5; os itens equivalentes ficam em <code>revisao_correspondencia</code>. Registra principalmente o caso "sem correspondente", que não tem código CATMAT para apontar.</p>
-    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
-  </div>
-</details>
-
-#### Visões de consumo — camada Prata
-
-<details>
-  <summary>Tabela 23 – Dicionário de dados da visão v_candidato_catmat
-    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
-  </summary>
-  <div align="center">
-    <p><strong>Tabela 23 – Dicionário de dados da visão v_candidato_catmat</strong></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Nome do atributo</th>
-          <th>Descrição</th>
-          <th>Tipo de dados</th>
-          <th>Origem</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>id_execucao</code></td>
-          <td>Execução que gerou o candidato.</td>
-          <td>BIGINT</td>
-          <td><code>candidato_catmat.id_execucao</code></td>
-        </tr>
-        <tr>
-          <td><code>id_modelo</code></td>
-          <td>Modelo usado na execução.</td>
-          <td>SMALLINT</td>
-          <td><code>execucao_correspondencia.id_modelo</code></td>
-        </tr>
-        <tr>
-          <td><code>metodo</code></td>
-          <td>Método da execução.</td>
-          <td>TEXT</td>
-          <td><code>execucao_correspondencia.metodo</code></td>
-        </tr>
-        <tr>
-          <td><code>identificador_material</code></td>
-          <td>Identificador do material na Prata.</td>
-          <td>TEXT</td>
-          <td><code>descricao.chave_origem</code> (estoque)</td>
-        </tr>
-        <tr>
-          <td><code>material</code></td>
-          <td>Descrição original do material.</td>
-          <td>TEXT</td>
-          <td><code>descricao.texto_original</code> (estoque)</td>
-        </tr>
-        <tr>
-          <td><code>posicao</code></td>
-          <td>Posição do candidato na lista do material.</td>
-          <td>SMALLINT</td>
-          <td><code>candidato_catmat.posicao</code></td>
-        </tr>
-        <tr>
-          <td><code>codigo_item</code></td>
-          <td>Código do item CATMAT sugerido.</td>
-          <td>TEXT</td>
-          <td><code>descricao.chave_origem</code> (catmat)</td>
-        </tr>
-        <tr>
-          <td><code>descricao_catmat</code></td>
-          <td>Descrição original do item CATMAT.</td>
-          <td>TEXT</td>
-          <td><code>descricao.texto_original</code> (catmat)</td>
-        </tr>
-        <tr>
-          <td><code>similaridade</code></td>
-          <td>Similaridade de cosseno.</td>
-          <td>DOUBLE PRECISION</td>
-          <td><code>candidato_catmat.similaridade</code></td>
-        </tr>
-        <tr>
-          <td><code>pontuacao</code></td>
-          <td>Pontuação da busca híbrida (0 a 100).</td>
-          <td>DOUBLE PRECISION</td>
-          <td><code>candidato_catmat.pontuacao</code></td>
-        </tr>
-        <tr>
-          <td><code>vantagem_sobre_proximo</code></td>
-          <td>Diferença entre a medida que define a ordem (pontuação na busca híbrida, similaridade na de cosseno) e a do candidato seguinte. Valor pequeno indica empate; nulo no último candidato.</td>
-          <td>DOUBLE PRECISION</td>
-          <td>Calculado com <code>lead()</code> sobre <code>posicao</code></td>
-        </tr>
-        <tr>
-          <td><code>situacao_especificacao</code></td>
-          <td>Resultado da checagem de especificações.</td>
-          <td>TEXT</td>
-          <td><code>candidato_catmat.situacao_especificacao</code></td>
-        </tr>
-        <tr>
-          <td><code>especificacoes</code></td>
-          <td>Detalhes da checagem de especificações.</td>
-          <td>JSONB</td>
-          <td><code>candidato_catmat.especificacoes</code></td>
-        </tr>
-        <tr>
-          <td><code>medidas</code></td>
-          <td>Medidas que formaram a pontuação.</td>
-          <td>JSONB</td>
-          <td><code>candidato_catmat.medidas</code></td>
-        </tr>
-        <tr>
-          <td><code>recuperado_por</code></td>
-          <td>Busca que trouxe o candidato.</td>
-          <td>TEXT[]</td>
-          <td><code>candidato_catmat.recuperado_por</code></td>
-        </tr>
-        <tr>
-          <td><code>decisao</code></td>
-          <td>Decisão registrada para o par, se houver.</td>
-          <td>TEXT</td>
-          <td><code>revisao_correspondencia.decisao</code></td>
-        </tr>
-        <tr>
-          <td><code>revisor</code></td>
-          <td>Quem decidiu.</td>
-          <td>TEXT</td>
-          <td><code>revisao_correspondencia.revisor</code></td>
-        </tr>
-        <tr>
-          <td><code>revisada_em</code></td>
-          <td>Data e hora da decisão.</td>
-          <td>TIMESTAMPTZ</td>
-          <td><code>revisao_correspondencia.revisada_em</code></td>
-        </tr>
-      </tbody>
-    </table>
-    <p>Candidatos de todas as execuções, com os textos dos dois lados e a revisão do par. Faz o papel da entidade <code>candidatoCatmat</code> (Tabela 10) do diagrama de arquitetura.</p>
-    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
-  </div>
-</details>
-
-<details>
-  <summary>Tabela 24 – Dicionário de dados da visão v_fila_revisao
-    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
-  </summary>
-  <div align="center">
-    <p><strong>Tabela 24 – Dicionário de dados da visão v_fila_revisao</strong></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Nome do atributo</th>
-          <th>Descrição</th>
-          <th>Tipo de dados</th>
-          <th>Origem</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><em>Todas as colunas de</em> <code>v_candidato_catmat</code></td>
-          <td>Mesmas colunas e descrições da Tabela 23.</td>
-          <td>-</td>
-          <td><code>v_candidato_catmat</code></td>
-        </tr>
-        <tr>
-          <td><code>sugestao_sem_correspondente</code></td>
-          <td>Decisão registrada de que o material não tem item CATMAT equivalente.</td>
-          <td>BOOLEAN</td>
-          <td><code>revisao_material.sem_correspondente</code></td>
-        </tr>
-        <tr>
-          <td><code>confianca_sugestao</code></td>
-          <td>Confiança dessa decisão.</td>
-          <td>TEXT</td>
-          <td><code>revisao_material.confianca</code></td>
-        </tr>
-      </tbody>
-    </table>
-    <p>Candidatos da última execução finalizada de cada modelo, só dos materiais que ainda não foram resolvidos por uma pessoa (nem item <code>equivalente</code> nem <code>sem_correspondente</code> decididos com <code>tipo_revisor</code> = <code>pessoa</code>). Materiais resolvidos só por agente continuam na fila, com a sugestão visível. É exportada para <code>dados/semantica/fila_revisao.csv</code> pelo comando <code>python -m semantica fila</code>.</p>
-    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
-  </div>
-</details>
-
-<details>
-  <summary>Tabela 25 – Dicionário de dados da visão v_item_aprovado
-    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
-  </summary>
-  <div align="center">
-    <p><strong>Tabela 25 – Dicionário de dados da visão v_item_aprovado</strong></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Nome do atributo</th>
-          <th>Descrição</th>
-          <th>Tipo de dados</th>
-          <th>Origem</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>identificador_material</code></td>
-          <td>Identificador do material na Prata.</td>
-          <td>TEXT</td>
-          <td><code>descricao.chave_origem</code> (estoque)</td>
-        </tr>
-        <tr>
-          <td><code>material</code></td>
-          <td>Descrição original do material.</td>
-          <td>TEXT</td>
-          <td><code>descricao.texto_original</code> (estoque)</td>
-        </tr>
-        <tr>
-          <td><code>codigo_item</code></td>
-          <td>Código do item CATMAT equivalente.</td>
-          <td>TEXT</td>
-          <td><code>revisao_correspondencia.codigo_item</code></td>
-        </tr>
-        <tr>
-          <td><code>tipo_revisor</code></td>
-          <td>Origem da decisão (pessoa ou agente).</td>
-          <td>TEXT</td>
-          <td><code>revisao_correspondencia.tipo_revisor</code></td>
-        </tr>
-        <tr>
-          <td><code>revisor</code></td>
-          <td>Quem decidiu.</td>
-          <td>TEXT</td>
-          <td><code>revisao_correspondencia.revisor</code></td>
-        </tr>
-        <tr>
-          <td><code>revisada_em</code></td>
-          <td>Data e hora da decisão.</td>
-          <td>TIMESTAMPTZ</td>
-          <td><code>revisao_correspondencia.revisada_em</code></td>
-        </tr>
-      </tbody>
-    </table>
-    <p>Itens CATMAT marcados como <code>equivalente</code>, por pessoa ou por agente, dos materiais ativos. É a entrada do serviço <code>compras</code>, que busca as compras públicas de cada código aprovado.</p>
-    <p>Autora: <a href="https://github.com/samarawwleticia">Samara Letícia</a>.</p>
-  </div>
-</details>
-
 ---
 
-### Camada ouro
+## Camada ouro
 
-> **Tabelas acrescentadas na E4** (camada semântica de métricas, qualidade, fila de revisão e ETL reverso): `ouro.metrica_mensal`, `ouro.catalogo_metrica`, `ouro.qualidade_dados`, `ouro.resumo_correspondencia`, `reverso.alerta_preco_compras` e `reverso.acesso_almoxarifado`. Ainda não estão descritas neste dicionário no formato das tabelas abaixo; o [catálogo gerado do manifesto do dbt](../governanca/catalogo-gerado.md) lista colunas, testes e linhagem de cada uma.
+
 
   A camada ouro organiza os dados em um **modelo estrela** que responde à pergunta de gestão: para quais materiais do estoque existe preço de compras públicas comparável e quais têm as maiores diferenças, por almoxarifado e período. A decisão e as alternativas estão na [ADR 7](adr/0007-modelo-estrela-para-comparacao-de-precos.md), e o funcionamento do modelo em [Camada ouro: modelo analítico](dados-e-pipeline/camada-ouro.md). Todas as tabelas são geradas pelo dbt (`models/ouro/` e `snapshots/`) no esquema `ouro`.
 
-  A **Tabela 26** descreve o fato `fato_comparacao_preco`, cujo grão é **uma linha por material, por almoxarifado, por mês de referência publicado**. As **Tabelas 27 a 30** descrevem as dimensões: `dim_material`, que guarda a correspondência material × CATMAT como dimensão de variação lenta do tipo 2 (uma linha por versão), `dim_almoxarifado`, `dim_tempo` e `dim_item_catmat`. A **Tabela 31** descreve `monitor_atualizacao`, que mede o atraso (freshness) das tabelas de consumo diante do SLA declarado.
+  A **Tabela 29** descreve o fato `fato_comparacao_preco`, cujo grão é **uma linha por material, por almoxarifado, por mês de referência publicado**. As **Tabelas 30 a 33** descrevem as dimensões: `dim_material`, que guarda a correspondência material × CATMAT como dimensão de variação lenta do tipo 2 (uma linha por versão), `dim_almoxarifado`, `dim_tempo` e `dim_item_catmat`. A **Tabela 34** descreve `monitor_atualizacao`, que mede o atraso (freshness) das tabelas de consumo diante do SLA declarado. As **Tabelas 35 a 38** descrevem as métricas da E4, o registro de qualidade e o resumo de correspondência.
 
   Nesta camada, os tipos são os que o PostgreSQL atribui às colunas geradas pelo dbt. Os identificadores de material e almoxarifado seguem o tipo ID das camadas anteriores; na `dim_material` o identificador vem do registro de descrições do schema `busca` e por isso é armazenado como _TEXT_, com o mesmo formato. Atributos numéricos sem tamanho são _NUMERIC_ sem precisão fixa; os que passam por arredondamento indicam o número de casas decimais.
 
 <details>
-  <summary>Tabela 26 – Dicionário de dados da tabela fato_comparacao_preco
+  <summary>Tabela 29 – Dicionário de dados da tabela fato_comparacao_preco
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 26 – Dicionário de dados da tabela fato_comparacao_preco</strong></p>
+    <p><strong>Tabela 29 – Dicionário de dados da tabela fato_comparacao_preco</strong></p>
     <table>
       <thead>
         <tr>
@@ -2323,11 +2498,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 27 – Dicionário de dados da tabela dim_material
+  <summary>Tabela 30 – Dicionário de dados da tabela dim_material
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 27 – Dicionário de dados da tabela dim_material</strong></p>
+    <p><strong>Tabela 30 – Dicionário de dados da tabela dim_material</strong></p>
     <table>
       <thead>
         <tr>
@@ -2456,11 +2631,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 28 – Dicionário de dados da tabela dim_almoxarifado
+  <summary>Tabela 31 – Dicionário de dados da tabela dim_almoxarifado
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 28 – Dicionário de dados da tabela dim_almoxarifado</strong></p>
+    <p><strong>Tabela 31 – Dicionário de dados da tabela dim_almoxarifado</strong></p>
     <table>
       <thead>
         <tr>
@@ -2499,11 +2674,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 29 – Dicionário de dados da tabela dim_tempo
+  <summary>Tabela 32 – Dicionário de dados da tabela dim_tempo
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 29 – Dicionário de dados da tabela dim_tempo</strong></p>
+    <p><strong>Tabela 32 – Dicionário de dados da tabela dim_tempo</strong></p>
     <table>
       <thead>
         <tr>
@@ -2578,11 +2753,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 30 – Dicionário de dados da tabela dim_item_catmat
+  <summary>Tabela 33 – Dicionário de dados da tabela dim_item_catmat
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 30 – Dicionário de dados da tabela dim_item_catmat</strong></p>
+    <p><strong>Tabela 33 – Dicionário de dados da tabela dim_item_catmat</strong></p>
     <table>
       <thead>
         <tr>
@@ -2684,11 +2859,11 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 </details>
 
 <details>
-  <summary>Tabela 31 – Dicionário de dados da tabela monitor_atualizacao
+  <summary>Tabela 34 – Dicionário de dados da tabela monitor_atualizacao
     <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
   </summary>
   <div align="center">
-    <p><strong>Tabela 31 – Dicionário de dados da tabela monitor_atualizacao</strong></p>
+    <p><strong>Tabela 34 – Dicionário de dados da tabela monitor_atualizacao</strong></p>
     <table>
       <thead>
         <tr>
@@ -2771,6 +2946,703 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
   </div>
 </details>
 
+<details>
+  <summary>Tabela 35 – Dicionário de dados da tabela metrica_mensal
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 35 – Dicionário de dados da tabela metrica_mensal</strong></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>mes_referencia</code></td>
+          <td>Primeiro dia do mês medido.</td>
+          <td>DATE</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>almoxarifado</code></td>
+          <td>Almoxarifado agregado ou <code>TODOS</code>.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>metrica</code></td>
+          <td>Nome da métrica; relação com o catálogo.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK, FK conceitual</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>valor</code></td>
+          <td>Valor calculado da métrica no recorte.</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Null permitido</td>
+        </tr>
+        <tr>
+          <td><code>unidade</code></td>
+          <td>Unidade do valor.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>R$</code>, <code>materiais</code>, <code>%</code></td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>versao_definicao</code></td>
+          <td>Versão da definição centralizada.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>≥ 1</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 36 – Dicionário de dados da tabela catalogo_metrica
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 36 – Dicionário de dados da tabela catalogo_metrica</strong></p>
+    <table>
+      <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>metrica</code></td>
+          <td>Nome único da métrica.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK</td>
+          <td>Unique / Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>tipo</code></td>
+          <td>Métrica base ou derivada.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>base</code>, <code>derivada</code></td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>unidade</code></td>
+          <td>Unidade da métrica.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>R$</code>, <code>materiais</code>, <code>%</code></td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>versao</code></td>
+          <td>Versão da definição publicada.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>≥ 1</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>descricao</code></td>
+          <td>Explicação do significado da métrica.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>formula</code></td>
+          <td>Expressão usada no cálculo.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 37 – Dicionário de dados da tabela qualidade_dados
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 37 – Dicionário de dados da tabela qualidade_dados</strong></p>
+    <table>
+      <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>verificacao</code></td>
+          <td>Nome único da verificação.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK</td>
+          <td>Unique / Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>categoria</code></td>
+          <td>Área avaliada.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>Estoque</code>, <code>Compras públicas</code>, <code>Comparação</code>, <code>Correspondência CATMAT</code></td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>descricao</code></td>
+          <td>O que a verificação mede.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>valor</code></td>
+          <td>Medida arredondada.</td>
+          <td>NUMERIC</td>
+          <td>2 casas</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Null sem dados</td>
+        </tr>
+        <tr>
+          <td><code>limite_atencao</code></td>
+          <td>Limite de <code>ok</code> para <code>atencao</code>.</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>limite_critico</code></td>
+          <td>Limite de <code>atencao</code> para <code>critico</code>.</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>sentido</code></td>
+          <td>Indica se menor ou maior é melhor.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>min</code>, <code>max</code></td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>unidade</code></td>
+          <td>Unidade da medida.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>%</code>, <code>dias</code>, <code>pares</code></td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>situacao</code></td>
+          <td>Situação calculada.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>ok</code>, <code>atencao</code>, <code>critico</code>, <code>sem_dado</code></td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>medido_em</code></td>
+          <td>Momento da medição.</td>
+          <td>TIMESTAMPTZ</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 38 – Dicionário de dados da tabela resumo_correspondencia
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 38 – Dicionário de dados da tabela resumo_correspondencia</strong></p>
+    <table>
+      <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>identificador_material</code></td>
+          <td>Material da versão vigente.</td>
+          <td>TEXT</td>
+          <td>6</td>
+          <td>Padrão <code>ma0001</code></td>
+          <td>PK</td>
+          <td>Unique / Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>material</code></td>
+          <td>Descrição do material.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>tipo_revisor</code></td>
+          <td>Quem decidiu a correspondência.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>pessoa</code>, <code>agente</code>, <code>sem_decisao</code></td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>confianca</code></td>
+          <td>Confiança da decisão por material.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>alta</code>, <code>media</code>, <code>baixa</code></td>
+          <td>-</td>
+          <td>Null sem decisão</td>
+        </tr>
+        <tr>
+          <td><code>sem_correspondente</code></td>
+          <td>Indica inexistência de CATMAT correspondente.</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>quantidade_itens_catmat</code></td>
+          <td>Quantidade de itens equivalentes.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>codigos_equivalentes</code></td>
+          <td>Códigos CATMAT separados por <code>|</code>.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>justificativa</code></td>
+          <td>Justificativa da revisão por material.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Null sem revisão</td>
+        </tr>
+        <tr>
+          <td><code>revisor</code></td>
+          <td>Quem fez a revisão por material.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Null sem revisão</td>
+        </tr>
+        <tr>
+          <td><code>pontuacao_melhor_candidato</code></td>
+          <td>Pontuação do melhor candidato.</td>
+          <td>DOUBLE PRECISION</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Null sem candidato</td>
+        </tr>
+        <tr>
+          <td><code>similaridade_melhor_candidato</code></td>
+          <td>Similaridade do melhor candidato.</td>
+          <td>DOUBLE PRECISION</td>
+          <td>-</td>
+          <td>-1 a 1</td>
+          <td>-</td>
+          <td>Null sem candidato</td>
+        </tr>
+        <tr>
+          <td><code>situacao_melhor_candidato</code></td>
+          <td>Situação técnica do melhor candidato.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Null sem candidato</td>
+        </tr>
+        <tr>
+          <td><code>valor_estoque</code></td>
+          <td>Valor do material no último mês.</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>tem_preco_publico</code></td>
+          <td>Indica preço público comparável.</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>pendente_conferencia</code></td>
+          <td>Indica ausência de conferência por pessoa.</td>
+          <td>BOOLEAN</td>
+          <td>-</td>
+          <td>TRUE / FALSE</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>prioridade_revisao</code></td>
+          <td>Pontuação usada para ordenar a fila.</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>0 para decisão humana</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+## Camada reverso
+
+<details>
+  <summary>Tabela 39 – Dicionário de dados da tabela alerta_preco_compras
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 39 – Dicionário de dados da tabela alerta_preco_compras</strong></p>
+    <table>
+      <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>mes_referencia</code></td>
+          <td>Mês do fato usado pelo alerta.</td>
+          <td>DATE</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>identificador_material</code></td>
+          <td>Material do alerta.</td>
+          <td>TEXT</td>
+          <td>6</td>
+          <td>Padrão <code>ma0001</code></td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>material</code></td>
+          <td>Descrição do material.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>almoxarifado</code></td>
+          <td>Almoxarifado do fato.</td>
+          <td>TEXT</td>
+          <td>20</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>quantidade</code></td>
+          <td>Saldo usado no cálculo.</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>preco_estoque</code></td>
+          <td>Preço unitário no estoque.</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>&gt; 0</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>preco_publico_mediano</code></td>
+          <td>Mediana pública comparável.</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>&gt; 0</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>diferenca_pct</code></td>
+          <td>Diferença percentual em relação à mediana.</td>
+          <td>NUMERIC</td>
+          <td>2 casas</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>diferenca_absoluta</code></td>
+          <td>Diferença monetária absoluta.</td>
+          <td>NUMERIC</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>economia_potencial</code></td>
+          <td>Diferença positiva multiplicada pelo saldo.</td>
+          <td>NUMERIC</td>
+          <td>2 casas</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>compras_publicas</code></td>
+          <td>Quantidade de compras da referência.</td>
+          <td>BIGINT</td>
+          <td>-</td>
+          <td>≥ 0</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>unidade_fornecimento_predominante</code></td>
+          <td>Unidade predominante nas compras.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>codigos_equivalentes</code></td>
+          <td>Códigos CATMAT associados.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>tipo_revisor_correspondencia</code></td>
+          <td>Tipo de revisor da correspondência.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>pessoa</code>, <code>agente</code></td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>confianca_correspondencia</code></td>
+          <td>Confiança da correspondência.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td><code>alta</code>, <code>media</code>, <code>baixa</code></td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td><code>justificativa_agente</code></td>
+          <td>Justificativa textual do agente.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Não concedida aos consumidores</td>
+        </tr>
+        <tr>
+          <td><code>acao_sugerida</code></td>
+          <td>Ação recomendada para conferir unidade e preço.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>versao_definicao_metricas</code></td>
+          <td>Versão das fórmulas usadas.</td>
+          <td>INTEGER</td>
+          <td>-</td>
+          <td>≥ 1</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+        <tr>
+          <td><code>gerado_em</code></td>
+          <td>Momento de geração da linha.</td>
+          <td>TIMESTAMPTZ</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>Not NULL</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Tabela 40 – Dicionário de dados da tabela acesso_almoxarifado
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Tabela 40 – Dicionário de dados da tabela acesso_almoxarifado</strong></p>
+    <table>
+      <table>
+      <thead>
+        <tr>
+          <th>Nome do atributo</th>
+          <th>Descrição</th>
+          <th>Tipo de dados</th>
+          <th>Tamanho</th>
+          <th>Valores permitidos</th>
+          <th>É chave?</th>
+          <th>Outras restrições</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>usuario</code></td>
+          <td>Usuário PostgreSQL da chefia.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>PK</td>
+          <td>Not NULL em conjunto com <code>almoxarifado</code></td>
+        </tr>
+        <tr>
+          <td><code>almoxarifado</code></td>
+          <td>Almoxarifado visível ao usuário.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>CENTRAL, PRC</td>
+          <td>PK</td>
+          <td>Not NULL em conjunto com <code>usuario</code></td>
+        </tr>
+        <tr>
+          <td><code>motivo</code></td>
+          <td>Justificativa do acesso concedido.</td>
+          <td>TEXT</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
+
 ---
 
 ## 📚 Bibliografia
@@ -2793,4 +3665,5 @@ A __Tabela 1__ abaixo apresenta a descrição da tabela `estoque`, que armazena 
 | `1.3` | Adiciona ao dicionário as entidades da camada _raw_. | [Israel Thalles](https://github.com/IsraelThalles) | 05/11/2026 | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 05/11/2026 |
 | `1.4` | Adiciona ao dicionário as tabelas e as visões da camada semântica (schema _semantica_, migrações V2 a V5). | [Samara Letícia](https://github.com/samarawwleticia) | 16/11/2026 | - | - |
 | `1.5` | Adiciona ao dicionário as tabelas da camada ouro (fato, dimensões e monitor de atualização). | [magnluiz](https://github.com/magnluiz) | 15/11/2026 | - | - |
-| `1.6` | Atualiza a localização dos artefatos de busca e das correspondências após a migração V6. | Matheus Henrick | 23/11/2026 | - | - |
+| `1.6` | Atualiza a definição das tabelas que mudaram para a camada prata após a migração V6. | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 23/11/2026 | - | - |
+| `1.7` | Reconciliar o dicionário com as migrações V7 a V13 e com as tabelas reais da E4; remover a duplicação de candidato e corrigir `prata.material`, checkpoints raw e seeds. | [Matheus Henrick](https://github.com/MatheusHenrickSantos) | 25/11/2026 |  |  |
