@@ -11,35 +11,22 @@ O schema `busca` é infraestrutura de recuperação de correspondências. Ele n�
 Ouro: `ouro.metrica_mensal` e `ouro.catalogo_metrica`, com a definição das métricas
 em `macros/metricas.sql` ([ADR 0010](../adr/0010-camada-semantica-de-metricas-em-macros-dbt.md)).
 
+
+
 ## Fluxo completo
 
-```mermaid
-flowchart LR
-    E[API de estoque da UnB] --> I[Coletor Python]
-    C[API do CATMAT] --> I
-    I --> R[(raw.estoque<br/>raw.catmat)]
+<details>
+  <summary>Figura 1 – Diagrama de fluxo da arquitetura
+    <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" /></svg>
+  </summary>
+  <div align="center">
+    <p><strong>Figura 1 – Diagrama Diagrama de fluxo da arquitetura (versão 1.0)</strong></p>
+    <img src="https://raw.githubusercontent.com/MatheusHenrickSantos/SIGMA-UnB/refs/heads/main/docs/assets/diagramas/Arquitetura do banco-Resumo.v1.0.webp">
+    <p>Autor: <a href="https://github.com/MatheusHenrickSantos">Matheus Henrick</a>.</p>
+  </div>
+</details>
 
-    R --> B[dbt: Bronze<br/>estoque e CATMAT tabulares]
-    B --> N[Python: normaliza descrições<br/>distintas de bronze.estoque]
-    N --> CSV[seeds/materiais_normalizados.csv<br/>versionado no repositório]
-    CSV --> S[dbt seed<br/>bronze.materiais_normalizados]
-    B --> P[dbt: Prata<br/>material, estoque, almoxarifado<br/>e hierarquia CATMAT]
-    S --> P
 
-    P --> M[semantica<br/>sincroniza descrições e vetoriza]
-    M --> Q[(busca<br/>descrições, embeddings,<br/>modelo e execuções)]
-    M --> PC[(prata.candidato_catmat<br/>prata.revisao_*)]
-    PC --> A[prata.v_item_aprovado]
-
-    A --> API[API de pesquisa de preços<br/>Compras.gov.br]
-    API --> RC[(raw.compras<br/>raw.compras_coleta)]
-    RC --> BC[dbt: Bronze e Prata<br/>compras_bronze<br/>compra_publica]
-
-    P --> O[dbt snapshot + Ouro]
-    PC --> O
-    BC --> O
-    O --> OU[(ouro.dim_*<br/>ouro.fato_comparacao_preco<br/>ouro.monitor_atualizacao)]
-```
 
 ## O que cada área guarda
 
