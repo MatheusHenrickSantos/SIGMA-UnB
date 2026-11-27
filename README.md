@@ -81,11 +81,13 @@ Use o **PowerShell**.
    cd SIGMA-UnB
    ```
 
-3. **(Opcional) Crie o `.env`** — só se quiser trocar senha ou porta (veja [Configuração](#configuração)):
+3. **Crie e configure o `.env`** — o painel Phoenix precisa de uma chave secreta:
 
    ```powershell
    Copy-Item .env.example .env
    ```
+
+   No diretório `painel_sigma/`, gere uma chave com `mix phx.gen.secret` e preencha `PAINEL_SIGMA_SECRET_KEY_BASE` no `.env`.
 
 4. **Suba tudo:**
 
@@ -118,11 +120,13 @@ Use o **PowerShell**.
    cd SIGMA-UnB
    ```
 
-3. **(Opcional) Crie o `.env`:**
+3. **Crie e configure o `.env`** — o painel Phoenix precisa de uma chave secreta:
 
    ```bash
    cp .env.example .env
    ```
+
+   No diretório `painel_sigma/`, gere uma chave com `mix phx.gen.secret` e preencha `PAINEL_SIGMA_CHAVE_SECRETA` no `.env`.
 
 4. **Suba tudo:**
 
@@ -146,7 +150,7 @@ Os comandos são os mesmos nos dois sistemas daqui em diante. No terminal, cada 
 6. `semantica-1 | ...` — calcula embeddings e candidatos CATMAT; na primeira execução baixa o modelo.
 7. `compras-1 | ...` — consulta a API de compras públicas e salva cada código concluído em `raw.compras`; progresso e códigos sem resultados ficam registrados em `raw.compras_coleta`.
 8. `transformar_ouro-1 | ...` — atualiza a camada Ouro.
-9. **O terminal fica parado mostrando os logs do banco e do painel.** Isso é esperado: esses serviços continuam rodando. Para parar, `Ctrl+C`.
+9. **O terminal fica parado mostrando os logs do banco e dos painéis.** Isso é esperado: esses serviços continuam rodando. O Streamlit fica em `http://localhost:8501` e o Phoenix em `http://localhost:4000`. Para parar, `Ctrl+C`.
 
 Para subir em segundo plano e liberar o terminal, use `docker compose up --build -d` e acompanhe com `docker compose logs -f`.
 
@@ -209,7 +213,7 @@ SELECT version, description, success
 
 ## Configuração
 
-Todas as variáveis têm valor padrão, então **o `.env` é opcional**. Crie-o a partir de `.env.example` só para mudar algo:
+As configurações do banco e do pipeline têm valores padrão. O `.env` é necessário para definir a chave secreta do `painel_sigma`; use `.env.example` como modelo:
 
 | Variável            | Padrão  | Para que serve |
 |---------------------|---------|----------------|
@@ -218,6 +222,8 @@ Todas as variáveis têm valor padrão, então **o `.env` é opcional**. Crie-o 
 | `NOME_DO_BANCO` | `sigma` | Nome do banco |
 | `USUARIO_DO_BANCO` | `sigma` | Usuário |
 | `SENHA_DO_BANCO` | `sigma` | Senha |
+| `PAINEL_SIGMA_SECRET_KEY_BASE` | obrigatório | Chave secreta do endpoint Phoenix; gere com `mix phx.gen.secret` |
+| `PORTA_DO_PAINEL_SIGMA` | `4000` | Porta publicada do painel Phoenix |
 | `CATMAT_MAX_PAGINAS` | vazio (todas) | Limita as páginas do CATMAT baixadas pelo `ingest` (500 itens cada) |
 | `SEMANTICA_MODELO`  | `intfloat/multilingual-e5-small` | Modelo de embeddings (384 dimensões) |
 | `SEMANTICA_TOP_K`   | `10`    | Candidatos CATMAT guardados por material |

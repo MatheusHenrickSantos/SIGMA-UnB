@@ -14,7 +14,7 @@
 #   6. compras     — baixa compras aprovadas diretamente para raw.compras
 #   7. transformar_ouro — dbt: compras (bronze, prata), snapshot SCD 2 e camada ouro
 #
-# Só o db fica rodando; os outros terminam (Exited 0) e o seguinte começa.
+# O db e os painéis ficam rodando; os outros serviços terminam (Exited 0).
 # O semantica baixa o modelo de linguagem (~0,5 GB) na primeira vez e guarda
 # no volume `modelos`; ver docs/dados-e-pipeline/semantica.md.
 #
@@ -199,6 +199,23 @@ services:
     environment: *conexao-banco
     ports:
       - "${PORTA_DO_PAINEL:-8501}:8501"
+
+  # Painel Phoenix (Elixir) sobre a mesma base: http://localhost:4000
+  painel_sigma:
+    build:
+      context: ./painel_sigma
+    restart: unless-stopped
+    depends_on:
+      transformar_ouro:
+        condition: service_completed_successfully
+    environment:
+      <<: *conexao-banco
+      DATABASE_URL: ecto://${USUARIO_DO_BANCO:-sigma}:${SENHA_DO_BANCO:-sigma}@db:5432/${NOME_DO_BANCO:-sigma}
+      SECRET_KEY_BASE: ${PAINEL_SIGMA_CHAVE_SECRETA:?Defina PAINEL_SIGMA_CHAVE_SECRETA no .env}
+      PHX_HOST: localhost
+      PORT: 4000
+    ports:
+      - "${PORTA_DO_PAINEL_SIGMA:-4000}:4000"
 
 volumes:
   pgdata:
