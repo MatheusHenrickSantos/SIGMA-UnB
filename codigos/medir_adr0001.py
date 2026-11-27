@@ -12,10 +12,8 @@ Medições do ADR 0001 (modelagem da origem), feitas no banco já carregado.
      Q7 - evolução do valor total em estoque mês a mês
 
 As tabelas de A e C são montadas em um schema temporário (medicao) a partir
-dos dados de B e apagadas no final.
-
-Uso (com a plataforma no ar):
-    docker compose run --rm ingest python medir_adr0001.py
+dos dados de B e apagadas no final. Este experimento histórico exige o esquema
+legado da V1 e não funciona após a migração V11 removê-lo.
 """
 
 import random
